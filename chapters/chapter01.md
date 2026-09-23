@@ -2434,3 +2434,7 @@ Every technology introduced later in this book—TypeScript, components, React, 
 That is why browser internals belong at the beginning of the book.
 
 Before learning how modern frameworks abstract the web platform, we first need to understand the platform they are abstracting.
+
+That platform model gives us the environment in which every front-end decision runs. The next chapter narrows the focus from what the browser does with a page to what the page itself declares: its structure, meaning, language, direction, and interaction semantics.
+
+Once that foundation is clear, we can ask a more precise question: how should an interface describe itself before JavaScript begins to enhance it?

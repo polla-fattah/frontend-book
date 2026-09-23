@@ -4651,3 +4651,7 @@ Static types give us compile-time confidence.
 Runtime contracts give us evidence.
 
 The boundary between those two worlds is where reliable front-end engineering begins.
+
+Once external values have crossed that boundary, the application can reason about them with justified confidence. The next question is how that trusted data and behavior should be organized into reusable interface units.
+
+Chapter 6 moves from the reliability of individual values to the design of component boundaries: what a component should own, what it should expose, and how its boundary can remain understandable as the interface grows.

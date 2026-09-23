@@ -3597,3 +3597,7 @@ The strongest CSS is therefore not the stylesheet containing the most advanced f
 It is the stylesheet whose relationships are clear enough that the next developer can predict what will happen before opening DevTools.
 
 That is the transition from **styling a page** to **engineering a CSS system**.
+
+With structure and layout working together, the interface can adapt without every variation becoming a special case. The next chapter introduces the third layer: behavior over time.
+
+JavaScript will respond to events, coordinate asynchronous work, preserve state, and decide which result is still relevant. The question is no longer only how the interface should look, but how it should behave without losing the clarity established by the document and the stylesheet.

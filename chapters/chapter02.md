@@ -3304,3 +3304,7 @@ Semantic HTML therefore is not “beginner material” that professional front-e
 It is part of the architecture of the application.
 
 The more correctly we describe the interface to the browser, the less code we need to write to explain that interface again.
+
+The document is now meaningful, navigable, and explicit about the relationships it contains. The next challenge is visual adaptation: how can that structure become a resilient interface across widths, languages, writing directions, content sizes, and component contexts?
+
+Chapter 3 answers that question with CSS architecture and layout systems. It treats styling not as decoration added after markup, but as another system of relationships built on the document we have just established.
