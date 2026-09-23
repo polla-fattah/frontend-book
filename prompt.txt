@@ -1,0 +1,416 @@
+# Project: Modern Front-End Architecture & Engineering
+
+This repository contains the manuscript for the technical book **Modern Front-End Architecture & Engineering**.
+
+You are acting as a senior technical editor, frontend architect, and manuscript consistency reviewer.
+
+The book is intentionally **standards-first and architecture-first**. It is not a React book, a Vue book, or a framework tutorial. React and Vue are used comparatively to illustrate architectural concepts.
+
+## Audience
+
+The intended readers include:
+
+* students who already know basic HTML, CSS, and JavaScript;
+* developers moving from introductory web development into modern application engineering;
+* React/Vue developers seeking deeper architectural understanding;
+* full-stack developers;
+* senior developers refreshing browser-platform, rendering, security, testing, and performance knowledge;
+* frontend architects.
+
+Prerequisite assumption:
+
+> Readers know basic HTML, CSS, and JavaScript, but professional frontend experience is not assumed.
+
+## Core Editorial Principle
+
+Use:
+
+> **Consistent explanatory quality, variable implementation depth.**
+
+Do NOT force every chapter or topic to have equal length or implementation depth merely for stylistic consistency.
+
+The book uses three depth levels conceptually:
+
+### Core
+
+The reader should gain enough understanding and practical skill to use the topic competently.
+
+Typical Core topics include:
+
+* HTML;
+* CSS;
+* JavaScript;
+* TypeScript;
+* DOM;
+* components;
+* state;
+* routing;
+* HTTP;
+* accessibility;
+* fundamental security;
+* performance fundamentals;
+* testing fundamentals.
+
+### Working Knowledge
+
+Explain mechanics, architectural role, practical use, trade-offs, and enough implementation to get started, without attempting comprehensive mastery.
+
+Typical examples:
+
+* WebSockets;
+* Service Workers;
+* IndexedDB;
+* GraphQL;
+* SSR/SSG;
+* design systems;
+* monorepos;
+* CI/CD.
+
+### Awareness / Architectural Knowledge
+
+The reader should understand:
+
+* what problem the technique solves;
+* conceptual mechanics;
+* where it fits architecturally;
+* advantages and costs;
+* when it may be justified;
+* what to learn next.
+
+Typical examples:
+
+* WebRTC;
+* Module Federation;
+* micro-frontends;
+* COOP/COEP/CORP;
+* resumability;
+* specialized emerging browser APIs.
+
+**Awareness must never mean superficial name-dropping.**
+
+## Book Philosophy
+
+Use these principles throughout the manuscript:
+
+1. Explain the web platform before framework abstractions where practical.
+2. Explain architectural responsibilities before APIs.
+3. Frameworks and libraries illustrate concepts; they do not become the subject.
+4. Prefer standards and durable concepts over exact framework-version details.
+5. Avoid unnecessary version numbers in prose.
+6. Prefer architectural trade-offs over declarations that one technology is universally best.
+7. Use native platform capabilities where they fit, without pretending libraries are unnecessary.
+8. Complexity must be justified by an actual requirement.
+9. Do not present micro-frontends, global stores, SSR, WebSockets, or similar techniques as natural upgrades merely because an application becomes “large.”
+10. Performance should be measured rather than based on folklore.
+11. Security should be structural rather than added as a final checklist.
+12. Accessibility and internationalization are architectural concerns, not final QA steps.
+13. Runtime data crossing trust boundaries must be treated as untrusted even when TypeScript types exist.
+14. URLs, HTTP, HTML, CSS, browser security, and browser APIs remain foundational even when frameworks abstract them.
+15. Avoid rewriting good, intentionally repeated principles simply to eliminate all repetition.
+
+## Major Recurring Principles
+
+Preserve these ideas consistently:
+
+* state should live as close as practical to its owner;
+* server state differs from ordinary client/UI state;
+* derive values rather than storing duplicate derived state;
+* URL state should be used when state should survive reload/share/history;
+* effects are primarily for synchronization with external systems, not ordinary derivation;
+* React and Vue have different rendering/reactivity models;
+* React `useEffect` is not simply Vue `watchEffect`;
+* React `useRef` is not Vue `ref`;
+* React `useMemo` is not automatically Vue `computed`;
+* component boundaries should represent responsibilities, not arbitrary fragmentation;
+* runtime validation is required at trust boundaries;
+* HTTP cache, application/query cache, Cache Storage, and browser persistence are distinct layers;
+* SSR, SSG, CSR, streaming, Server Components, islands, and resumability must not be collapsed into one concept;
+* React Server Components are not synonymous with SSR;
+* streaming changes delivery timing but does not inherently eliminate hydration or serialization;
+* edge rendering is placement/deployment architecture, not fundamentally a separate rendering topology;
+* micro-frontends primarily address organizational/deployment scaling and introduce substantial complexity;
+* monorepo and micro-frontend are different architectural dimensions;
+* team boundaries are not browser security boundaries;
+* CORS is not authentication or authorization;
+* feature flags are not authorization;
+* testing should normally interact through user-visible and accessibility semantics rather than implementation details;
+* role-based queries support accessible testing but do not prove accessibility;
+* test IDs are legitimate fallbacks;
+* CSS selectors are not absolutely forbidden in tests;
+* Core Web Vitals must be discussed using current definitions and verified when reviewed;
+* observability, deployment, rollback, and maintenance are architecture concerns;
+* architecture is contextual and should prefer the smallest coherent solution that satisfies the requirements.
+
+## Cross-Cutting Concerns
+
+Check these throughout the entire book rather than treating them as isolated chapters:
+
+* accessibility;
+* internationalization/localization;
+* RTL/LTR;
+* security;
+* performance;
+* progressive enhancement;
+* runtime validation;
+* error/recovery states.
+
+Do not artificially insert all of these into every section. Their presence should be proportional to relevance.
+
+## Framework Balance
+
+React and Vue are the principal comparative frameworks.
+
+Do not mechanically require an example from both frameworks everywhere.
+
+Use both where comparison materially improves understanding.
+
+Watch for accidental framing such as:
+
+> React does X; Vue has an equivalent.
+
+Prefer neutral framing:
+
+> The architectural responsibility is X. React commonly expresses it through Y, while Vue commonly expresses it through Z.
+
+Framework-neutral domain logic and web-platform concepts should remain framework-neutral where possible.
+
+## Mermaid Diagrams
+
+Use Mermaid whenever a diagram materially improves:
+
+* architecture;
+* flow;
+* lifecycle;
+* sequence;
+* dependency relationships;
+* decision processes.
+
+Preserve valid Mermaid syntax.
+
+Do not convert every paragraph into a diagram.
+
+During review, check:
+
+* diagram syntax;
+* naming consistency;
+* direction choice;
+* excessive complexity;
+* duplicated diagrams that add no value.
+
+## Code Examples
+
+Examples should be:
+
+* pedagogically focused;
+* reasonably modern;
+* syntactically plausible;
+* small enough to reveal the concept;
+* free of unnecessary framework ceremony.
+
+Do not modernize code merely for fashion.
+
+Do correct code that is technically misleading or invalid.
+
+## Current / Time-Sensitive Technical Claims
+
+When reviewing claims that can change over time, verify them against current authoritative sources before changing the manuscript.
+
+Prefer first-party or standards sources:
+
+* WHATWG;
+* W3C;
+* MDN for browser-platform guidance/compatibility;
+* web.dev / Chrome documentation where relevant to Core Web Vitals;
+* React official documentation;
+* Vue official documentation;
+* TypeScript official documentation;
+* Vite official documentation;
+* Next.js official documentation;
+* Nuxt official documentation;
+* Vitest official documentation;
+* Playwright official documentation;
+* OAuth/IETF RFCs;
+* OpenTelemetry official documentation;
+* Design Tokens Community Group specification.
+
+Do not add raw source URLs throughout manuscript prose unless the manuscript has an explicit references section.
+
+Record verification sources separately in review reports.
+
+## Important Technical Areas Requiring Extra Care
+
+### Chapter 1
+
+Do not describe the speculative resource/preload scanner as necessarily running on a separate thread.
+Do not imply it discovers every CSS/JS-hidden resource.
+
+### Chapter 3
+
+Cascade Layers:
+
+* for normal declarations, unlayered author styles outrank layered author styles;
+* later layers outrank earlier layers;
+* for `!important`, layer ordering reverses.
+
+### Chapter 5
+
+Type assertions such as `as User` do not perform runtime validation.
+Prefer wording such as:
+**Parsing and validating data at trust boundaries.**
+Branded/tagged types are advanced Working Knowledge, not a central TypeScript requirement.
+
+### Chapter 7
+
+Do not present React and Vue as using the same reactivity model.
+Virtual DOM explanations must avoid mythology.
+Effects/watchers should not be taught as the default way to derive state.
+
+### Chapter 9
+
+Fetch does not reject merely because HTTP status is 4xx/5xx.
+Distinguish HTTP caching from application/query caching.
+
+### Chapter 10
+
+Background Sync and similar background capabilities require compatibility caveats.
+`navigator.onLine` is only a hint, not proof that the application can reach its backend.
+Cache API != HTTP cache != application query cache.
+
+### Chapter 11
+
+Do not say SSR always sends or serializes everything twice.
+Use the concept **server-to-client handoff and serialization costs**.
+React Server Components != SSR.
+Streaming does not inherently remove hydration or serialization.
+Resumability is a distinct continuation model, not simply “faster hydration.”
+Edge is deployment placement, not fundamentally another rendering topology.
+
+### Chapter 12
+
+Do not reduce modern build systems to “compilers.”
+Treat tooling as a pipeline involving resolution, transformation, module graphs, development servers, bundling, splitting, optimization, and deployment artifacts.
+Verify current Vite/Rolldown details before making implementation-specific changes.
+
+### Chapter 13
+
+CORS is not access control/authentication.
+Do not claim all frontend security requires browser isolation.
+Treat COOP/COEP/CORP as advanced isolation/resource policies.
+Verify current cookie/OAuth/CSP guidance.
+
+### Chapter 14
+
+Do not oversell micro-frontends.
+Monorepo != micro-frontend.
+Independent teams do not automatically justify independent frameworks.
+Design-system governance should not absorb domain-specific product components unnecessarily.
+
+### Chapter 15
+
+Verify current Core Web Vitals definitions and thresholds before changing them.
+Distinguish field data and lab diagnostics.
+Do not treat Lighthouse score as the performance objective.
+
+### Chapter 16
+
+Prefer behavioral queries based on roles, accessible names, labels, and visible text.
+Accessible-name computation is a web accessibility standard concept, not a testing-library invention.
+Test IDs are acceptable fallbacks.
+Do not introduce an absolute prohibition on CSS selectors.
+Automated accessibility tests do not prove accessibility.
+
+### Chapter 17
+
+Browser observability tooling changes rapidly.
+Teach telemetry concepts before vendor tools.
+Check current maturity before describing browser OpenTelemetry instrumentation.
+Feature flags are temporary operational complexity and are not authorization.
+
+### Chapter 18
+
+Do not create rankings of frameworks or architectures.
+Architecture should remain contextual and trade-off-driven.
+
+## Existing Manuscript Structure
+
+Part I — Web Platform, Languages & Browser Runtime
+
+* Chapter 1 — Modern Web Platform & Browser Internals
+* Chapter 2 — Semantic HTML, Accessibility, Internationalization & DOM
+* Chapter 3 — Modern CSS Architecture & Layout Systems
+* Chapter 4 — Modern JavaScript & Async Programming
+* Chapter 5 — TypeScript, Runtime Contracts & Safe Data Boundaries
+
+Part II — Component Architecture & Application State
+
+* Chapter 6 — Component-Driven Architecture & Design Patterns
+* Chapter 7 — Reactivity & Rendering Mechanics
+* Chapter 8 — State Management, Routing & Form Architecture
+
+Part III — Data, Networking & Rendering Topologies
+
+* Chapter 9 — Client-Server Communication, APIs & Cache Management
+* Chapter 10 — Real-Time Communication, Offline Systems & Client Persistence
+* Chapter 11 — Rendering Topologies: CSR, SSR, SSG & Beyond
+
+Part IV — Tooling, Security & Front-End Scale
+
+* Chapter 12 — Modern Build Systems, Development Tooling & Team Workflows
+* Chapter 13 — Front-End Security, Authentication & Browser Isolation
+* Chapter 14 — Scaling Front-End Architecture: Design Systems, Monorepos & Micro-Frontends
+
+Part V — Performance, Quality & Production Engineering
+
+* Chapter 15 — Core Web Vitals & Performance Engineering
+* Chapter 16 — Testing Strategies for Resilient Interfaces
+* Chapter 17 — Continuous Delivery, Observability & Maintenance
+* Chapter 18 — Front-End Architecture & Technical Decision-Making
+
+Appendices:
+
+* Appendix A — Front-End Architectural Rosetta Stone
+* Appendix B — Modern Browser APIs Reference
+
+## Review Philosophy
+
+Do NOT rewrite the manuscript merely to make it uniform.
+
+We want:
+
+> coherent book, not mechanically standardized chapters.
+
+Intentional differences in chapter structure are acceptable.
+
+Intentional reinforcement of important principles is acceptable.
+
+Flag repetition when it:
+
+* adds no new layer of understanding;
+* repeats substantial prose;
+* makes later chapters feel like copies;
+* contradicts or muddies the conceptual owner chapter.
+
+When duplication is useful, prefer:
+
+* concise reminder;
+* explicit cross-reference;
+* deeper treatment in the chapter that owns the concept.
+
+Do not remove pedagogically valuable repetition merely to reduce word count.
+
+## Editing Safety
+
+For book-wide review:
+
+1. Audit before bulk editing.
+2. Produce reports and a staged plan first.
+3. Never rewrite all chapters in one uncontrolled pass.
+4. Preserve original Markdown files in Git history.
+5. Make changes chapter-by-chapter or issue-family-by-issue-family.
+6. After edits, inspect diffs.
+7. Do not rename chapters/files unless explicitly requested.
+8. Preserve Mermaid diagrams unless fixing or improving them.
+9. Do not add fabricated citations.
+10. Do not silently change the book's pedagogical philosophy.
+
+The goal is **consistency without homogenization**.
