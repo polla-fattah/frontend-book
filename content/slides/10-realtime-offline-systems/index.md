@@ -58,15 +58,15 @@ The application must make those conditions meaningful rather than pretending the
 
 ## The chapter's progression
 
-```text
-communication requirement
-  → simplest transport
-  → connection lifecycle
-  → local persistence
-  → service-worker caching
-  → offline reads and writes
-  → outbox synchronization
-  → conflict and recovery policy
+```mermaid
+flowchart TD
+    A["Communication Requirement"] --> B["Select Simplest Transport"]
+    B --> C["Model Connection Lifecycle"]
+    C --> D["Local Persistence Strategy"]
+    D --> E["Service Worker & Cache Storage"]
+    E --> F["Offline Reads & Writes"]
+    F --> G["Outbox Synchronization"]
+    G --> H["Conflict Resolution & Recovery"]
 ```
 
 Complexity should be earned by a real product requirement.
@@ -90,8 +90,12 @@ The answers narrow the transport and persistence choices.
 
 ## Start with the simplest communication model
 
-```text
-manual refresh → polling → long polling → SSE → WebSocket
+```mermaid
+flowchart LR
+    A["Manual Refresh"] --> B["Short Polling"]
+    B --> C["Long Polling"]
+    C --> D["Server-Sent Events (SSE)"]
+    D --> E["WebSockets / WebRTC"]
 ```
 
 Use the least complex model that satisfies freshness and interaction needs.
@@ -158,8 +162,16 @@ If a request takes longer than the interval, a naive timer can create concurrent
 
 ## Long polling is still repeated HTTP
 
-```text
-request opens → server waits for change → response → client requests again
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Server
+    Client->>Server: HTTP GET /events (hangs open)
+    Note over Server: Server delays response until event occurs
+    Server-->>Client: 200 OK (Event payload)
+    Note over Client: Client processes event
+    Client->>Server: HTTP GET /events (immediately reopens)
 ```
 
 Long polling reduces empty responses while preserving an HTTP-shaped deployment model.
@@ -185,9 +197,18 @@ SSE is useful when the client sends commands through ordinary HTTP and the serve
 
 ## SSE architecture
 
-```text
-client command → HTTP endpoint
-server events  → persistent SSE response
+```mermaid
+flowchart LR
+    subgraph Client["Browser Client"]
+        Cmd["Mutation Action"]
+        Listener["EventSource Listener"]
+    end
+    subgraph Server["Server API"]
+        HTTP["POST /api/commands"]
+        Stream["GET /api/events (text/event-stream)"]
+    end
+    Cmd -->|Standard HTTP POST| HTTP
+    Stream -->|Unidirectional Stream| Listener
 ```
 
 The one-way direction simplifies some authorization and infrastructure concerns compared with a fully bidirectional socket.
@@ -210,10 +231,18 @@ It is a poor fit when the client must exchange frequent messages in both directi
 
 ## Commands over HTTP, events over SSE
 
-```text
-POST /assignments/a-1/complete
-             ↓
-SSE: assignment.updated
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Browser Client
+    participant API as Municipal REST API
+    participant SSE as SSE Stream Server
+
+    App->>API: POST /assignments/a-1/complete (HTTP)
+    API-->>App: 200 OK { id: "a-1", status: "completed" }
+    API->>SSE: Broadcast domain event
+    SSE-->>App: event: assignment.updated
+data: { id: "a-1", status: "completed" }
 ```
 
 Keeping commands and events separate can make authorization, retries, and audit behavior clearer.
@@ -279,9 +308,17 @@ They also create more lifecycle and protocol responsibility.
 
 ## WebSocket architecture
 
-```text
-connect → authenticate → subscribe → send/receive messages
-       ↘ close → reconnect / resync / surface failure
+```mermaid
+stateDiagram-v2
+    [*] --> Connecting: new WebSocket(url)
+    Connecting --> Authenticating: onopen
+    Authenticating --> Subscribed: auth token accepted
+    Subscribed --> Active: bidirectional framing
+    Active --> Active: message / ping / pong
+    Active --> Reconnecting: onclose / onerror
+    Reconnecting --> Connecting: exponential backoff
+    Active --> Closed: user disconnect / logout
+    Closed --> [*]
 ```
 
 The socket is one part of the application architecture, not the architecture itself.
@@ -368,12 +405,15 @@ Reconnect is a synchronization sequence.
 
 ## Snapshot plus events is a robust pattern
 
-```text
-GET current snapshot
-        ↓
-subscribe to events
-        ↓
-apply ordered updates
+```mermaid
+flowchart TD
+    A["1. GET /api/snapshot
+(Baseline state at t0)"] --> B["2. Connect Event Stream / WebSocket
+(Subscribe to mutations)"]
+    B --> C["3. Buffer In-Flight Events
+(Queue events arriving during fetch)"]
+    C --> D["4. Apply Ordered Updates
+(Discard events older than snapshot version)"]
 ```
 
 The snapshot provides a baseline.
@@ -404,10 +444,12 @@ At-least-once delivery can repeat a message.
 
 Make handlers idempotent where possible:
 
-```text
-already applied event ID → ignore safely
-new version             → apply
-older version           → ignore or reconcile
+```mermaid
+flowchart TD
+    Ev["Incoming Live Event (version, eventId)"] --> Check{"Version > Current Local Version?"}
+    Check -->|No: Already applied or obsolete| Ignore["Drop / Acknowledge Safely (Idempotent)"]
+    Check -->|Yes: Exact next version| Apply["Apply update to UI state & cache"]
+    Check -->|Gap detected: Version > Current + 1| Resync["Buffer event & trigger snapshot reconciliation"]
 ```
 
 Exactly-once behavior is usually an application-level illusion built from IDs and state.
@@ -431,10 +473,13 @@ Unbounded queues turn a temporary burst into a memory and responsiveness problem
 
 ## WebSocket reconnect needs bounded backoff
 
-```text
-close → wait → reconnect
-      → wait longer → reconnect
-      → cap delay and surface status
+```mermaid
+flowchart TD
+    Drop["Socket Disconnected"] --> Wait1["Wait Base Delay (e.g. 500ms + Jitter)"]
+    Wait1 --> Try1["Attempt Reconnect"]
+    Try1 -->|Failure| Wait2["Wait Exponential Delay (1000ms + Jitter)"]
+    Wait2 --> Try2["Attempt Reconnect"]
+    Try2 -->|Failure| Max["Cap at Max Delay (e.g. 10s) & Surface Disconnected Banner"]
 ```
 
 Add jitter and stop retrying when the failure is permanent, such as invalid credentials or forbidden access.
@@ -474,10 +519,19 @@ It is not a replacement for ordinary server events.
 
 ## Signaling establishes a connection
 
-```text
-peer A ↔ signaling server ↔ peer B
-             ↓
-       connection setup
+```mermaid
+sequenceDiagram
+    autonumber
+    participant PeerA as Peer A
+    participant Sig as Signaling Server (HTTP/WS)
+    participant PeerB as Peer B
+
+    PeerA->>Sig: Send SDP Offer + ICE Candidates
+    Sig->>PeerB: Forward Offer
+    PeerB->>Sig: Send SDP Answer + ICE Candidates
+    Sig->>PeerA: Forward Answer
+    Note over PeerA,PeerB: Direct P2P Media / DataChannel Established
+    PeerA<<-->>PeerB: Direct P2P DataChannel / Media
 ```
 
 The signaling channel helps peers exchange connection information.
@@ -601,8 +655,13 @@ The asynchronous API adds complexity, but supports a more appropriate data model
 
 ## IndexedDB is transactional
 
-```text
-transaction → read/write object stores → commit or abort
+```mermaid
+flowchart LR
+    Tx["db.transaction(['inspections', 'outbox'], 'readwrite')"] --> Ops["Execute Reads & Writes"]
+    Ops --> Success["All operations succeed
+→ Automatic Commit"]
+    Ops --> Fail["Any error thrown
+→ Automatic Complete Abort (Rollback)"]
 ```
 
 Group related updates so a draft and its outbox record cannot silently diverge.
@@ -628,11 +687,15 @@ The database is local, but it is still a failure-prone boundary.
 
 ## IndexedDB versioning is a migration contract
 
-```text
-version 1 → version 2
-  add index
-  rename store
-  transform old records
+```mermaid
+flowchart TD
+    Open["indexedDB.open('MunicipalApp', 2)"] --> Check{"Requested Version > Current DB Version?"}
+    Check -->|No| Ready["onsuccess: Database ready for transactions"]
+    Check -->|Yes| Upgrade["onupgradeneeded: Run migrations
+- createObjectStore()
+- createIndex()
+- transform existing records"]
+    Upgrade --> Ready
 ```
 
 Test upgrades from realistic previous versions.
@@ -698,12 +761,15 @@ Do not promise indefinite offline history unless the platform and product suppor
 
 ## Choose storage by data semantics
 
-```text
-session identity       cookies / server session
-small preference       localStorage
-structured offline data IndexedDB
-asset response         Cache Storage
-queued operation       IndexedDB outbox
+```mermaid
+flowchart TD
+    subgraph BrowserStorageTaxonomy["Browser Storage by Purpose & Scope"]
+        S1["Session Identity → Cookies (HttpOnly, Secure)"]
+        S2["Small User Preferences → localStorage (<5MB, sync API)"]
+        S3["Structured Offline Data → IndexedDB (Async, indexed, large quota)"]
+        S4["HTTP Asset Responses → Cache Storage API (Request/Response pairs)"]
+        S5["Durable Queued Operations → IndexedDB Outbox (Transactional)"]
+    end
 ```
 
 One application can use several stores with explicit ownership.
@@ -712,8 +778,12 @@ One application can use several stores with explicit ownership.
 
 ## Service workers run outside the page
 
-```text
-page ↔ service worker ↔ network / Cache Storage
+```mermaid
+flowchart LR
+    Page["Active Browser Window / Page"] <-->|fetch() / Navigation| SW["Service Worker
+(self.addEventListener('fetch'))"]
+    SW <-->|Cache Match / Put| Cache["Cache Storage API"]
+    SW <-->|Network Request| Net["Remote Network Server"]
 ```
 
 The worker has a different lifecycle and execution context.
@@ -732,8 +802,15 @@ Deployment configuration is part of the offline architecture.
 
 ## Service-worker lifecycle
 
-```text
-install → waiting → activate → control pages → update later
+```mermaid
+stateDiagram-v2
+    [*] --> Installing: navigator.serviceWorker.register()
+    Installing --> Waiting: self.skipWaiting() / new SW downloaded
+    Waiting --> Activating: Old SW clients closed / skipWaiting
+    Activating --> Active: clients.claim()
+    Active --> Active: Intercepting network requests
+    Active --> Redundant: Replaced by updated script
+    Redundant --> [*]
 ```
 
 An updated worker may not control the current page immediately.
@@ -802,9 +879,13 @@ Registration is only the start.
 
 ## Cache-first strategy
 
-```text
-cache hit → respond immediately
-cache miss → fetch network → store response
+```mermaid
+flowchart TD
+    Req["Incoming fetch(event.request)"] --> Cache{"Cache.match(request)?"}
+    Cache -->|Hit| Fast["Return cached Response (Instant)"]
+    Cache -->|Miss| Net["Fetch from Network"]
+    Net --> Put["cache.put(request, clone)"]
+    Put --> Res["Return fresh Response"]
 ```
 
 Good for versioned static assets or content where immediate availability is more important than freshness.
@@ -815,9 +896,14 @@ Risk: stale content can persist if versioning and invalidation are weak.
 
 ## Network-first strategy
 
-```text
-network success → update cache and respond
-network failure → fallback to cache
+```mermaid
+flowchart TD
+    Req["Incoming fetch(event.request)"] --> Net{"Network fetch()"}
+    Net -->|Success| Put["cache.put(request, clone)"]
+    Put --> Res["Return fresh server response"]
+    Net -->|Failure / Offline| Cache{"Cache.match(request)?"}
+    Cache -->|Hit| Stale["Return cached offline fallback"]
+    Cache -->|Miss| Err["Return custom offline error page"]
 ```
 
 Good for data that should be fresh when connectivity exists but remain readable offline.
@@ -828,10 +914,14 @@ Risk: slow networks can delay the fallback unless timeouts are defined.
 
 ## Stale-while-revalidate
 
-```text
-respond cached value
-  → request fresh value in background
-  → update cache for next read
+```mermaid
+flowchart TD
+    Req["fetch(event.request)"] --> Cache{"Cache.match(request)?"}
+    Cache -->|Hit| Ret["Return cached response immediately"]
+    Cache -->|Miss| WaitNet["Await network response"]
+    Ret --> BG["Async background fetch()"]
+    BG --> Put["Update Cache Storage for next load"]
+    WaitNet --> Put
 ```
 
 Good when fast display and eventual freshness are both useful.
@@ -842,9 +932,16 @@ The UI should communicate meaningful staleness.
 
 ## Network-only and cache-only
 
-```text
-network-only → authority and mutations
-cache-only   → explicitly offline or immutable local resources
+```mermaid
+flowchart LR
+    subgraph NetworkOnly["Network-Only Strategy"]
+        R1["fetch(request)"] --> N1["Server API"]
+        N1 -->|Never Cache| UI1["Critical Mutations / Auth"]
+    end
+    subgraph CacheOnly["Cache-Only Strategy"]
+        R2["fetch(request)"] --> C1["Cache Storage API"]
+        C1 -->|Zero Network| UI2["Pre-cached Static Assets / Offline Fonts"]
+    end
 ```
 
 Do not apply one strategy to every request.
@@ -912,8 +1009,11 @@ Treat actual requests and failures as stronger evidence.
 
 ## Offline reads
 
-```text
-local database → validate local record → render stale/offline state
+```mermaid
+flowchart LR
+    IDB["IndexedDB Store"] --> Read["Read Cached Record"]
+    Read --> Valid["Check freshness & validity"]
+    Valid --> Render["Render view with Offline/Stale indicator"]
 ```
 
 Offline reads should identify:
@@ -927,8 +1027,12 @@ Offline reads should identify:
 
 ## Offline writes need durable intent
 
-```text
-user command → local record + outbox operation → later synchronization
+```mermaid
+flowchart LR
+    User["User Submits Form"] --> Split["Atomic Transaction"]
+    Split --> Rec["Update Local Record"]
+    Split --> Box["Enqueue Outbox Operation"]
+    Box --> Sync["Background Sync Engine"]
 ```
 
 Do not keep the only copy of a user's work in memory while waiting for the network.
@@ -939,14 +1043,17 @@ Persist the draft or operation before telling the user it is safely queued.
 
 ## The outbox pattern
 
-```text
-draft / command
-      ↓ transaction
-local domain record + outbox record
-      ↓ when online
-sync worker sends operation
-      ↓
-acknowledged / retryable / permanent failure
+```mermaid
+flowchart TD
+    Cmd["User Action: Submit Inspection"] --> Tx["Atomic IndexedDB Transaction"]
+    Tx -->|Write| Domain["Write local 'inspections' store (Status: PendingSync)"]
+    Tx -->|Write| Outbox["Write 'outbox' store (Operation: CREATE_INSPECTION)"]
+    Outbox --> Sync{"Sync Trigger
+(Online event, page load, visibility)"}
+    Sync --> Post["POST /api/inspections with Idempotency-Key"]
+    Post -->|200 Ack| Done["Remove outbox record, update local status to Synced"]
+    Post -->|Network Drop| Retry["Increment attempt count, schedule backoff retry"]
+    Post -->|4xx Fatal| Dead["Mark outbox item FAILED, notify inspector"]
 ```
 
 The transaction keeps local work and its synchronization intent together.
@@ -957,10 +1064,15 @@ The transaction keeps local work and its synchronization intent together.
 
 An offline record may need:
 
-```text
-localId      unique immediately on this device
-serverId     assigned or confirmed remotely
-operationId  idempotency identity for synchronization
+```mermaid
+classDiagram
+    class InspectionRecord {
+        +UUID localId "Generated client-side immediately (crypto.randomUUID())"
+        +String serverId "Canonical ID assigned or confirmed by server (null while offline)"
+        +UUID operationId "Unique idempotency token sent in outbox request"
+        +String syncStatus "draft | pending_sync | syncing | synced | conflict"
+        +Number version "Optimistic concurrency version tag"
+    }
 ```
 
 Do not use one identifier for three different meanings.
@@ -971,9 +1083,16 @@ Do not use one identifier for three different meanings.
 
 Show whether work is:
 
-```text
-saved locally → waiting to sync → syncing → synced
-                                      ↘ failed / needs attention
+```mermaid
+stateDiagram-v2
+    [*] --> Draft: User edits record
+    Draft --> PendingSync: User commits inspection
+    PendingSync --> Syncing: Network available & outbox flush
+    Syncing --> Synced: Server returns 200 OK
+    Syncing --> PendingSync: Transient 5xx / timeout (retry)
+    Syncing --> Failed: 422 validation / 403 forbidden
+    Failed --> Draft: User edits data to fix validation
+    Synced --> [*]
 ```
 
 Users need confidence about whether their work is safe, not only whether the browser currently has a connection.
@@ -1006,12 +1125,20 @@ The system needs a conflict policy.
 
 ## Conflict policies
 
-```text
-last write wins
-server wins
-client wins
-field-level merge
-manual resolution
+```mermaid
+flowchart TD
+    subgraph ConflictResolution["Conflict Resolution Policies"]
+        C1["Last Write Wins (LWW)
+Clock timestamp determines winner (Risky)"]
+        C2["Server Wins
+Canonical authority; client state overwritten"]
+        C3["Client Wins
+Local user decision always takes precedence"]
+        C4["Field-Level 3-Way Merge
+Combine non-overlapping field edits"]
+        C5["Manual User Resolution
+Side-by-side visual diff prompt"]
+    end
 ```
 
 Choose based on data meaning and harm, not implementation convenience.
@@ -1033,23 +1160,22 @@ The client submits the version it edited.
 The server rejects or resolves the operation when its current version differs.
 
 ---
+## Operation logs make synchronization inspectable (Part 1)
 
-## Operation logs make synchronization inspectable
+| Field | Type | Description |
+|---|---|---|
+| `operationId` | `UUID` | Unique idempotency key for this synchronization action |
+| `entity` | `string` | Target domain entity (e.g. `'inspection'`) |
+| `command` | `string` | Action type (e.g. `'SUBMIT_REPORT'`) |
+| `payload` | `JSON` | Complete serialized mutation payload |
+---
+## Operation logs make synchronization inspectable (Part 2)
 
-```text
-operationId | entity | command | createdAt | attempts | status
-```
-
-An outbox log supports:
-
-- retry limits;
-- idempotency;
-- diagnostics;
-- manual recovery;
-- conflict display.
-
-It should not expose secrets unnecessarily.
-
+| Field | Type | Description |
+|---|---|---|
+| `createdAt` | `timestamp`| Client timestamp when user performed action |
+| `attempts` | `number` | Retry counter with maximum threshold |
+| `status` | `enum` | `'pending_sync' \| 'syncing' \| 'failed'` |
 ---
 
 ## Eventual consistency is a user experience
@@ -1175,11 +1301,18 @@ Installability does not automatically imply offline data or reliable synchroniza
 
 ## The app shell is only one layer
 
-```text
-cached shell → application starts
-local data   → useful offline content
-outbox       → durable offline work
-sync engine  → remote reconciliation
+```mermaid
+flowchart TD
+    subgraph OfflineFieldSystem["The Four Pillars of Offline Resilience"]
+        P1["1. App Shell (Cache Storage)
+HTML, CSS, JS bundles cached for 0ms offline boot"]
+        P2["2. Local Data Store (IndexedDB)
+Read-only municipal permits, checklists, inspector profiles"]
+        P3["3. Durable Outbox (IndexedDB)
+Queued operations preserved across reboots & browser closes"]
+        P4["4. Synchronization Engine
+Background queue consumer with exponential backoff & idempotency"]
+    end
 ```
 
 Caching HTML, CSS, and JavaScript does not solve domain data or mutation conflicts.
@@ -1212,12 +1345,19 @@ This is often appropriate for authoritative records where stale edits are risky 
 
 Possible scopes:
 
-```text
-offline shell only
-offline read cache
-offline drafts
-offline queued commands
-full local-first workflow
+```mermaid
+flowchart TD
+    L1["Level 1: Offline Shell Only
+App boots to static frame with 'No Connection' banner"]
+    L2["Level 2: Offline Read Cache
+User can browse previously viewed permits and checklists"]
+    L3["Level 3: Offline Drafts
+Unsaved form inputs persist across reboots in IndexedDB"]
+    L4["Level 4: Offline Queued Outbox
+Inspectors complete inspections offline; synced upon reconnect"]
+    L5["Level 5: Full Local-First Workflow
+CRDTs / multi-device peer synchronization with zero central locks"]
+    L1 --> L2 --> L3 --> L4 --> L5
 ```
 
 Choose the smallest scope that solves the user problem.
@@ -1226,10 +1366,25 @@ Choose the smallest scope that solves the user problem.
 
 ## Real-time plus offline together
 
-```text
-online:  live events update local model
-offline: local model and outbox continue working
-reconnect: snapshot + event replay + outbox synchronization
+```mermaid
+stateDiagram-v2
+    state Online {
+        [*] --> Streaming
+        Streaming: WebSocket / SSE live events update local store
+    }
+    state Offline {
+        [*] --> Autonomous
+        Autonomous: Reads from IndexedDB; writes queued in Outbox
+    }
+    state Reconnecting {
+        [*] --> Heartbeat
+        Heartbeat: Egress probe succeeds
+        Heartbeat --> FlushOutbox: Send queued operations with Idempotency-Key
+        FlushOutbox --> InvalidateQueries: Refresh canonical server state
+    }
+    Online --> Offline: Connection lost
+    Offline --> Reconnecting: Network regained
+    Reconnecting --> Online: All operations settled
 ```
 
 One local data model can be the bridge between live updates and offline work.
@@ -1238,14 +1393,14 @@ One local data model can be the bridge between live updates and offline work.
 
 ## A reconnect sequence
 
-```text
-detect possible connectivity
-  → authenticate
-  → fetch current snapshot / versions
-  → reconcile missed events
-  → flush safe outbox operations
-  → resolve conflicts
-  → refresh visible state
+```mermaid
+flowchart TD
+    A["1. Connectivity Hint (online event / window focus)"] --> B["2. Heartbeat Ping (verify real internet egress)"]
+    B --> C["3. Validate Auth Token / Refresh Session"]
+    C --> D["4. Fetch Server Version Vector / Changes"]
+    D --> E["5. Flush Pending Outbox Operations with Idempotency"]
+    E --> F["6. Detect & Resolve Concurrent Conflicts"]
+    F --> G["7. Reconcile UI & Invalidate Fresh Server Queries"]
 ```
 
 The order matters. Sending stale operations before understanding current server state can create avoidable conflicts.
@@ -1381,8 +1536,7 @@ sync status
 Then define the transaction that persists the draft and the queued operation together.
 
 ---
-
-## Troubleshooting guide
+## Troubleshooting guide (Part 1)
 
 | Symptom | Likely cause |
 |---|---|
@@ -1391,11 +1545,15 @@ Then define the transaction that persists the draft and the queued operation tog
 | Same event changes data twice | Handler lacks idempotency identity |
 | Offline work disappears on reload | Only in-memory state was used |
 | Service worker is registered but offline fails | No request strategy or local data model |
+---
+## Troubleshooting guide (Part 2)
+
+| Symptom | Likely cause |
+|---|---|
 | Old assets break with new worker | Cache versioning and activation are unsafe |
 | Duplicate inspection is created | No idempotency key or server deduplication |
 | Local data leaks across accounts | Persistence is not scoped or cleared on identity change |
 | Sync retries forever | Permanent failures lack a terminal state |
-
 ---
 
 ## Completion checklist
@@ -1412,8 +1570,7 @@ Then define the transaction that persists the draft and the queued operation tog
 - [ ] the app remains useful without optional background capabilities.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -1423,13 +1580,17 @@ Then define the transaction that persists the draft and the queued operation tog
 | Reopening a socket solves reconnect | Reconnect also needs resync and recovery |
 | Messages arrive exactly once | Design for duplicates and reordering |
 | `localStorage` is a database | It is synchronous string storage |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | App-written local data is trusted | Reloaded storage is a runtime boundary |
 | Service-worker registration means offline | Strategies, persistence, and recovery are still needed |
 | `navigator.onLine` proves connectivity | It is only a hint |
 | Retry and synchronization are identical | Sync reconciles local intent with remote state |
 | Background Sync is guaranteed | It is an enhancement, not the foundation |
 | Every application should be offline-first | Choose an offline scope from user need |
-
 ---
 
 ## The chapter in one sentence
