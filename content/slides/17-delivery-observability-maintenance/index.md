@@ -58,15 +58,16 @@ It is where architecture meets users, operators, and reality.
 
 ## The complete production loop
 
-```text
-commit
-  → verify
-  → build artifact
-  → preview
-  → release progressively
-  → observe
-  → mitigate or continue
-  → maintain and learn
+```mermaid
+flowchart TD
+    Commit["1. Commit & Code Review"] --> Verify["2. Parallel CI Verification Gates"]
+    Verify --> Build["3. Build Immutable Hashed Artifact"]
+    Build --> Preview["4. Deploy Isolated Preview URL"]
+    Preview --> Canary["5. Progressive Canary Rollout (5% → 25% → 100%)"]
+    Canary --> Observe["6. Continuous Observability & SLO Monitoring"]
+    Observe --> Mitigate{"Health Check"}
+    Mitigate -->|Degraded / Spikes| Rollback["Automated Rollback / Kill Switch"]
+    Mitigate -->|Healthy| Maintain["7. Technical Debt & Dependency Maintenance"]
 ```
 
 Every arrow needs an owner, evidence, and a recovery path.
@@ -108,12 +109,12 @@ CI is a feedback system, not merely a hosted command runner.
 
 ## CI is more than “run tests”
 
-```text
-source + lockfile + runtime + config
-  → clean install
-  → checks
-  → build
-  → artifact and metadata
+```mermaid
+flowchart LR
+    Inputs["Source + Lockfile + Node Runtime"] --> Install["Clean 'npm ci' Install"]
+    Install --> Checks["Type Checks, Linters, Tests"]
+    Checks --> Build["Production Bundle with Content Hashes"]
+    Build --> Artifact["Immutable Artifact + Release Metadata"]
 ```
 
 The environment and produced artifact are part of what CI verifies.
@@ -137,8 +138,12 @@ Choose the checks and permissions appropriate to each event.
 
 ## Fast feedback still matters
 
-```text
-editor → local check → PR check → merge check → release check
+```mermaid
+flowchart LR
+    Ed["Editor / IDE"] --> Loc["Pre-commit Hooks"]
+    Loc --> PR["PR Verification CI"]
+    PR --> Merge["Merge to Main"]
+    Merge --> Rel["Canary Release"]
 ```
 
 Fast checks should catch common mistakes near the change.
@@ -153,10 +158,18 @@ Do not make every local edit wait for the entire release pipeline.
 
 Independent jobs can run concurrently:
 
-```text
-lint ──────┐
-types ─────┼─→ build / deploy decision
-unit ──────┘
+```mermaid
+flowchart LR
+    subgraph ParallelGates["Parallel CI Gates"]
+        L["Lint & Formatting"]
+        T["Type Checking (tsc)"]
+        U["Unit & Component Tests"]
+        S["Security Secrets Scan"]
+    end
+    L --> Decision["Build & Deploy Decision"]
+    T --> Decision
+    U --> Decision
+    S --> Decision
 ```
 
 Parallelism requires isolated environments, clear dependencies, and attributable artifacts.
@@ -196,10 +209,10 @@ If two clean builds produce different artifacts, investigate why before relying 
 
 ## Continuous integration versus delivery versus deployment
 
-```text
-CI             → verify changes
-continuous delivery → keep a releasable artifact ready
-continuous deployment → automatically release after verification
+```mermaid
+flowchart LR
+    CI["Continuous Integration<br/>Automated verification of every push"] --> CD["Continuous Delivery<br/>Always maintains a deployable release candidate"]
+    CD --> CDeploy["Continuous Deployment<br/>Automatic rollout to production upon passing gates"]
 ```
 
 An organization can practice delivery without automatically deploying every commit.
@@ -268,8 +281,13 @@ Test the server and browser parts as one release contract.
 
 ## Environments
 
-```text
-development → preview → staging → production
+Different environments have distinct operational responsibilities:
+
+```mermaid
+flowchart LR
+    Dev["Development<br/>Local / Fast HMR"] --> Prev["Preview<br/>PR-Isolated Ephemeral URL"]
+    Prev --> Stg["Staging<br/>Shared Pre-Production Environment"]
+    Stg --> Prod["Production<br/>Global Edge CDN & Telemetry"]
 ```
 
 Each environment should have a purpose rather than existing only because a template created it.
@@ -514,10 +532,17 @@ Long-lived browser tabs, cached assets, service workers, and delayed requests ma
 
 ## Blue-green deployment
 
-```text
-blue = current
-green = new
-traffic switch → green
+```mermaid
+flowchart LR
+    Router["Global Edge Router / CDN"]
+    subgraph Blue["Blue Environment (Active v1.4)"]
+        B_App["Production App Servers"]
+    end
+    subgraph Green["Green Environment (Staged v1.5)"]
+        G_App["New Release Ready"]
+    end
+    Router -->|100% Active Traffic| Blue
+    Router -. Instant Cutover .-> Green
 ```
 
 It can enable fast switching and rollback.
@@ -552,6 +577,51 @@ Expose a release to a small cohort and compare:
 - conversion or domain outcomes.
 
 Canaries require meaningful cohort identity and enough traffic to observe signal.
+
+---
+
+## Architectural timeline of a production release
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Engineer
+    participant CI as CI Pipeline
+    participant Reg as Immutable Registry
+    participant Edge as Edge CDN Router
+    participant Telemetry as RUM / Telemetry
+
+    Dev->>CI: Push Git commit (Tag v2.4.0)
+    CI->>CI: Run lint, types, unit, E2E gates
+    CI->>Reg: Publish immutable assets (hash: a9f3c1)
+    CI->>Edge: Deploy v2.4.0 to 10% Canary cohort
+    Edge-->>Telemetry: Stream real user Core Web Vitals & errors
+    Note over Telemetry: 15-Minute Observation Window
+    Telemetry-->>Edge: SLO Healthy (error rate < 0.05%)
+    Edge->>Edge: Promote v2.4.0 to 100% traffic
+```
+
+---
+
+## Concrete failure & recovery scenario: Safari crash
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Users as Safari 16 Users (10% Canary)
+    participant Edge as Edge CDN Router
+    participant RUM as Error Telemetry
+    participant OnCall as On-Call Engineer
+
+    Edge->>Users: Serve v2.4.0 bundle
+    Note over Users: Syntax Error: Unsupported Regex Lookbehind
+    Users-->>RUM: Spikes unhandled exceptions (5.8% error rate!)
+    RUM->>OnCall: PagerDuty Alert: Critical SLO breach on Safari
+    OnCall->>Edge: Trigger Instant Rollback to v2.3.0
+    Edge->>Users: Serve previous known-good bundle v2.3.0
+    Note over Users: Errors cease immediately (Recovery Time: 90s)
+    OnCall->>OnCall: Triage syntax target in tsconfig for v2.4.1
+```
 
 ---
 
@@ -741,9 +811,13 @@ Use expand-and-contract changes and backward-compatible periods where rollback m
 
 ## Rollback versus forward fix
 
-```text
-rollback    → restore known behavior quickly
-forward fix → repair current release without reverting
+```mermaid
+flowchart TD
+    Incident["Production Incident Detected"] --> Q1{"Is root cause obvious<br/>and fix trivial (<5 min)?"}
+    Q1 -->|Yes, zero risk| Forward["Forward Hotfix via CI Pipeline"]
+    Q1 -->|No / High Risk| Q2{"Was client storage or<br/>DB schema mutated?"}
+    Q2 -->|Backward Compatible| Rollback["Instant Artifact / CDN Rollback"]
+    Q2 -->|Schema Broken| Kill["Activate Feature Kill Switch & Triage"]
 ```
 
 Choose based on blast radius, data effects, detection certainty, and fix confidence.
@@ -782,10 +856,13 @@ You need both:
 
 ## Three traditional telemetry signals
 
-```text
-logs    → discrete events and context
-metrics → aggregated measurements
-traces  → journey across operations and services
+```mermaid
+flowchart TD
+    Logs["Logs<br/>Structured contextual events & breadcrumbs"]
+    Metrics["Metrics<br/>Aggregated counters, rates, and Web Vitals percentiles"]
+    Traces["Traces<br/>End-to-end distributed execution paths across client and API"]
+
+    Logs --- Metrics --- Traces
 ```
 
 Frontend observability adapts these signals to browser privacy, lifecycle, and network constraints.
@@ -854,12 +931,13 @@ Keep detailed context in traces or sampled events with privacy controls.
 
 ## Traces and spans
 
-```text
-user journey trace
-  ├─ route navigation span
-  ├─ API request span
-  ├─ render marker
-  └─ interaction span
+```mermaid
+flowchart TD
+    Root["User Journey: Checkout Submission"]
+    Root --> S1["Span 1: Form Validation & Client State Update"]
+    Root --> S2["Span 2: HTTP POST /api/v1/checkout (traceparent)"]
+    S2 --> S3["Span 3: Backend Gateway & Payment Provider"]
+    Root --> S4["Span 4: DOM Paint & Confirmation View Render"]
 ```
 
 Traces connect frontend work with backend and network events.
@@ -1675,8 +1753,13 @@ Runbooks reduce decision load during incidents.
 
 ## Incident response lifecycle
 
-```text
-detect → triage → mitigate → communicate → recover → learn
+```mermaid
+flowchart LR
+    Det["1. Detect<br/>SLO Alert"] --> Tri["2. Triage<br/>Assess Blast Radius"]
+    Tri --> Mit["3. Mitigate<br/>Rollback / Kill Switch"]
+    Mit --> Com["4. Communicate<br/>Status Page Update"]
+    Com --> Rec["5. Recover<br/>Verify Telemetry Normal"]
+    Rec --> Lrn["6. Learn<br/>Blameless Post-Mortem"]
 ```
 
 Keep the user impact and current system state visible throughout the incident.
@@ -2055,29 +2138,29 @@ Every alert needs an owner and an operational response.
 
 ---
 
-## Practical stages 21–27: recovery and maintenance
+## Practical stages 1–3: reproducible artifact & preview verification
 
-21. Create a rollback procedure.
-22. Simulate compatibility failure.
-23. Create a frontend runbook.
-24. Create a dependency maintenance workflow.
-25. Triage a vulnerability.
-26. Remove one dependency.
-27. Test an upgrade path.
-
-Rollback is tested rather than merely documented.
+1. **Stage 1 (Immutable Reproducible Artifact):**
+   - Produce a production build with deterministic content hashes.
+   - Generate `release-manifest.json` with commit SHA, timestamp, and metadata.
+2. **Stage 2 (CI Verification Gates & Secrets Scanning):**
+   - Execute parallel linting, type checks, unit/integration suites, and bundle budgets.
+   - Run automated secret scanning to prevent token leaks into client bundles.
+3. **Stage 3 (Preview Environments & Release Identity):**
+   - Deploy isolated PR preview environments.
+   - Inject `window.__RELEASE_INFO__` for runtime telemetry attribution.
 
 ---
 
-## Practical stages 28–32: long-lived clients and SLOs
+## Practical stages 4–5: observability & rehearsed rollback
 
-28. Simulate a long-lived client.
-29. Add update notification.
-30. Create a debt register.
-31. Design SLOs.
-32. Create the final production architecture diagram.
-
-Include stale clients, flags, service workers, privacy, and support ownership.
+4. **Stage 4 (Front-End Observability & Breadcrumbs):**
+   - Implement zero-dependency client telemetry for unhandled errors and RUM metrics.
+   - Capture user interaction breadcrumbs with strict PII masking.
+5. **Stage 5 (Simulated Disaster Rehearsal & Safe Rollback):**
+   - Inject a deliberate production failure into v2.4 (breaking Safari form submissions).
+   - Observe automated SLO breach and trigger instant CDN rollback to v2.3.
+   - Verify client data compatibility (`localStorage`) and draft a blameless post-mortem.
 
 ---
 
@@ -2111,8 +2194,7 @@ maintenance follow-up:
 If any field is blank, the release loop has an unexamined assumption.
 
 ---
-
-## Troubleshooting guide
+## Troubleshooting guide (Part 1)
 
 | Symptom | Likely cause |
 |---|---|
@@ -2121,11 +2203,15 @@ If any field is blank, the release loop has an unexamined assumption.
 | Alerts fire constantly | Thresholds lack context or ownership |
 | Errors cannot be debugged | Release identity or private source maps missing |
 | Feature flag remains forever | Lifecycle and owner were never defined |
+---
+## Troubleshooting guide (Part 2)
+
+| Symptom | Likely cause |
+|---|---|
 | Telemetry is expensive or unsafe | Payload, sampling, and privacy policy are weak |
 | Users keep stale behavior | Long-lived clients and service-worker updates ignored |
 | Dependency update is frightening | Updates were deferred instead of maintained continuously |
 | Incident response is slow | Runbook and rollback were not practiced |
-
 ---
 
 ## Completion checklist
@@ -2142,8 +2228,7 @@ If any field is blank, the release loop has an unexamined assumption.
 - [ ] rollback and recovery have been rehearsed.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -2154,6 +2239,11 @@ If any field is blank, the release loop has an unexamined assumption.
 | Preview replaces code review | It provides deployed evidence, not design judgment |
 | Feature flags are authorization | The server still enforces permissions |
 | Flags can stay forever | Flags need ownership and removal |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | Rollback is failure | Rollback is a normal safety mechanism |
 | Observability means logs | Logs, metrics, traces, errors, and context work together |
 | More telemetry is always better | Telemetry has cost, privacy, and signal limits |
@@ -2161,7 +2251,6 @@ If any field is blank, the release loop has an unexamined assumption.
 | Dependency updates should be automatic | Automation needs review, grouping, and risk triage |
 | Users refresh after deployment | Long-lived clients require compatibility and update policy |
 | Maintenance is separate from architecture | Lifecycle and recovery are architectural properties |
-
 ---
 
 ## The chapter in one sentence
