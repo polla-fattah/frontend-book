@@ -57,15 +57,15 @@ Ask where data comes from, who can read it, who can change it, and which layer m
 
 ## The security review progression
 
-```text
-identify origins
-  → trace untrusted input
-  → secure rendering sinks
-  → protect state-changing requests
-  → separate authentication and authorization
-  → protect credentials and dependencies
-  → isolate browser contexts
-  → test the complete boundary
+```mermaid
+flowchart TD
+    A["1. Identify Origins & Trust Boundaries"] --> B["2. Trace Untrusted Input (Sources)"]
+    B --> C["3. Secure Rendering Sinks (XSS Defense)"]
+    C --> D["4. Protect State-Changing Requests (CSRF)"]
+    D --> E["5. Separate Authentication from Authorization"]
+    E --> F["6. Secure Credentials & Token Storage (BFF)"]
+    F --> G["7. Enforce Browser Isolation (CSP, COOP, COEP)"]
+    G --> H["8. Audit Dependencies & Third-Party Scripts"]
 ```
 
 Security is a system of related controls, not a checklist of isolated switches.
@@ -93,8 +93,11 @@ Your architecture must make those relationships intentional.
 
 An origin is the combination of:
 
-```text
-scheme + host + port
+```mermaid
+flowchart LR
+    subgraph OriginTuple["The Web Origin Definition (RFC 6454)"]
+        S["Scheme (e.g. https://)"] --- H["Host (e.g. app.erbil.gov.krd)"] --- P["Port (e.g. :443)"]
+    end
 ```
 
 Examples:
@@ -234,8 +237,23 @@ The server must explicitly allow the operation before the browser sends the actu
 
 ## Preflight is not a failure
 
-```text
-OPTIONS preflight → server permission → actual request
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Browser as Browser Client (https://app.erbil.gov.krd)
+    participant API as Municipal API (https://api.erbil.gov.krd)
+
+    Browser->>API: OPTIONS /permits/104 (Preflight)
+Origin: https://app.erbil.gov.krd
+Access-Control-Request-Method: PUT
+Access-Control-Request-Headers: Content-Type
+    Note over API: API verifies origin in allowed whitelist
+    API-->>Browser: 204 No Content
+Access-Control-Allow-Origin: https://app.erbil.gov.krd
+Access-Control-Allow-Methods: GET, PUT, POST
+Access-Control-Allow-Headers: Content-Type
+    Browser->>API: PUT /permits/104 (Actual Mutation Request)
+    API-->>Browser: 200 OK (Resource updated)
 ```
 
 Preflight is a safety mechanism.
@@ -358,12 +376,27 @@ Rich HTML should be an explicit feature with an explicit content policy.
 
 ## DOM-based XSS
 
-```text
-URL / storage / message / DOM value
-             ↓
-        browser sink
-             ↓
-      interpreted content
+```mermaid
+flowchart TD
+    subgraph Sources["Untrusted Sources"]
+        S1["location.search / hash"]
+        S2["API JSON responses"]
+        S3["localStorage / cookies"]
+        S4["postMessage events"]
+        S5["User form inputs"]
+    end
+
+    subgraph DangerousSinks["Dangerous DOM Sinks (Vulnerabilities)"]
+        D1["element.innerHTML"]
+        D2["dangerouslySetInnerHTML / v-html"]
+        D3["eval() / new Function()"]
+        D4["<a href='javascript:...'>"]
+        D5["document.write()"]
+    end
+
+    Sources -->|Direct assignment without sanitization| DangerousSinks
+    DangerousSinks --> XSS["Cross-Site Scripting (XSS)
+Attacker script executes with full user privileges!"]
 ```
 
 The server does not need to be involved.
@@ -568,9 +601,17 @@ The policy is where the security decision lives.
 
 ## CSRF and XSS are different
 
-```text
-XSS  → attacker code runs in the trusted page origin
-CSRF → another site causes an authenticated state-changing request
+```mermaid
+flowchart TD
+    subgraph XSS_Threat["Cross-Site Scripting (XSS)"]
+        X1["Attacker injects malicious script into trusted origin"]
+        X2["Script runs with full DOM access: reads tokens, steals cookies, logs keystrokes"]
+    end
+    subgraph CSRF_Threat["Cross-Site Request Forgery (CSRF)"]
+        C1["Attacker tricks authenticated browser into issuing request to target origin"]
+        C2["Browser automatically attaches ambient credentials (cookies)"]
+        C3["Attacker cannot read response, but executes unauthorized side-effects"]
+    end
 ```
 
 They can interact, but the defenses and threat paths differ.
@@ -606,10 +647,19 @@ Do not rely on a request method name alone; define which operations change state
 
 ## SameSite cookies reduce cross-site sending
 
-```text
-Strict → strongest cross-site restriction
-Lax    → allows selected top-level navigation behavior
-None   → cross-site use, requires Secure
+```mermaid
+flowchart TD
+    subgraph SameSiteDirectives["SameSite Cookie Attribute Policies"]
+        ST["SameSite=Strict
+Cookie NEVER sent on cross-site requests
+(Even clicking an external link to the portal)"]
+        LX["SameSite=Lax (Modern Browser Default)
+Cookie sent on top-level safe GET navigations
+Blocked on cross-site POST / PUT / fetch mutations"]
+        NN["SameSite=None; Secure
+Cookie sent across all cross-site requests (Requires HTTPS)
+High CSRF exposure without explicit tokens"]
+    end
 ```
 
 SameSite is valuable defense in depth, but consider legacy behavior, integrations, and the operation's risk.
@@ -749,9 +799,18 @@ Protect issuance, storage, transport, scope, expiry, and revocation.
 
 ## Browser token storage is a trade-off
 
-```text
-localStorage → JavaScript-readable, exposed to XSS
-HttpOnly cookie → JavaScript-inaccessible, requires CSRF design
+```mermaid
+flowchart TD
+    subgraph LocalStorageOption["Option A: localStorage / Memory Bearer Token"]
+        L1["Readable by JavaScript in same origin"]
+        L2["Immune to CSRF (not ambiently sent)"]
+        L3["CRITICAL RISK: A single XSS flaw exposes token to theft!"]
+    end
+    subgraph HttpOnlyCookieOption["Option B: HttpOnly, Secure, SameSite Cookie"]
+        C1["Completely inaccessible to JavaScript (XSS cannot steal)"]
+        C2["Ambiently sent by browser on matching requests"]
+        C3["DEFENSE REQUIRED: Enforce SameSite=Lax + Anti-CSRF Token headers"]
+    end
 ```
 
 There is no universal slogan that replaces threat modeling and architecture.
@@ -774,21 +833,40 @@ A BFF can change the browser's credential boundary substantially.
 
 ---
 
-## Backend-for-Frontend
+## Backend-for-Frontend topology
 
-```text
-browser → same-origin BFF → identity provider / APIs
+```mermaid
+flowchart LR
+    subgraph BrowserZone["Browser Runtime"]
+        SPA["Single-Page App"]
+    end
+    subgraph InternalBoundary["Same-Origin Boundary"]
+        BFF["Backend-for-Frontend (BFF)"]
+    end
+    subgraph SecureBackend["Internal Protected Network"]
+        IDP["OAuth / OIDC IDP"]
+        APIs["Microservices / APIs"]
+    end
+
+    SPA <-->|HttpOnly, Secure Cookie| BFF
+    BFF <-->|Bearer Tokens| APIs
+    BFF <-->|PKCE Exchange| IDP
 ```
 
-The BFF can:
+A BFF acts as an application-specific gateway for the front-end.
 
-- hold server-side credentials;
-- manage sessions;
-- call downstream services;
-- shape responses for the UI;
-- keep tokens out of browser JavaScript.
+---
 
-It adds an operational service boundary and must be designed accordingly.
+## Operational capabilities of a BFF
+
+A Backend-for-Frontend can:
+
+- **Hold server credentials:** keep sensitive API keys and tokens out of browser memory;
+- **Manage sessions:** issue encrypted `HttpOnly`, `SameSite=Strict` cookies to the SPA;
+- **Aggregate responses:** combine multiple downstream microservice calls into one tailored payload;
+- **Perform edge transformations:** translate internal protocols without client complexity.
+
+It replaces direct client token management with a hardened same-origin boundary.
 
 ---
 
@@ -829,16 +907,43 @@ The code is exchanged rather than delivering an access token directly through th
 
 ---
 
-## PKCE binds the code exchange
+## PKCE Phase 1: Authorization request
 
-```text
-client creates verifier
-  → sends derived challenge
-  → receives authorization code
-  → sends verifier during exchange
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Citizen / User
+    participant App as Browser SPA
+    participant Auth as Authorization Server (IDP)
+
+    App->>App: 1. Generate code_verifier (random secret)
+    App->>App: 2. Compute code_challenge = SHA256(verifier)
+    App->>Auth: 3. Redirect to /authorize?code_challenge=...
+    User->>Auth: 4. User logs in & grants consent
+    Auth-->>App: 5. Redirect with auth_code
 ```
 
-PKCE helps prevent an intercepted authorization code from being redeemed by a different client.
+The browser receives an authorization code, not a sensitive token.
+
+---
+
+## PKCE Phase 2: Token redemption & verification
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Browser SPA
+    participant Auth as Authorization Server (IDP)
+    participant API as Protected API Server
+
+    App->>Auth: 1. POST /token with auth_code + code_verifier
+    Note over Auth: 2. Verifies SHA256(verifier) == code_challenge!<br/>Prevents code interception attacks.
+    Auth-->>App: 3. Emits Access Token (+ ID Token)
+    App->>API: 4. GET /api/data with Bearer token
+    API-->>App: 5. Returns protected resource
+```
+
+PKCE ensures an intercepted code cannot be redeemed without the original secret verifier.
 
 ---
 
@@ -1242,11 +1347,13 @@ A header that “looks secure” but breaks recovery or silently disables a feat
 
 ## Security architecture for a typical SPA
 
-```text
-browser UI
-  → same-origin session or BFF
-  → server authorization
-  → downstream APIs
+```mermaid
+flowchart LR
+    A["Browser UI Client"] -->|1. Same-Origin Cookie Session| B["BFF / Gateway Server"]
+    B -->|2. Server-Enforced Role & Scope Authorization| C["Core Business API"]
+    C -->|3. Validated Database Queries| D[("Municipal PostgreSQL")]
+    
+    A -.->|NEVER trust client claims for authorization!| C
 ```
 
 The front end presents permissions and handles UX.
@@ -1592,8 +1699,7 @@ API → state → request → server authorization
 Mark where validation, encoding, authentication, authorization, and logging occur.
 
 ---
-
-## Troubleshooting guide
+## Troubleshooting guide (Part 1)
 
 | Symptom | Likely cause |
 |---|---|
@@ -1602,11 +1708,15 @@ Mark where validation, encoding, authentication, authorization, and logging occu
 | Escaped text still creates a dangerous link | URL context was not validated |
 | CSP breaks analytics or workers | Dependencies were not inventoried before enforcement |
 | CSRF token is missing on a mutation | Cookie session and request protection were not designed together |
+---
+## Troubleshooting guide (Part 2)
+
+| Symptom | Likely cause |
+|---|---|
 | Hidden button is treated as authorization | Server enforcement is missing |
 | Token payload looks valid | Decoding is not signature or audience validation |
 | Logout leaves private data visible | Client caches, connections, or local storage were not cleared |
 | iframe integration breaks after isolation headers | Policy was copied without testing dependencies |
-
 ---
 
 ## Completion checklist
@@ -1623,8 +1733,7 @@ Mark where validation, encoding, authentication, authorization, and logging occu
 - [ ] third-party and browser-isolation policies are tested.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -1635,6 +1744,11 @@ Mark where validation, encoding, authentication, authorization, and logging occu
 | Sanitization and encoding are the same | They solve different content problems |
 | CSP prevents XSS by itself | It is defense in depth |
 | CSRF and XSS are the same | They exploit different trust paths |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | HttpOnly prevents XSS | It limits direct cookie reads, not same-origin actions |
 | Hidden controls enforce permission | Server authorization must enforce it |
 | JWT means secure authentication | JWT is a format, not an architecture |
@@ -1642,7 +1756,6 @@ Mark where validation, encoding, authentication, authorization, and logging occu
 | `.env` values are secret | Client-exposed build values are public |
 | Lockfiles eliminate supply-chain risk | They improve reproducibility, not trust |
 | COOP, COEP, and CORP are interchangeable | Each controls a different browser boundary |
-
 ---
 
 ## The chapter in one sentence
