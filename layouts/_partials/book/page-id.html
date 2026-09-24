@@ -1,0 +1,6 @@
+{{- $page := . -}}
+{{- with $page.File -}}
+  {{- .UniqueID -}}
+{{- else -}}
+  {{- $page.Path | anchorize -}}
+{{- end -}}
