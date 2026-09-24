@@ -62,14 +62,14 @@ These are system-design questions expressed through CSS.
 
 ## The chapter's progression
 
-```text
-Cascade
-  → values and tokens
-  → layout systems
-  → responsive design
-  → internationalized layout
-  → modern selectors
-  → styling architecture
+```mermaid
+flowchart TD
+    A[Cascade & Precedence] --> B[Values & Tokens]
+    B --> C[Layout Systems]
+    C --> D[Responsive Design]
+    D --> E[Internationalized Layout]
+    E --> F[Modern Selectors]
+    F --> G[Styling Architecture]
 ```
 
 The goal is not to memorise properties. It is to make CSS behaviour
@@ -311,14 +311,11 @@ changes, the component should not need to know the replacement colour.
 
 ## Token ownership has direction
 
-```text
-raw palette
-    ↓
-semantic meaning
-    ↓
-component usage
-    ↓
-page composition
+```mermaid
+flowchart TD
+    A[Raw palette] --> B[Semantic meaning]
+    B --> C[Component usage]
+    C --> D[Page composition]
 ```
 
 Avoid letting a component reach backward into arbitrary raw palette values.
@@ -584,8 +581,9 @@ Layout power should follow a demonstrated relationship.
 
 Avoid designing only for:
 
-```text
-phone → tablet → desktop
+```mermaid
+flowchart LR
+    A[Phone] --> B[Tablet] --> C[Desktop]
 ```
 
 Real interfaces encounter:
@@ -777,9 +775,14 @@ right values.
 
 ## Inline and block are relationships
 
-```text
-inline axis: the direction text progresses
-block axis:  the direction blocks accumulate
+```mermaid
+flowchart TD
+    subgraph Inline["Inline Axis"]
+        I[Direction text progresses: horizontal LTR/RTL or vertical]
+    end
+    subgraph Block["Block Axis"]
+        B[Direction blocks stack: perpendicular to inline axis]
+    end
 ```
 
 In horizontal English text these often resemble horizontal and vertical.
@@ -953,8 +956,9 @@ Component-oriented CSS groups styles around an interface boundary.
 
 CSS Modules add build-time scoping:
 
-```text
-Card.module.css → generated local class names
+```mermaid
+flowchart LR
+    A[Card.module.css] --> B[Build Step] --> C[Generated Local Scoped Class Names]
 ```
 
 They reduce accidental collisions, but they do not decide:
@@ -1185,10 +1189,12 @@ architecture and verification, not only in a final accessibility audit.
 
 ## CSS architecture has dependencies
 
-```text
-tokens → components → layout composition
-   ↓          ↓              ↓
-themes    responsive      pages
+```mermaid
+flowchart TD
+    Tokens[Tokens] --> Components[Components] --> Composition[Layout Composition]
+    Tokens -.-> Themes[Themes]
+    Components -.-> Responsive[Responsive Contexts]
+    Composition -.-> Pages[Pages]
 ```
 
 When a component reaches into page-specific selectors, or a page owns a
@@ -1197,8 +1203,7 @@ component's internal spacing, the dependency direction becomes unclear.
 Good CSS makes change flow through deliberate boundaries.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better model |
 |---|---|
@@ -1207,12 +1212,16 @@ Good CSS makes change flow through deliberate boundaries.
 | Flexbox replaced Grid. | Flexbox and Grid solve different dimensional problems. |
 | Grid replaced Flexbox. | Tool choice follows the relationship being laid out. |
 | Responsive means phone/tablet/desktop. | Respond to constraints and user environment. |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better model |
+|---|---|
 | Container queries replace media queries. | They answer different scope questions. |
 | RTL means swap every left and right. | Use logical properties and inspect meaning. |
 | CSS variables are text substitution. | They cascade, inherit, and change at runtime. |
 | CSS Modules solve architecture. | Scoping helps; ownership and layout still need design. |
 | Utility CSS removes architecture. | A utility vocabulary still needs rules and boundaries. |
-
 ---
 
 ## The practical lab
@@ -1277,8 +1286,7 @@ Record one layout decision that remains valid in all four environments and one
 decision that must adapt.
 
 ---
-
-## Troubleshooting questions
+## Troubleshooting questions (Part 1)
 
 | Symptom | First question |
 |---|---|
@@ -1286,12 +1294,14 @@ decision that must adapt.
 | A flexible item overflows | Is its minimum size preventing shrinkage? |
 | Cards do not align | Is shared track alignment actually required? |
 | A component breaks in a sidebar | Is it using a viewport query instead of a container query? |
+---
+## Troubleshooting questions (Part 2)
+
+| Symptom | First question |
+|---|---|
 | Arabic text collides with controls | Are logical properties and direction boundaries correct? |
 | A theme change needs many edits | Are components consuming semantic tokens? |
 | Motion is uncomfortable | Is reduced motion handled at the component boundary? |
-
-Inspect the computed styles and layout overlays before adding another override.
-
 ---
 
 ## Completion check
@@ -1315,4 +1325,4 @@ Inspect the computed styles and layout overlays before adding another override.
 Chapter 4: lexical scope, closures, asynchronous work, promises, cancellation,
 and the event loop as an application runtime.
 
-**Modern Front-End Architecture & Engineering**
+**Modern Front-End Engineering**
