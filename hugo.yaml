@@ -6,7 +6,7 @@
 # theme has been folded into the site root so content and presentation evolve
 # together in one project.
 baseURL: http://localhost:1313/
-title: "Modern Front-End Architecture & Engineering"
+title: "Modern Front-End Engineering"
 locale: en
 defaultContentLanguage: en
 enableRobotsTXT: true
@@ -50,7 +50,7 @@ menus:
         icon: false
 
 params:
-  description: "A practical guide to modern front-end architecture and engineering."
+  description: "From Browser Fundamentals to Production Architecture"
   # Highlight code with Chroma class names so it follows the theme's light/dark
   # palettes. Hugo ignores `markup` set by a theme, so the theme applies this
   # through layouts/_markup/render-codeblock.html instead. Set to false to fall
@@ -123,7 +123,7 @@ params:
     navbar_enabled: true
     # Auto-hide never applies to the home page unless its own front matter asks.
     navbar_autohide: false
-    footer_style: slim # fat | slim | none
+    footer_style: fat # fat | slim | none
     # Non-home pages with `layout: landing` reuse the search/command palette
     # when offline_search is enabled. Set false to omit it from that shell.
     landing_search: true
@@ -256,13 +256,13 @@ params:
     sidebar_menu_compact: true
     sidebar_menu_foldable: true
     sidebar_menu_truncate: 2000
-    sidebar_root_enabled: true
-    sidebar_root_menu: true
+    sidebar_root_enabled: false
+    sidebar_root_menu: false
     sidebar_width_min: 220
     sidebar_width_max: 480
     sidebar_item_overflow: ellipsis
     page_context_menu:
-      enable: true
+      enable: false
       # Opt in before exposing the built-in ChatGPT and Claude actions. When a
       # reader activates one, the full browser URL (including query and hash)
       # is sent to that third party; the page body is not uploaded.
@@ -270,7 +270,7 @@ params:
       # Optional external actions may use the placeholders {url}, {title}, and
       # {markdown_url}. No custom links are enabled by default.
       links: []
-    sidebar_expand_levels: 2
+    sidebar_expand_levels: 1
     # Compatibility no-op in 1.x. The normal shell runtime always tracks the
     # active outline heading; keep this key quiet until a breaking release.
     scroll_spy: false

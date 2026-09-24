@@ -167,16 +167,14 @@
 
   .td-nav-title {
     margin-inline-end: -0.14em;
-    background: var(--td-brand-mark-gradient);
-    background-clip: text;
-    color: transparent;
+    // Solid brand navy, the gradient's starting colour, rather than the
+    // navy-to-copper gradient clipped to the text.
+    color: var(--td-brand-mark-from);
     font-family: var(--td-display-font-family);
     font-size: 1.05rem;
     font-weight: 700;
     line-height: 1;
     letter-spacing: 0.14em;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
   }
 
   .td-nav-links {

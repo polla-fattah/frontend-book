@@ -1,0 +1,254 @@
+# Homepage content. Export links are placeholders.
+sections:
+- hero
+- metrics
+- steps
+- type: cards
+  key: paths
+- timeline
+- type: logo-wall
+  key: topics
+- type: logo-wall
+  key: tools
+- faq
+- principles
+- cta
+hero:
+  title: Modern Front-End Engineering
+  title_size: 3rem
+  subtitle: From Browser Fundamentals to Production Architecture
+  desc: Understand how browsers work, build reliable interfaces, and make informed architectural decisions.
+    Move from the web platform through components, state, data, and rendering to performance, testing,
+    and production delivery. Basic HTML, CSS, JavaScript, and command-line knowledge is assumed.
+  actions:
+  - label: 'Start reading: Chapter 1'
+    url: book/chapter_01_the_modern_web_platform_and_browser_internals/
+    icon: fa-solid fa-book-open
+    style: primary
+  - label: Choose a learning path
+    url: '#paths'
+    icon: fa-solid fa-route
+    style: ghost
+  - label: Explore learning topics
+    url: topics/
+    icon: fa-solid fa-list
+    style: ghost
+metrics:
+  title: The book in four numbers
+  desc: Based on the manuscript and teaching materials currently in this site.
+  columns: 4
+  items:
+  - value: 18
+    label: Chapters
+    desc: from browser internals to architecture decisions
+  - value: 3
+    label: Appendices
+    desc: framework comparisons, browser APIs, and deployment
+  - value: 18
+    label: Lecture decks
+    desc: presentation materials for Chapters 1–18
+  - value: 18
+    label: Practical briefs
+    desc: one guided exercise for each chapter
+steps:
+  title: How to use the book
+  items:
+  - title: Build a mental model
+    desc: Read the chapter to understand how the browser, language, or architectural boundary works.
+  - title: Study the examples
+    desc: Connect the explanation to code and compare the costs of different approaches.
+  - title: Apply it in the Playground
+    desc: Use the companion practical brief to investigate the chapter’s ideas in a small project.
+  - title: Review the trade-offs
+    desc: Use the summaries, lecture decks, and reference appendices to revisit your decisions.
+paths:
+  title: Learning paths
+  columns: 4
+  link_label: Start this path
+  items:
+  - name: The complete path
+    icon: fa-solid fa-seedling
+    meta: Chapters 1–18
+    desc: Follow the platform, application, and production topics in order.
+    url: book/chapter_01_the_modern_web_platform_and_browser_internals/
+  - name: Platform foundations
+    icon: fa-solid fa-code
+    meta: Chapters 1–5
+    desc: Strengthen browser, HTML, accessibility, CSS, JavaScript, and TypeScript knowledge.
+    url: book/chapter_01_the_modern_web_platform_and_browser_internals/
+  - name: Application architecture
+    icon: fa-solid fa-layer-group
+    meta: Chapters 6–14
+    desc: Explore components, reactivity, state, APIs, offline systems, rendering, tooling, security,
+      and scale.
+    url: book/chapter_06_component_driven_architecture_and_design_patterns/
+  - name: Production engineering
+    icon: fa-solid fa-gauge-high
+    meta: Chapters 15–18
+    desc: Investigate performance, test resilient interfaces, plan delivery, and justify architectural
+      choices.
+    url: book/chapter_15_core_web_vitals_and_performance_engineering/
+timeline:
+  title: The arc of the book
+  items:
+  - date: Chapters 1–5
+    title: Understand the web platform
+    desc: Browser internals, semantic HTML, accessibility, CSS, JavaScript, and safe TypeScript boundaries.
+    url: book/chapter_01_the_modern_web_platform_and_browser_internals/
+  - date: Chapters 6–8
+    title: Structure interactive applications
+    desc: Component design, rendering mechanics, state management, routing, and forms.
+    url: book/chapter_06_component_driven_architecture_and_design_patterns/
+  - date: Chapters 9–11
+    title: Connect data and rendering
+    desc: API communication, caching, real-time and offline systems, and rendering topologies.
+    url: book/chapter_09_client_server_communication_apis_and_cache_management/
+  - date: Chapters 12–14
+    title: Build and scale responsibly
+    desc: Build tools, team workflows, security, design systems, monorepos, and micro-frontends.
+    url: book/chapter_12_modern_build_systems_development_tooling_and_team_workflows/
+  - date: Chapters 15–18
+    title: Measure, deliver, and decide
+    desc: Performance, testing, continuous delivery, observability, and architectural judgment.
+    url: book/chapter_15_core_web_vitals_and_performance_engineering/
+topics:
+  title: Learning topics
+  layout: grid
+  columns: 3
+  items:
+  - title: Browser internals
+    icon: fa-solid fa-book-open
+    url: topics/#topic-1
+  - title: Semantic HTML & accessibility
+    icon: fa-solid fa-book-open
+    url: topics/#topic-2
+  - title: Responsive CSS
+    icon: fa-solid fa-book-open
+    url: topics/#topic-3
+  - title: Modern JavaScript
+    icon: fa-solid fa-book-open
+    url: topics/#topic-4
+  - title: TypeScript & runtime validation
+    icon: fa-solid fa-book-open
+    url: topics/#topic-5
+  - title: Component architecture
+    icon: fa-solid fa-book-open
+    url: topics/#topic-6
+  - title: Reactivity & rendering
+    icon: fa-solid fa-book-open
+    url: topics/#topic-7
+  - title: State, routing & forms
+    icon: fa-solid fa-book-open
+    url: topics/#topic-8
+  - title: APIs & caching
+    icon: fa-solid fa-book-open
+    url: topics/#topic-9
+  - title: Real-time & offline systems
+    icon: fa-solid fa-book-open
+    url: topics/#topic-10
+  - title: Rendering strategies
+    icon: fa-solid fa-book-open
+    url: topics/#topic-11
+  - title: Development tooling
+    icon: fa-solid fa-book-open
+    url: topics/#topic-12
+  - title: Front-end security
+    icon: fa-solid fa-book-open
+    url: topics/#topic-13
+  - title: Design systems & scaling
+    icon: fa-solid fa-book-open
+    url: topics/#topic-14
+  - title: Performance engineering
+    icon: fa-solid fa-book-open
+    url: topics/#topic-15
+  - title: Front-end testing
+    icon: fa-solid fa-book-open
+    url: topics/#topic-16
+  - title: Delivery & observability
+    icon: fa-solid fa-book-open
+    url: topics/#topic-17
+  - title: Architectural decisions
+    icon: fa-solid fa-book-open
+    url: topics/#topic-18
+tools:
+  title: Tools and technologies you will explore
+  columns: 3
+  items:
+  - name: Browser DevTools
+    desc: Inspect rendering, scheduling, and performance
+    icon: fa-solid fa-magnifying-glass
+    url: book/chapter_01_the_modern_web_platform_and_browser_internals/
+  - name: HTML and CSS
+    desc: Accessible documents and adaptable layouts
+    icon: fa-brands fa-html5
+    url: book/chapter_02_semantic_html_accessibility_internationalization_and_the_dom/
+  - name: JavaScript and TypeScript
+    desc: Async behavior and safe data boundaries
+    icon: fa-brands fa-js
+    url: book/chapter_04_modern_javascript_and_asynchronous_programming/
+  - name: React and Vue
+    desc: Compare component and reactivity models
+    icon: fa-solid fa-layer-group
+    url: book/chapter_06_component_driven_architecture_and_design_patterns/
+  - name: Vite and build tools
+    desc: Understand module graphs and code splitting
+    icon: fa-solid fa-bolt
+    url: book/chapter_12_modern_build_systems_development_tooling_and_team_workflows/
+  - name: Testing and observability
+    desc: Verify behavior and investigate production systems
+    icon: fa-solid fa-vial
+    url: book/chapter_16_testing_strategies_for_resilient_interfaces/
+faq:
+  title: FAQ
+  items:
+  - question: Who is this book for?
+    answer: Readers who know basic HTML, CSS, JavaScript, and command-line usage and want to develop broader
+      front-end engineering skills. Professional front-end experience is not assumed.
+    open: true
+  - question: Is this a React or Vue book?
+    answer: The web platform comes first. React and Vue provide comparative examples, while the book focuses
+      on concepts that carry across frameworks.
+  - question: How do the practicals work?
+    answer: The Playground contains 18 exercise briefs. Most call for a small Vite and TypeScript project;
+      follow each brief for its requirements. Runnable companion implementations are planned for a separate
+      repository.
+  - question: Are lecture slides available?
+    answer: There are currently 18 lecture decks covering Chapters 1–18. Open a deck from Lecture slides
+      to present it or use its print layout.
+  - question: Where should I begin?
+    answer: Start with Chapter 1 for the full progression, or choose a learning path above to revisit
+      platform foundations, application architecture, or production engineering.
+  - question: Can I download the book?
+    answer: The online chapters are available now. The PDF and combined HTML links below are placeholders
+      for future exports.
+principles:
+  title: Engineering principles
+  columns: 3
+  items:
+  - icon: fa-solid fa-globe
+    title: Understand the platform
+    desc: Use browser behavior, web standards, accessibility, and security as the foundation for framework
+      decisions.
+  - icon: fa-solid fa-chart-line
+    title: Measure and verify
+    desc: Support performance and reliability decisions with observations, tests, and production feedback.
+  - icon: fa-solid fa-scale-balanced
+    title: Make trade-offs explicit
+    desc: Choose the simplest approach that meets the requirements, and record its costs and constraints.
+cta:
+  title: Read the book online or download
+  desc: Read all 18 chapters and 3 appendices online. Combined HTML and PDF editions are planned; their
+    links are placeholders for now.
+  actions:
+  - label: View Entirely (HTML)
+    url: book/full/
+    icon: fa-solid fa-book-open-reader
+    style: primary
+  - label: Download (PDF)
+    url: downloads/Modern_Front_End_Engineering.pdf
+    icon: fa-solid fa-file-pdf
+    style: primary
+  - label: Start Chapter 1
+    url: book/chapter_01_the_modern_web_platform_and_browser_internals/
+    icon: fa-solid fa-compass
+    style: ghost

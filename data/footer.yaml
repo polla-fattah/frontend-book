@@ -1,0 +1,18 @@
+brand:
+  name: Modern Front-End Engineering
+  tagline: From Browser Fundamentals to Production Architecture
+columns:
+- title: Read and explore
+  links:
+  - label: The book
+    url: book/
+  - label: Learning topics
+    url: topics/
+  - label: Learning paths
+    url: /#paths
+- title: Teach and practise
+  links:
+  - label: Lecture slides
+    url: slides/
+  - label: Playground
+    url: playground/

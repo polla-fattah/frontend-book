@@ -45,46 +45,49 @@ body.deck {
   position: relative;
   width: calc(var(--u) * 100);
   aspect-ratio: 16 / 9;
-  overflow: hidden;
-  padding: calc(var(--u) * 5.5) calc(var(--u) * 7);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(29, 88, 140, 0.25) transparent;
+  padding: calc(var(--u) * 4.2) calc(var(--u) * 6.5);
   background: var(--paper);
   background-image:
     linear-gradient(rgba(29, 88, 140, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(29, 88, 140, 0.05) 1px, transparent 1px);
   background-size: calc(var(--u) * 4) calc(var(--u) * 4);
-  font-size: calc(var(--u) * 2.3);
-  line-height: 1.45;
+  font-size: calc(var(--u) * 2.2);
+  line-height: 1.42;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: safe center;
 }
 .slide__inner > :first-child { margin-top: 0; }
 .slide__inner > :last-child { margin-bottom: 0; }
 
 h1, h2 { font-family: "Chakra Petch", sans-serif; font-weight: 700; line-height: 1.08; }
 h2 {
-  margin: 0 0 calc(var(--u) * 2.4);
+  margin: 0 0 calc(var(--u) * 2);
   color: var(--navy);
-  font-size: calc(var(--u) * 4.4);
+  font-size: calc(var(--u) * 4.2);
 }
 h2::after {
   content: "";
   display: block;
   width: calc(var(--u) * 7);
   height: calc(var(--u) * 0.4);
-  margin-top: calc(var(--u) * 1.4);
+  margin-top: calc(var(--u) * 1.2);
   background: var(--copper);
   border-radius: 1em;
 }
-p { margin: 0 0 calc(var(--u) * 1.4); }
+p { margin: 0 0 calc(var(--u) * 1.2); }
 strong { color: var(--navy); }
-ul, ol { margin: 0 0 calc(var(--u) * 1.4); padding-inline-start: 1.3em; }
+ul, ol { margin: 0 0 calc(var(--u) * 1.2); padding-inline-start: 1.3em; }
 /* Space between a block and the sentence that follows it. */
-table, pre { margin-bottom: calc(var(--u) * 1.8) !important; }
+table, pre { margin-bottom: calc(var(--u) * 1.4) !important; }
 .slide__inner > :last-child { margin-bottom: 0 !important; }
-li { margin: 0 0 calc(var(--u) * 1); }
+li { margin: 0 0 calc(var(--u) * 0.8); }
 li::marker { color: var(--copper); font-weight: 700; }
-ul ul, ol ul { margin-top: calc(var(--u) * 0.8); font-size: 0.92em; }
+ul ul, ol ul { margin-top: calc(var(--u) * 0.6); font-size: 0.92em; }
 
 code {
   font-family: "Plex Mono", ui-monospace, monospace;
@@ -96,21 +99,32 @@ code {
 }
 pre {
   margin: 0;
-  padding: calc(var(--u) * 2) calc(var(--u) * 2.6);
+  padding: calc(var(--u) * 1.6) calc(var(--u) * 2.2);
   border-radius: calc(var(--u) * 1.2);
   background: var(--navy-deep);
   color: #d9e3ef;
   /* --fit is set by deck.js when a long command would not fit. */
-  font-size: calc(var(--u) * 1.9 * var(--fit, 1));
-  line-height: 1.5;
-  overflow: hidden;
+  font-size: calc(var(--u) * 1.75 * var(--fit, 1));
+  line-height: 1.45;
+  overflow: auto;
 }
 pre code { padding: 0; background: none; color: inherit; font-size: inherit; }
 
-table { width: 100%; border-collapse: collapse; font-size: 0.92em; }
-th, td { padding: calc(var(--u) * 0.9) calc(var(--u) * 1.2); text-align: start; border-bottom: 1px solid var(--line); }
+table { width: 100%; border-collapse: collapse; font-size: calc(var(--u) * 1.8); line-height: 1.35; }
+th, td { padding: calc(var(--u) * 0.5) calc(var(--u) * 0.8); text-align: start; border-bottom: 1px solid var(--line); }
 th { color: var(--soft); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.06em; }
-td:first-child { font-weight: 600; color: var(--navy); white-space: nowrap; }
+td:first-child { font-weight: 600; color: var(--navy); white-space: normal; }
+
+.mermaid {
+  max-height: calc(var(--u) * 36);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.mermaid svg {
+  max-height: calc(var(--u) * 35);
+  width: auto !important;
+}
 
 blockquote {
   margin: calc(var(--u) * 2) 0 0;

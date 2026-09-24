@@ -87,6 +87,7 @@
           {{- partial "landing/markdown.html" (dict "page" $page "value" ($hero.title | default $page.Site.Title)) -}}
         {{- end -}}
       </h1>
+      {{- with $hero.subtitle }}<p class="td-landing-hero__subtitle">{{ partial "landing/markdown.html" (dict "page" $page "value" .) }}</p>{{ end }}
       {{- with $lead }}<p class="td-landing-hero__lead">{{ partial "landing/markdown.html" (dict "page" $page "value" .) }}</p>{{ end }}
       {{- with $hero.note }}
       <p class="td-landing-hero__note"><i class="{{ $hero.note_icon | default "fa-solid fa-circle-check" }}" aria-hidden="true"></i><span>{{ partial "landing/markdown.html" (dict "page" $page "value" .) }}</span></p>
