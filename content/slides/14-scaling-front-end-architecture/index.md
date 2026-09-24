@@ -162,13 +162,17 @@ Treating it as “just a package” underestimates its operational work.
 
 ## Design-system architecture
 
-```text
-foundations
-  → tokens and themes
-  → primitives
-  → patterns and components
-  → documentation and examples
-  → governance and releases
+```mermaid
+flowchart TD
+    subgraph DesignSystemPyramid["The Design System Architecture Pyramid"]
+        L1["1. Foundations: Color theory, typography scales, spacing grids"]
+        L2["2. Design Tokens: Global raw tokens & semantic intent tokens"]
+        L3["3. UI Primitives: Accessible Headless/Compound components (Button, Modal, Input)"]
+        L4["4. Composed Patterns: Form layouts, data tables, alert banners"]
+        L5["5. Documentation & Guidelines: Usage examples, do's/don'ts, accessibility notes"]
+        L6["6. Governance & Versioning: SemVer release policies, deprecation lifecycles"]
+        L1 --> L2 --> L3 --> L4 --> L5 --> L6
+    end
 ```
 
 The layers should have intentional dependency direction.
@@ -252,12 +256,12 @@ Define naming, units, themes, fallbacks, and transformation rules so the token s
 
 ## A token pipeline
 
-```text
-source token definitions
-  → validate naming and values
-  → transform per platform
-  → emit CSS / JS / design-tool formats
-  → publish versioned package
+```mermaid
+flowchart LR
+    A["Source Tokens (JSON / W3C Format)"] --> B["Token Transformer (Style Dictionary)"]
+    B --> C1["CSS Custom Properties (:root { --color-action: #... })"]
+    B --> C2["TypeScript Types & Constants"]
+    B --> C3["Figma / Design Tool Sync"]
 ```
 
 The pipeline should preserve semantic meaning, not only copy strings.
@@ -556,8 +560,12 @@ Add versioned contracts, validation, and compatibility tests where needed.
 
 ## Internal package dependency direction
 
-```text
-apps → features → domain packages → shared foundations
+```mermaid
+flowchart TD
+    Apps["Applications Layer (apps/citizen-portal, apps/inspector-app)"] --> Feat["Feature Packages (packages/feature-licensing)"]
+    Feat --> Domain["Domain Logic & Models (packages/domain-permits)"]
+    Domain --> UI["Design System UI (packages/ui-primitives)"]
+    UI --> Tokens["Foundations & Tokens (packages/design-tokens)"]
 ```
 
 If a shared package imports an application feature, the boundary has reversed.
@@ -637,9 +645,13 @@ Micro-frontends can be built across one or many repositories.
 
 ## Task graphs expose build relationships
 
-```text
-tokens → ui → storefront
-domain → admin
+```mermaid
+flowchart LR
+    subgraph PipelineGraph["Monorepo Directed Acyclic Task Graph (DAG)"]
+        T["tokens:build"] --> U["ui:build"]
+        U --> S["storefront:build"]
+        D["domain:build"] --> A["admin:build"]
+    end
 ```
 
 A task graph can determine:
@@ -895,10 +907,12 @@ Vertical slices can align technical ownership with user-facing capability better
 
 ## Route-level composition
 
-```text
-/catalogue → catalogue application
-/reports   → reports application
-/settings  → account application
+```mermaid
+flowchart TD
+    Gateway["Edge Reverse Proxy / Gateway (Cloudflare / NGINX)"]
+    Gateway -->|/catalogue/*| App1["Catalogue Micro-App (Next.js / Team Commerce)"]
+    Gateway -->|/reports/*| App2["Audit & Reports Micro-App (Vite / Team Analytics)"]
+    Gateway -->|/settings/*| App3["Citizen Account Micro-App (Remix / Team Identity)"]
 ```
 
 Full-page or route-level composition is often simpler than embedding several runtimes into one screen.
@@ -945,8 +959,12 @@ It reduces deployment independence because the shell must rebuild to receive cha
 
 ## Runtime independence is a spectrum
 
-```text
-shared source → shared package → build-time remote → runtime remote → iframe
+```mermaid
+flowchart LR
+    A["1. Shared Git Monorepo"] --> B["2. Versioned npm Package"]
+    B --> C["3. Build-Time Module Split"]
+    C --> D["4. Runtime Module Federation"]
+    D --> E["5. Sandboxed <iframe>"]
 ```
 
 Moving right can increase deployment independence and isolation while increasing integration complexity.
@@ -1115,11 +1133,22 @@ It does not automatically solve contracts, security, routing, CSS, or failure.
 
 ## Runtime module loading
 
-```text
-host loads remote manifest
-  → fetches remote entry
-  → resolves exposed module
-  → mounts feature
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Citizen / Inspector
+    participant Host as Shell Host Application (port 3000)
+    participant Remote as Remote Micro-App (port 3001)
+
+    User->>Host: Navigates to /licensing/audit
+    Note over Host: Host encounters dynamic import('licensingRemote/AuditPanel')
+    Host->>Remote: Fetch remoteEntry.js (Manifest of exposed modules & shared singletons)
+    Remote-->>Host: Returns module federation metadata
+    Note over Host: Host verifies shared React version (18.3.1 === 18.3.1)
+Re-uses host React runtime without downloading second copy!
+    Host->>Remote: Fetch AuditPanel.[hash].js
+    Remote-->>Host: Emitted chunk code
+    Note over Host: Host mounts Remote Component into shell DOM tree!
 ```
 
 Every step can fail or become incompatible.
@@ -1382,14 +1411,17 @@ Start with a modular monolith and re-evaluate.
 
 ## The decision ladder
 
-```text
-local component
-  → shared package
-  → workspace package
-  → modular monolith feature
-  → route-level application
-  → runtime micro-frontend
-  → iframe / stronger isolation
+```mermaid
+flowchart TD
+    subgraph ArchitectureScaleLadder["The Front-End Architectural Scale Ladder"]
+        L1["Level 1: Local Component (Start here: zero coordination overhead)"]
+        L2["Level 2: Workspace Package (Internal monorepo library with typed contracts)"]
+        L3["Level 3: Versioned Design System Package (Published npm library across repos)"]
+        L4["Level 4: Modular Monolith (Cohesive codebase with strict directory boundaries)"]
+        L5["Level 5: Route-Based Multi-Zone Apps (Independent deployments partitioned by URL path)"]
+        L6["Level 6: Runtime Micro-Frontends / Module Federation (High cost: earned only by organizational friction)"]
+        L1 --> L2 --> L3 --> L4 --> L5 --> L6
+    end
 ```
 
 Move right only when the lower level cannot satisfy a real requirement.
@@ -1469,11 +1501,15 @@ Migration architecture should support rollback and coexistence.
 
 ## The strangler pattern
 
-```text
-legacy application
-  → new boundary handles one route/capability
-  → traffic shifts gradually
-  → legacy region shrinks
+```mermaid
+flowchart TD
+    Proxy["API Gateway / Edge Router"]
+    Legacy["Legacy Monolith (JSP / ASP.NET / AngularJS)"]
+    NewApp["Modern Micro-App (Next.js / Vite)"]
+
+    Proxy -->|90% Legacy Traffic| Legacy
+    Proxy -->|10% Migrated Route: /permits/apply| NewApp
+    Note over Proxy: Gradually shift routes from Legacy to NewApp until Legacy is completely retired!
 ```
 
 Use stable URLs, data contracts, and ownership rules to keep the old and new systems coherent during transition.
@@ -1648,8 +1684,23 @@ Compilation cannot prove that a remote URL will be available tomorrow.
 
 A boundary is valuable when a failure can remain local:
 
-```text
-remote reports fails → shell navigation and catalogue remain usable
+```mermaid
+flowchart TD
+    Shell["App Shell Navigation & Header (Healthy)"]
+    
+    subgraph ViewContainer["Page Content Layout"]
+        Catalog["Permit Catalogue Widget (Healthy)"]
+        
+        subgraph ErrorBoundary["React / Vue Error Boundary"]
+            FailedRemote["Remote Analytics Widget (Crash / 500 Network Drop)"]
+            Fallback["Fallback UI: 'Analytics temporarily unavailable. Retry'"]
+        end
+    end
+
+    Shell --- Catalog
+    Shell --- ErrorBoundary
+    FailedRemote -.->|Error caught by Boundary| Fallback
+    Note over Shell: Entire application survives! User continues browsing catalogue.
 ```
 
 If every remote failure breaks the shell, distribution has not created meaningful containment.
@@ -1835,8 +1886,7 @@ product-local component
 Write the evidence for the classification: consumers, stability, ownership, accessibility contract, and expected change direction.
 
 ---
-
-## Troubleshooting guide
+## Troubleshooting guide (Part 1)
 
 | Symptom | Likely cause |
 |---|---|
@@ -1845,11 +1895,15 @@ Write the evidence for the classification: consumers, stability, ownership, acce
 | Every package rebuilds for one change | Dependency graph or package boundary is too broad |
 | Teams still coordinate every release | Runtime independence is mostly nominal |
 | Remote failure breaks the whole shell | Failure containment was not designed |
+---
+## Troubleshooting guide (Part 2)
+
+| Symptom | Likely cause |
+|---|---|
 | Different remotes look inconsistent | Token, component, or version governance is weak |
 | Micro-frontends share a giant store | Durable contracts were replaced by hidden coupling |
 | Monorepo feels slow and opaque | Task graph, affected builds, or ownership is unclear |
 | Security assumption follows team ownership | Team boundary is not a runtime isolation boundary |
-
 ---
 
 ## Completion checklist
@@ -1866,8 +1920,7 @@ Write the evidence for the classification: consumers, stability, ownership, acce
 - [ ] scaling decisions are measured against user and team outcomes.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -1878,13 +1931,17 @@ Write the evidence for the classification: consumers, stability, ownership, acce
 | Workspaces and monorepos are identical | Workspaces coordinate packages; architecture needs boundaries |
 | Micro-frontends are tiny components | They are independently owned application capabilities |
 | Micro-frontends are always more scalable | They trade local autonomy for integration complexity |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | Independent deployment means no coordination | Contracts, versions, and runtime failures still coordinate |
 | Module Federation prevents remotes from breaking hosts | Runtime loading requires compatibility and fallback |
 | Shared dependencies are always better | They reduce duplication but increase coupling |
 | Different teams require different frameworks | Team boundaries do not automatically justify runtime diversity |
 | Micro-frontends provide security isolation | Same-origin code often shares trust |
 | Full-page navigation is outdated | It can provide valuable isolation and recovery |
-
 ---
 
 ## The chapter in one sentence
