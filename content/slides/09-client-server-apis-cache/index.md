@@ -57,15 +57,15 @@ The UI should make that lifecycle visible without forcing every component to und
 
 ## The chapter's progression
 
-```text
-HTTP boundary
-  → transport and domain layers
-  → request lifecycle
-  → remote UI states
-  → query cache
-  → freshness and invalidation
-  → mutations and rollback
-  → resilient application architecture
+```mermaid
+flowchart TD
+    A[HTTP Boundary] --> B[Transport & Domain Layers]
+    B --> C[Request Lifecycle]
+    C --> D[Remote UI States]
+    D --> E[Query Cache]
+    E --> F[Freshness & Invalidation]
+    F --> G[Mutations & Rollback]
+    G --> H[Resilient App Architecture]
 ```
 
 Every layer answers a different question about remote data.
@@ -299,10 +299,11 @@ Retry only when the operation and policy justify it.
 
 ## Exponential backoff spreads retries
 
-```text
-attempt 1 → short delay
-attempt 2 → longer delay
-attempt 3 → longer still
+```mermaid
+flowchart TD
+    Att1["Attempt 1: Fails (Network / 5xx)"] -->|"Wait 1,000ms"| Att2["Attempt 2: Fails"]
+    Att2 -->|"Wait 2,000ms + Jitter"| Att3["Attempt 3: Fails"]
+    Att3 -->|"Wait 4,000ms + Jitter"| Att4["Attempt 4: Abort / Surface Error"]
 ```
 
 Add jitter so many clients do not retry at the same instant.
@@ -553,10 +554,11 @@ Discarding useful data on every refresh failure can create a worse experience th
 
 ## Stale-while-revalidate
 
-```text
-cache hit → show cached data
-         → request fresh data
-         → update cache if newer data arrives
+```mermaid
+flowchart LR
+    CacheHit["Cache Hit"] --> RenderCached["Render Cached Data Immediately"]
+    RenderCached --> BackgroundReq["Background Revalidation Request"]
+    BackgroundReq --> Update["Update Cache & Silent UI Re-render"]
 ```
 
 This pattern separates immediate usefulness from eventual freshness.
@@ -593,10 +595,13 @@ The cache then returns data that is valid for a different request but wrong for 
 
 ## Deduplicate identical requests
 
-```text
-component A ─┐
-component B ─┼─→ one in-flight request → shared result
-component C ─┘
+```mermaid
+flowchart LR
+    CompA["Component A"] --> Dedup["In-Flight Request Deduplicator\n(Promise Cache)"]
+    CompB["Component B"] --> Dedup
+    CompC["Component C"] --> Dedup
+    Dedup --> Single["Single HTTP Network Request"]
+    Single --> Shared["Shared Server Result Broadcast"]
 ```
 
 Deduplication reduces duplicate work and makes concurrent consumers observe one request lifecycle.
@@ -622,11 +627,11 @@ Choose triggers that match the user's need for freshness.
 
 ## Invalidation removes confidence, not necessarily data
 
-```text
-mutation succeeds
-  → related cache entries become uncertain
-  → invalidate or update them
-  → refetch when needed
+```mermaid
+flowchart TD
+    Mut["Mutation Succeeds on Server"] --> Inval["Mark Related Cache Keys Stale / Invalid"]
+    Inval --> Refetch["Trigger Active Query Revalidation"]
+    Refetch --> Fresh["Render Canonical Server Truth"]
 ```
 
 Invalidation is a statement that cached knowledge may no longer be current.
@@ -653,9 +658,12 @@ Directly update one entry when:
 
 ## Mutations have their own lifecycle
 
-```text
-idle → submitting → success
-                 ↘ error → retry
+```mermaid
+flowchart LR
+    Idle["Idle"] --> Submitting["Submitting"]
+    Submitting --> Success["Success"]
+    Submitting --> ErrorState["Error"]
+    ErrorState -->|Retry| Submitting
 ```
 
 Add:
@@ -670,9 +678,10 @@ Add:
 
 ## Mutation UX communicates authority
 
-```text
-pessimistic → wait for server before showing success
-optimistic  → show intended result before confirmation
+```mermaid
+flowchart TD
+    Pess["Pessimistic: Wait for authoritative server 200 OK before updating UI"]
+    Opt["Optimistic: Mutate UI immediately; rollback if server rejects request"]
 ```
 
 Choose based on reversibility, conflict risk, user expectations, and the cost of being briefly wrong.
@@ -691,9 +700,11 @@ Use server-side idempotency keys or operation identifiers where repeating an ope
 
 ## Pessimistic updates are conservative
 
-```text
-submit → pending UI → server success → update visible state
-                  ↘ error → keep draft and show recovery
+```mermaid
+flowchart TD
+    Sub["Submit Command"] --> Pending["Display Inline Pending State"]
+    Pending --> Ok["Server Success: Update Canonical UI"]
+    Pending --> Err["Server Error: Preserve Draft & Show Recovery Action"]
 ```
 
 Use this for high-risk, non-reversible, or conflict-sensitive operations where showing unconfirmed state would mislead users.
@@ -702,10 +713,13 @@ Use this for high-risk, non-reversible, or conflict-sensitive operations where s
 
 ## Optimistic updates trade certainty for responsiveness
 
-```text
-user action → update UI immediately
-           → request server
-           → confirm or rollback
+```mermaid
+flowchart LR
+    Action["User Action"] --> Snapshot["1. Snapshot Previous Cache"]
+    Snapshot --> OptimisticUI["2. Update Cache & UI Instantly"]
+    OptimisticUI --> Network["3. Dispatch Server Request"]
+    Network --> Confirm["4a. Server 200: Confirm & Revalidate"]
+    Network --> Rollback["4b. Server Error: Restore Snapshot & Alert"]
 ```
 
 The client must know how to undo the change and what to show if the server rejects it.
@@ -800,10 +814,12 @@ The application still needs its own policy for query state, mutations, and visib
 
 ## Forms and server mutations
 
-```text
-form draft → validate locally → submit transport command
-          → server validation / authorization
-          → preserve or commit draft
+```mermaid
+flowchart TD
+    Draft["1. Form Draft State"] --> Validate["2. Validate Form Locally"]
+    Validate --> Transport["3. Submit Transport Command via Fetch"]
+    Transport --> ServerVal["4. Server-Side Validation & Authorization"]
+    ServerVal --> Commit["5. Commit or Preserve Draft on Error"]
 ```
 
 A successful request does not automatically mean every form field, cache entry, and route is now synchronized.
@@ -897,10 +913,9 @@ Keep the message that explains the actual current failure.
 
 ## Progressive enhancement for forms
 
-```text
-native submit works without JavaScript
-        ↓
-JavaScript adds pending UI, validation, and navigation
+```mermaid
+flowchart TD
+    Native["1. Native HTML form submit works without JavaScript"] --> Enh["2. Progressive Enhancement with JS: Pending states, client validation & SPA transitions"]
 ```
 
 The enhanced path should preserve the core meaning of the native form rather than creating a completely different contract.
@@ -938,9 +953,11 @@ The correct response may be sign-in, permission explanation, or field correction
 
 ## Search needs query identity, cache, and cancellation
 
-```text
-query A → request A
-query B → cancel or supersede A → request B
+```mermaid
+flowchart LR
+    QA["Query A (/search?q=ca)"] --> CancelA["Abort in-flight Controller A"]
+    CancelA --> QB["Query B (/search?q=cat)"]
+    QB --> Network["Execute Request B"]
 ```
 
 An old response must not replace results for a newer query.
@@ -983,8 +1000,10 @@ Keep server data in a server-aware cache unless there is a deliberate transforma
 
 ## Dependent queries form a data graph
 
-```text
-currentUser → accountId → account → transactions
+```mermaid
+flowchart LR
+    User["currentUser Query"] -->|"Resolves accountId"| Account["account Query"]
+    Account -->|"Resolves credentials"| Tx["transactions Query"]
 ```
 
 Start the dependent request only when its required input is known.
@@ -1022,11 +1041,12 @@ Choose `Promise.allSettled()` or explicit result handling when partial success i
 
 ## Partial failure can preserve useful data
 
-```text
-dashboard
-├─ sales       success
-├─ inventory   error + retry
-└─ alerts      success
+```mermaid
+flowchart TD
+    Dash["Dashboard View"]
+    Dash --> Q1["Sales Widget (Status: Success)"]
+    Dash --> Q2["Inventory Widget (Status: Error + Retry Button)"]
+    Dash --> Q3["Alerts Widget (Status: Success)"]
 ```
 
 Do not blank the entire dashboard because one independent panel failed.
@@ -1073,8 +1093,10 @@ This is often more useful than replacing known content with an empty error page.
 
 ## Mutation followed by revalidation
 
-```text
-save succeeds → invalidate related queries → refetch current truth
+```mermaid
+flowchart LR
+    Save["Mutation 200 OK"] --> Inval["Invalidate Related Query Keys"]
+    Inval --> Refetch["Background Refetch of Canonical Server Truth"]
 ```
 
 Revalidation is safest when the server computes fields, permissions, totals, or relationships the client cannot reproduce.
@@ -1083,9 +1105,10 @@ Revalidation is safest when the server computes fields, permissions, totals, or 
 
 ## Mutation response as a cache update
 
-```text
-PATCH product → response contains canonical product
-             → update product key directly
+```mermaid
+flowchart LR
+    Patch["PATCH /products/:id"] --> Resp["Response Payload Contains Canonical Product"]
+    Resp --> Direct["Update ['product', id] Cache Directly (Zero extra GET)"]
 ```
 
 This can avoid a request when the response is authoritative and the affected query shapes are known.
@@ -1096,8 +1119,11 @@ Still consider list ordering, filters, totals, and related cache entries.
 
 ## Optimistic cache update
 
-```text
-snapshot → provisional update → request → confirm / rollback / revalidate
+```mermaid
+flowchart LR
+    Snap["1. Cache Snapshot"] --> Prov["2. Provisional UI"]
+    Prov --> Req["3. Async Request"]
+    Req --> Resolution["4. Confirm / Rollback / Revalidate"]
 ```
 
 The cache update should be isolated, reversible, and tested for failure and concurrency.
@@ -1123,12 +1149,14 @@ They do not decide API semantics, domain ownership, or whether a mutation is saf
 
 ## A useful separation of responsibilities
 
-```text
-transport adapter → HTTP details
-query layer       → cache, freshness, deduplication
-domain mapper     → trusted application model
-feature           → user intent and workflow
-view              → rendering and recovery actions
+```mermaid
+flowchart TD
+    Adapter["Transport Adapter: HTTP methods, headers, status codes"]
+    Query["Query Cache Layer: Freshness, deduplication, staleTime"]
+    Mapper["Domain Mapper: Transforms untrusted JSON into domain entities"]
+    Feature["Feature Coordinator: User intent, pagination, mutations"]
+    View["View Layer: Renders data, skeletons, and error recovery"]
+    Adapter --> Query --> Mapper --> Feature --> View
 ```
 
 Each layer should expose the information its caller needs without leaking every lower-level detail.
@@ -1195,13 +1223,13 @@ The catalogue becomes easier to reason about when each concern has one owner.
 
 ## Product query lifecycle
 
-```text
-parse URL
-  → build query key
-  → read fresh cache or fetch
-  → validate response
-  → expose loading / stale / error / data
-  → render recovery actions
+```mermaid
+flowchart TD
+    URL["1. Parse URL & Query State"] --> Key["2. Build Deterministic Query Key"]
+    Key --> Cache["3. Read Fresh Cache or Trigger Fetch"]
+    Cache --> Validate["4. Validate Schema at Trust Boundary"]
+    Validate --> Expose["5. Expose Loading / Stale / Error / Data"]
+    Expose --> UI["6. Render Data & Recovery Actions"]
 ```
 
 The component should consume a query model, not reinvent this lifecycle.
@@ -1210,13 +1238,13 @@ The component should consume a query model, not reinvent this lifecycle.
 
 ## Editing a product
 
-```text
-load canonical product
-  → create local draft
-  → edit and validate
-  → submit command
-  → preserve draft on failure
-  → update or invalidate cache on success
+```mermaid
+flowchart TD
+    Load["1. Load Canonical Product into Server Cache"] --> Draft["2. Create Detached Local Edit Draft"]
+    Draft --> Validate["3. Validate Inputs Locally"]
+    Validate --> Submit["4. Submit Transport Command via Fetch"]
+    Submit --> ErrorBranch["5a. Failure: Preserve Draft & Show Alert"]
+    Submit --> SuccessBranch["5b. Success: Update/Invalidate Cache & Navigate"]
 ```
 
 Never let a failed mutation erase the user's unfinished work by default.
@@ -1381,8 +1409,7 @@ dashboard panel by account and date range
 Then list which mutations invalidate or directly update each key.
 
 ---
-
-## Troubleshooting guide
+## Troubleshooting guide (Part 1)
 
 | Symptom | Likely cause |
 |---|---|
@@ -1390,11 +1417,15 @@ Then list which mutations invalidate or directly update each key.
 | Old search result replaces new result | missing cancellation or request identity |
 | Different filters show the same data | cache key omits an input |
 | Every refresh blanks the screen | stale data is discarded unnecessarily |
+---
+## Troubleshooting guide (Part 2)
+
+| Symptom | Likely cause |
+|---|---|
 | Failed save loses the draft | mutation lifecycle owns the form incorrectly |
 | Retry duplicates an operation | non-idempotent request has no safety policy |
 | One panel breaks the dashboard | independent queries were coupled with `Promise.all()` |
 | Cache never updates after save | invalidation or direct update is undefined |
-
 ---
 
 ## Completion checklist
@@ -1411,8 +1442,7 @@ Then list which mutations invalidate or directly update each key.
 - [ ] partial failures preserve independent useful data.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -1421,12 +1451,16 @@ Then list which mutations invalidate or directly update each key.
 | Every request should be retried | Retry only safe, useful operations |
 | Loading and empty are the same | One is pending; one is a successful zero result |
 | Cache means correct forever | Cache means reusable knowledge under a policy |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | Stale means unusable | Stale data may be useful while revalidating |
 | Every mutation should be optimistic | Choose based on reversibility and conflict risk |
 | Browser cache and query cache are identical | They are different layers with different owners |
 | A server-state library replaces API design | It provides mechanisms, not semantics |
 | Successful save fixes every cache | Related entries still need reconciliation |
-
 ---
 
 ## The chapter in one sentence
