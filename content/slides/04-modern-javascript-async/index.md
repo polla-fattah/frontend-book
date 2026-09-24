@@ -48,14 +48,14 @@ We will connect:
 
 ## The chapter's progression
 
-```text
-scope and closures
-  → objects and composition
-  → data operations and immutability
-  → modules and iteration
-  → promises and async/await
-  → concurrency and cancellation
-  → locale-aware output
+```mermaid
+flowchart TD
+    A[Scope & Closures] --> B[Objects & Composition]
+    B --> C[Data Operations & Immutability]
+    C --> D[Modules & Iteration]
+    D --> E[Promises & async/await]
+    E --> F[Concurrency & Cancellation]
+    F --> G[Locale-Aware Output]
 ```
 
 The core idea is:
@@ -195,14 +195,11 @@ The object does not need to own every method directly.
 
 Property lookup conceptually follows:
 
-```text
-request itself
-  ↓ if absent
-service prototype
-  ↓ if absent
-Object.prototype
-  ↓ if absent
-undefined
+```mermaid
+flowchart TD
+    A[Request object itself] -->|if absent| B[Service prototype]
+    B -->|if absent| C[Object.prototype]
+    C -->|if absent| D[undefined]
 ```
 
 This affects identity, mutation, method lookup, and debugging. Understand the
@@ -233,8 +230,9 @@ readability for some designs; it does not replace JavaScript's prototype model.
 
 Instead of a deep hierarchy:
 
-```text
-BaseRecord → ServiceRecord → UrgentServiceRecord → LocalisedUrgentRecord
+```mermaid
+flowchart LR
+    A[BaseRecord] --> B[ServiceRecord] --> C[UrgentServiceRecord] --> D[LocalisedUrgentRecord]
 ```
 
 compose focused capabilities:
@@ -486,11 +484,11 @@ This is a useful boundary for implementation details and state ownership.
 
 ## The module graph is a dependency graph
 
-```text
-screen.js
-  ├── request-client.js
-  │     └── http.js
-  └── format-status.js
+```mermaid
+flowchart TD
+    Screen[screen.js] --> ReqClient[request-client.js]
+    Screen --> FormatStatus[format-status.js]
+    ReqClient --> HTTP[http.js]
 ```
 
 The graph affects:
@@ -801,10 +799,18 @@ Parallelism is about simultaneous execution.
 
 ## Race conditions can happen in one thread
 
-```text
-user types:   ca  →  car  →  care
-requests:    A       B        C
-responses:      B       A          C
+```mermaid
+sequenceDiagram
+    participant UI as User Interface
+    participant Net as Network
+    Note over UI: Types "ca" (Req A)
+    UI->>Net: Request A ("ca")
+    Note over UI: Types "car" (Req B)
+    UI->>Net: Request B ("car")
+    Net-->>UI: Response B arrives (150ms)
+    Note over UI: UI shows "car" results
+    Net-->>UI: Response A arrives late (800ms)
+    Note over UI: Race! Stale "ca" overwrites "car"
 ```
 
 If every response renders immediately, request A can overwrite the newer
@@ -922,10 +928,10 @@ started.
 
 ## Debouncing and cancellation solve different problems
 
-```text
-debounce     → delay unnecessary starts
-cancellation → stop outdated work already in progress
-freshness    → reject results that are no longer valid
+```mermaid
+flowchart TD
+    A["Debounce: delay unnecessary starts"] --> B["Cancellation: stop outdated work in flight"]
+    B --> C["Freshness: reject obsolete results"]
 ```
 
 Search interfaces often need all three.
@@ -934,11 +940,11 @@ Search interfaces often need all three.
 
 ## Error propagation needs an owner
 
-```text
-transport layer → reports request failure
-data layer      → validates and normalizes data
-feature layer   → decides recoverable UI state
-screen layer    → presents feedback and retry
+```mermaid
+flowchart TD
+    T["Transport layer: reports request failure"] --> D["Data layer: validates and normalizes data"]
+    D --> F["Feature layer: decides recoverable UI state"]
+    F --> S["Screen layer: presents feedback and retry"]
 ```
 
 Do not let every layer catch and replace the same error with a vague message.
@@ -1145,16 +1151,16 @@ the user.
 
 ## A cancelable search: the complete contract
 
-```text
-input event
-  → debounce
-  → create current controller
-  → cancel previous work
-  → fetch
-  → validate response
-  → format locale-aware values
-  → render only current results
-  → clean up in finally
+```mermaid
+flowchart TD
+    A[Input event] --> B[Debounce delay]
+    B --> C[Create current AbortController]
+    C --> D[Cancel previous active request]
+    D --> E[Fetch network data with signal]
+    E --> F[Validate response & token freshness]
+    F --> G[Format locale-aware values]
+    G --> H[Render current results only]
+    H --> I[Cleanup controller in finally]
 ```
 
 Each arrow is a boundary where an error, race, or ownership decision can occur.
@@ -1228,8 +1234,7 @@ Answer:
 Write one explicit contract before changing the code.
 
 ---
-
-## Troubleshooting questions
+## Troubleshooting questions (Part 1)
 
 | Symptom | First question |
 |---|---|
@@ -1237,13 +1242,15 @@ Write one explicit contract before changing the code.
 | A callback uses old state | Which binding did the closure retain? |
 | A promise chain returns `undefined` | Did each handler return its next value? |
 | Independent requests are slow | Are they accidentally awaited sequentially? |
+---
+## Troubleshooting questions (Part 2)
+
+| Symptom | First question |
+|---|---|
 | Old search results appear | What defines freshness and cancellation? |
 | Loading never ends | Is cleanup in `finally`? |
 | Cancellation shows as an error | Is `AbortError` handled separately? |
 | Dates look different by machine | Is locale and time zone explicit? |
-
-Inspect the timeline and state transitions instead of adding another retry.
-
 ---
 
 ## Completion check
@@ -1267,4 +1274,4 @@ Inspect the timeline and state transitions instead of adding another retry.
 Chapter 5: static types, inference, runtime validation, trusted boundaries,
 and the difference between what a compiler knows and what a browser receives.
 
-**Modern Front-End Architecture & Engineering**
+**Modern Front-End Engineering**
