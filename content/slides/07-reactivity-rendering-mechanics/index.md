@@ -49,14 +49,11 @@ We will connect:
 
 ## The central lesson
 
-```text
-source state
-    ↓ dependencies
-render / derivation
-    ↓ scheduling
-commit / synchronization
-    ↓
-screen and external systems
+```mermaid
+flowchart TD
+    A["Source State"] -->|dependencies| B["Render / Derivation"]
+    B -->|scheduling| C["Commit / Synchronization"]
+    C --> D["Screen & External Systems"]
 ```
 
 Reactivity is not magic.
@@ -67,16 +64,16 @@ It is a system that tracks relationships, schedules work, preserves identity, an
 
 ## The chapter's progression
 
-```text
-manual DOM updates
-  → state-driven UI
-  → render and reconciliation
-  → identity and snapshots
-  → derived state and effects
-  → React mechanics
-  → Vue mechanics
-  → fine-grained systems
-  → scheduling and measurement
+```mermaid
+flowchart TD
+    A[Manual DOM Updates] --> B[State-Driven UI]
+    B --> C[Render & Reconciliation]
+    C --> D[Identity & Snapshots]
+    D --> E[Derived State & Effects]
+    E --> F[React Mechanics]
+    F --> G[Vue Mechanics]
+    G --> H[Fine-Grained Systems & Signals]
+    H --> I[Scheduling & Measurement]
 ```
 
 The same UI goal can be implemented with different reactive mechanisms.
@@ -194,16 +191,12 @@ Calling the function does not mean the browser DOM is immediately rewritten.
 
 ## A React render is a calculation
 
-```text
-state update
-    ↓
-React calls relevant component functions
-    ↓
-new element descriptions
-    ↓
-reconciliation
-    ↓
-commit necessary host changes
+```mermaid
+flowchart TD
+    Update["State Update Triggered"] --> Call["React calls component function"]
+    Call --> Desc["New Element Descriptions (VNodes)"]
+    Desc --> Reconcile["Reconciliation / Diffing Engine"]
+    Reconcile --> Commit["Commit Necessary Host DOM Changes"]
 ```
 
 The render phase should be free of observable side effects.
@@ -232,9 +225,16 @@ Avoid in render:
 
 ## Reconciliation compares descriptions
 
-```text
-previous tree       next tree
-    <h1>Old</h1>  →   <h1>New</h1>
+```mermaid
+flowchart LR
+    subgraph Prev["Previous VNode Tree"]
+        Old["&lt;h1&gt;Old&lt;/h1&gt;"]
+    end
+    subgraph Next["Next VNode Tree"]
+        New["&lt;h1&gt;New&lt;/h1&gt;"]
+    end
+    Prev -->|Diff / Reconciliation| Patch["DOM Mutation: textContent = 'New'"]
+    Next -.-> Patch
 ```
 
 The framework compares what was previously described with what is now described, then determines the smallest host update required.
@@ -262,9 +262,9 @@ Measure the work that actually matters.
 
 After reconciliation, the framework commits required changes to the host environment.
 
-```text
-render phase     → calculate
-commit phase     → mutate DOM / attach refs / run commit work
+```mermaid
+flowchart LR
+    RenderPhase["Render Phase: Pure Calculation\n(Calculate VNodes; zero DOM side-effects)"] --> CommitPhase["Commit Phase: Host Mutation\n(Apply DOM diffs, attach refs, run effects)"]
 ```
 
 Keeping these phases conceptually separate explains why render code should remain predictable.
@@ -287,10 +287,11 @@ Rendering, reconciliation, commitment, and state preservation are related but di
 
 ## Component identity is part of behavior
 
-```text
-same component type + same position + same key
-                    → state can be preserved
-different identity   → state can be replaced
+```mermaid
+flowchart TD
+    Check{"Component Check"}
+    Check -- Same component type + same key + same position --> Preserve["Preserve state & instance"]
+    Check -- Different component type OR different key --> Destroy["Destroy old instance & initialize new state"]
 ```
 
 Identity determines whether a component is treated as the same logical instance.
@@ -542,12 +543,12 @@ It prevents old subscriptions, timers, and requests from outliving the state tha
 
 ## React rendering summary
 
-```text
-state update
-  → snapshot-based render calculation
-  → reconciliation and identity matching
-  → commit host changes
-  → effects synchronize external systems
+```mermaid
+flowchart TD
+    A["State Update"] --> B["Snapshot-based Render Calculation"]
+    B --> C["Reconciliation & Identity Matching"]
+    C --> D["Commit Host DOM Changes"]
+    D --> E["Effects Synchronize External Systems"]
 ```
 
 This is a model for reasoning, not a promise that every implementation detail is synchronous or simple.
@@ -676,10 +677,11 @@ Computed values declare a dependency relationship and can cache until their depe
 
 ## Computed values are not ordinary state
 
-```text
-products + query + filter
-             ↓
-      computed visibleProducts
+```mermaid
+flowchart TD
+    P["products (source)"] --> C["computed: visibleProducts"]
+    Q["query (source)"] --> C
+    F["filter (source)"] --> C
 ```
 
 The computed result should not be manually synchronized with every source update.
@@ -716,12 +718,10 @@ Prefer `computed` when the result is a direct calculation.
 
 ## `watch()` and `watchEffect()` differ
 
-```text
-watch(source, callback)
-  explicit dependency, controlled comparison
-
-watchEffect(callback)
-  dependencies discovered while running
+```mermaid
+flowchart TD
+    W1["watch(source, callback)"] --- W1D["Explicit dependency source & controlled comparison"]
+    W2["watchEffect(callback)"] --- W2D["Automatic dependency discovery during execution"]
 ```
 
 Use the most explicit form that communicates the intended relationship.
@@ -758,9 +758,10 @@ Learn the mechanism well enough to predict behavior; do not flatten the differen
 
 ## Reactivity has granularity
 
-```text
-coarse: rerun a broad component calculation
-fine:   invalidate only computations reading a changed property
+```mermaid
+flowchart TD
+    Coarse["Coarse Reactivity\n(Rerun broad component calculation)"]
+    Fine["Fine-Grained Reactivity\n(Invalidate only computations reading changed property)"]
 ```
 
 Coarser systems can be simple to reason about.
@@ -773,10 +774,11 @@ Neither choice removes the need for good state design.
 
 ## Fine-grained reactivity
 
-```text
-signal A ─┐
-          ├─ derived C ─→ effect
-signal B ─┘
+```mermaid
+flowchart LR
+    SigA["Signal A"] --> Deriv["Derived C"]
+    SigB["Signal B"] --> Deriv
+    Deriv --> Eff["Effect (DOM / Output)"]
 ```
 
 Only computations that depend on invalidated sources need to be reconsidered.
@@ -817,12 +819,12 @@ A fine-grained mechanism can still perform unnecessary work if the graph or stat
 
 ## Scheduling is part of the model
 
-```text
-mutation
-  → invalidation
-  → queue
-  → flush
-  → render / commit / effect
+```mermaid
+flowchart TD
+    Mut["State Mutation"] --> Inval["Dependency Invalidation"]
+    Inval --> Queue["Job Scheduler Queue"]
+    Queue --> Flush["Microtask Flush"]
+    Flush --> Exec["Batch Render / Commit / Effects"]
 ```
 
 Scheduling determines what “immediately” means.
@@ -877,10 +879,11 @@ It may do nothing useful when the array is small, dependencies change every time
 
 ## Memoization should follow measurement
 
-```text
-measure → identify repeated expensive work
-       → choose the narrowest optimization
-       → verify behavior and cost again
+```mermaid
+flowchart LR
+    Measure["Measure Performance"] --> Identify["Identify Repeated Work"]
+    Identify --> Optimize["Narrowest Targeted Optimization"]
+    Optimize --> Verify["Verify Behavior & Real Cost"]
 ```
 
 Memoization has costs:
@@ -918,11 +921,12 @@ Selectivity is a mechanism—not a substitute for a clear dependency graph.
 
 ## Identity affects list rendering in every framework
 
-```text
-stable item identity
-  → preserve the correct row state
-  → preserve focus and input values
-  → make insertions and reordering understandable
+```mermaid
+flowchart TD
+    Identity["Stable Item Key / Identity"]
+    Identity --> State["Preserve correct row/sub-tree state"]
+    Identity --> Focus["Preserve active focus & form inputs"]
+    Identity --> Order["Deterministic list reordering & animations"]
 ```
 
 Stable keys are a user-experience concern as much as a rendering optimization.
@@ -959,10 +963,11 @@ If switching should reset state, make that reset intentional.
 
 ## Effects and watchers can create feedback loops
 
-```text
-state change → effect updates state
-            → effect runs again
-            → repeated updates
+```mermaid
+flowchart TD
+    SChange["State Change"] --> Eff["Effect Runs & Calls setState"]
+    Eff --> Loop["Triggers Re-render"]
+    Loop --> SChange
 ```
 
 Before adding synchronization, define:
@@ -976,12 +981,13 @@ Before adding synchronization, define:
 
 ## Think in reactive graphs
 
-```text
-query ──────────┐
-products ────────┼─→ visibleProducts ─→ ProductGrid
-stockFilter ────┘
-
-query ─→ URL synchronization effect
+```mermaid
+flowchart TD
+    Query["query (source)"] --> Visible["computed: visibleProducts"]
+    Products["products (source)"] --> Visible
+    Stock["stockFilter (source)"] --> Visible
+    Visible --> Grid["ProductGrid (View)"]
+    Query --> URLEffect["URL Sync Effect"]
 ```
 
 The graph reveals which values are sources, derivations, render consumers, and external effects.
@@ -1024,13 +1030,14 @@ Understand the behavior even when tooling automates an optimization.
 
 ## Searchable product list: the shared dependency graph
 
-```text
-query ───────┐
-products ────┼─→ filteredProducts ─→ list
-filter ──────┘
-
-query ─→ URL
-list selection ─→ analytics
+```mermaid
+flowchart TD
+    Q["query (source)"] --> F["filteredProducts (derived)"]
+    P["products (source)"] --> F
+    Flt["filter (source)"] --> F
+    F --> List["Product List View"]
+    Q --> URL["URL Sync Effect"]
+    List --> Analytics["Selection Analytics Effect"]
 ```
 
 The same product feature can be implemented in React, Vue, or a signal system while preserving this conceptual graph.
@@ -1136,11 +1143,12 @@ Choose a measurement that can change the decision.
 
 ## Necessary UI change versus unnecessary work
 
-```text
-state changed
-  → some recalculation may be necessary
-  → some DOM changes may be necessary
-  → other work may be avoidable
+```mermaid
+flowchart TD
+    StateChange["State Changed"] --> Recalc["Recalculate Derived Descriptions"]
+    Recalc --> DiffCheck{"Are Descriptions Different?"}
+    DiffCheck -- Yes --> DOMMut["Necessary DOM Changes Committed"]
+    DiffCheck -- No --> Skip["Skip Host DOM Updates"]
 ```
 
 Do not optimize away work before identifying which part is unnecessary.
@@ -1171,9 +1179,15 @@ If it is cheap and local, a plain expression is often the best design.
 
 ## Side effects should cross a boundary
 
-```text
-pure calculation → describe desired UI
-effect boundary  → network, storage, DOM, timer, subscription
+```mermaid
+flowchart LR
+    subgraph Pure["Pure Computation Zone"]
+        Render["Render: State → Desired UI Description"]
+    end
+    subgraph Boundary["Side Effect Boundary"]
+        Sync["Network, Storage, DOM, Timers, Subscriptions"]
+    end
+    Pure -->|Committed State| Boundary
 ```
 
 The boundary helps answer:
@@ -1258,8 +1272,11 @@ Ask which mechanism discovers dependencies, when invalidation occurs, and how cl
 
 Add a graph visualizer showing:
 
-```text
-source → computed → computed → effect
+```mermaid
+flowchart LR
+    Source["Signal Source"] --> Comp1["Computed A"]
+    Comp1 --> Comp2["Computed B"]
+    Comp2 --> EffectNode["Effect Observer"]
 ```
 
 Highlight:
@@ -1287,8 +1304,7 @@ Build a searchable list with:
 Then explain which updates are necessary and which calculations can remain untouched.
 
 ---
-
-## Troubleshooting guide
+## Troubleshooting guide (Part 1)
 
 | Symptom | Likely cause |
 |---|---|
@@ -1296,11 +1312,15 @@ Then explain which updates are necessary and which calculations can remain untou
 | Input state moves to another row | Unstable or index-based keys |
 | UI flashes an old derived value | Derived state synchronized through an effect |
 | Effect runs forever | Effect updates one of its own dependencies |
+---
+## Troubleshooting guide (Part 2)
+
+| Symptom | Likely cause |
+|---|---|
 | Vue value stopped updating | Destructuring removed the reactive connection |
 | DOM is old after a mutation | Update is queued; await the framework flush |
 | Memoization changes nothing | Dependencies or calculation cost do not justify it |
 | Async result wins after a newer query | Missing cleanup or cancellation |
-
 ---
 
 ## Completion checklist
@@ -1316,8 +1336,7 @@ Then explain which updates are necessary and which calculations can remain untou
 - [ ] the reactive graph is explainable from source to screen.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -1326,12 +1345,16 @@ Then explain which updates are necessary and which calculations can remain untou
 | Virtual DOM is always faster | Performance depends on the measured work |
 | Every rerender is a bug | Some recalculation is necessary |
 | Keys only remove warnings | Keys preserve logical identity |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | Derived values belong in state | Direct calculations usually stay derived |
 | Effects respond to any state change | Effects synchronize external systems |
 | Vue watchers calculate normal derivations | `computed` represents derivation |
 | Signals are one standard technology | Signals are a family of mechanisms |
 | Compiler optimization makes architecture irrelevant | Tools cannot choose ownership or intent |
-
 ---
 
 ## The chapter in one sentence
