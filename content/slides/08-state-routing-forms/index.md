@@ -58,14 +58,14 @@ The better question is “what kind of state is this, and who is responsible for
 
 ## The chapter's progression
 
-```text
-classify state
-  → assign ownership
-  → choose update model
-  → design URL and route state
-  → design form state
-  → model transitions
-  → test navigation and persistence
+```mermaid
+flowchart TD
+    A[Classify State] --> B[Assign Ownership]
+    B --> C[Choose Update Model]
+    C --> D[Design URL & Route State]
+    D --> E[Design Form State]
+    E --> F[Model Workflow Transitions]
+    F --> G[Test Navigation & Persistence]
 ```
 
 Tools come after the state model, not before it.
@@ -74,22 +74,24 @@ Tools come after the state model, not before it.
 
 ## “State” is not one thing
 
-```text
-dialogOpen        local UI state
-selectedTab       local or URL state
-currentUser       domain/session state
-products          server state
-query             URL or local draft state
-formDraft         form state
-themePreference   persistent client state
-resultCount       derived state
+```mermaid
+flowchart TD
+    subgraph StateTaxonomy["Application State Taxonomy"]
+        S1["dialogOpen: Local UI State"]
+        S2["selectedTab: Local / URL State"]
+        S3["currentUser: Domain / Session State"]
+        S4["products: Server State"]
+        S5["query: URL / Local Draft State"]
+        S6["formDraft: Form State"]
+        S7["themePreference: Persistent Client State"]
+        S8["resultCount: Derived State"]
+    end
 ```
 
 The category predicts who owns the value and how it should change.
 
 ---
-
-## A practical state taxonomy
+## A practical state taxonomy (Part 1)
 
 | Category | Typical lifetime | Example |
 |---|---|---|
@@ -97,13 +99,15 @@ The category predicts who owns the value and how it should change.
 | shared UI | several nearby components | selected tab |
 | domain | business workflow | approval status |
 | server | remote source | product list |
+---
+## A practical state taxonomy (Part 2)
+
+| Category | Typical lifetime | Example |
+|---|---|---|
 | URL | shareable view | page and filters |
 | form | unfinished input | draft email |
 | persistent | across sessions | theme preference |
 | derived | calculated | filtered results |
-
-These categories can interact, but should not be silently merged.
-
 ---
 
 ## Local UI state
@@ -340,8 +344,14 @@ The transition vocabulary makes state changes inspectable and testable.
 
 ## Unidirectional data flow
 
-```text
-state → render → user intent → action → transition → new state
+```mermaid
+flowchart LR
+    State["Current State"] --> Render["Render UI"]
+    Render --> Intent["User Action / Intent"]
+    Intent --> Action["Dispatch Action"]
+    Action --> Reducer["Transition Function"]
+    Reducer --> Next["New State Snapshot"]
+    Next -.-> State
 ```
 
 One direction makes it easier to answer:
@@ -383,10 +393,14 @@ They can be combined. Neither is automatically the correct scale.
 
 ## State machines make workflows visible
 
-```text
-idle → editing → submitting → success
-                   ↓             ↓
-                 error ← retry ←─┘
+```mermaid
+flowchart LR
+    Idle["Idle"] --> Editing["Editing"]
+    Editing --> Submitting["Submitting"]
+    Submitting --> Success["Success"]
+    Submitting --> ErrorState["Error"]
+    ErrorState -->|Retry| Submitting
+    ErrorState -->|Edit again| Editing
 ```
 
 State machines are useful when legal transitions matter more than storing a collection of booleans.
@@ -497,11 +511,12 @@ Parent routes can own layout, permissions, data context, and persistent navigati
 
 ## Layout routes preserve context
 
-```text
-AdminLayout
-├─ sidebar
-├─ header
-└─ child route outlet
+```mermaid
+flowchart TD
+    Layout["AdminLayout (Persistent Shell)"]
+    Layout --> Sidebar["Sidebar Nav"]
+    Layout --> Header["Top Header & User Info"]
+    Layout --> Outlet["Child Route &lt;Outlet /&gt;"]
 ```
 
 The layout can remain mounted while the child changes.
@@ -512,10 +527,11 @@ This preserves navigation context and avoids rebuilding shared structure unneces
 
 ## Navigation changes state and history
 
-```text
-push  → new history entry
-replace → revise current entry
-back  → restore a previous view state
+```mermaid
+flowchart TD
+    Push["push: New history entry (back returns here)"]
+    Replace["replace: Update current entry (no new history step)"]
+    Back["back / forward: Restore historical view snapshot"]
 ```
 
 Choose history semantics deliberately.
@@ -556,8 +572,10 @@ It helps organize the map, but it does not decide which state belongs in the rou
 
 ## The URL is state
 
-```text
-URL ↔ parsed route state ↔ rendered view
+```mermaid
+flowchart LR
+    URL["URL Address Bar"] <-->|"Parse / Serialize"| State["Parsed Route State"]
+    State <-->|"Render / Events"| View["Rendered View"]
 ```
 
 Do not copy URL values into local state without a clear ownership reason.
@@ -606,8 +624,10 @@ URL query ↔ local query ↔ debounced query ↔ server query
 
 Define the stages explicitly:
 
-```text
-local draft input → committed URL query → server request
+```mermaid
+flowchart LR
+    Draft["1. Local Draft Input\n(Immediate keystrokes)"] -->|"Commit (Enter/Blur/Debounce)"| URL["2. Committed URL Query\n(Shareable & Back-button aware)"]
+    URL -->|"Data Fetch / Cache"| ServerReq["3. Server API Request\n(Cancellable async query)"]
 ```
 
 Each stage has a different purpose and transition.
@@ -668,11 +688,11 @@ The route is a user interaction, not merely a URL replacement.
 
 ## Pending navigation needs visible feedback
 
-```text
-navigation requested
-  → pending indicator
-  → data and code resolve
-  → new route commits
+```mermaid
+flowchart TD
+    Req["Navigation Requested"] --> Indicator["Pending Feedback Indicator"]
+    Indicator --> Resolve["Data & Code Bundle Resolve"]
+    Resolve --> CommitRoute["New Route Commits to DOM"]
 ```
 
 Keep the current context understandable while the next view is loading.
@@ -683,10 +703,11 @@ Avoid showing a blank screen for an operation that can preserve useful layout.
 
 ## Loading states should belong to the right scope
 
-```text
-route shell loading   → page-level fallback
-panel data loading    → panel skeleton
-button mutation       → button pending state
+```mermaid
+flowchart TD
+    S1["Route shell loading: Page-level fallback / spinner"]
+    S2["Panel data loading: Panel skeleton loader"]
+    S3["Button mutation: Local inline pending state"]
 ```
 
 One global spinner often hides which part of the interface is actually unavailable.
@@ -745,10 +766,10 @@ Route nesting, component identity, and state ownership work together.
 
 ## Route-level code splitting
 
-```text
-initial shell
-  → load catalogue route
-  → load edit route only when needed
+```mermaid
+flowchart TD
+    Shell["Initial Application Shell"] --> CatRoute["Load Catalogue Route Chunk"]
+    CatRoute --> EditRoute["Load Edit Route Chunk on Demand"]
 ```
 
 Splitting at route boundaries can reduce initial work and align code loading with user navigation.
@@ -805,11 +826,11 @@ Native form behavior can be simple, efficient, and accessible when the applicati
 
 ## Hybrid form architectures
 
-```text
-native input editing
-  → local draft
-  → controlled validation summary
-  → submitted domain command
+```mermaid
+flowchart LR
+    Native["Native Input Editing"] --> Draft["Local Form Draft State"]
+    Draft --> Validation["Controlled Validation Engine"]
+    Validation --> Command["Submitted Domain Command"]
 ```
 
 Use control where coordination is needed and native behavior where it is enough.
@@ -882,11 +903,13 @@ It is different from touched state: a user can touch a field and return it to it
 
 ## Validation has several layers
 
-```text
-field-level       email format
-cross-field       end after start
-domain/business   product is editable
-server-side       value is accepted by the API
+```mermaid
+flowchart TD
+    F1["1. Field-Level: Format, length, regex (e.g. Email syntax)"]
+    F2["2. Cross-Field: Relationship rules (e.g. End date after Start date)"]
+    F3["3. Domain/Business: Entity rules (e.g. Permit status editable)"]
+    F4["4. Server-Side: Authority validation (e.g. Unique registration number)"]
+    F1 --> F2 --> F3 --> F4
 ```
 
 Keep the layer visible so the UI can show the right message and recovery path.
@@ -952,8 +975,11 @@ Scattered array mutations make dirty state, validation, and focus behavior harde
 
 ## Multistep forms are workflows
 
-```text
-account → profile → review → submit
+```mermaid
+flowchart LR
+    Account["Account"] --> Profile["Profile"]
+    Profile --> Review["Review"]
+    Review --> Submit["Submit"]
 ```
 
 Each step needs:
@@ -983,12 +1009,14 @@ Keep sensitive drafts and unfinished values in an appropriate private owner.
 
 ## A wizard state machine
 
-```text
-profileIncomplete
-  → profileComplete
-  → review
-  → submitting
-  → success / serverError
+```mermaid
+flowchart LR
+    Incomplete["profileIncomplete"] --> Complete["profileComplete"]
+    Complete --> InReview["reviewStep"]
+    InReview --> Submitting["submitting"]
+    Submitting --> Done["success"]
+    Submitting --> Fail["serverError"]
+    Fail -->|Retry| Submitting
 ```
 
 Explicit transitions prevent the UI from entering a review step without the required data.
@@ -1043,14 +1071,14 @@ The map explains where each value should live.
 
 Bad:
 
-```text
-URL page → local page → store page → request page
-```
-
-Better:
-
-```text
-URL page → parsed route state → request
+```mermaid
+flowchart LR
+    subgraph Bad["Anti-Pattern: Duplicating URL State Across Stores"]
+        B1["URL Page"] --> B2["Local Page State"] --> B3["Global Store Page"] --> B4["Request Page"]
+    end
+    subgraph Good["Architectural Best Practice: Direct Pipeline"]
+        G1["URL Page"] --> G2["Parsed Route State"] --> G3["Request Query"]
+    end
 ```
 
 Create a local draft only when editing and committing are intentionally different states.
@@ -1145,13 +1173,19 @@ Do not force every stage into one state container.
 
 ## A state placement decision tree
 
-```text
-Is it calculated?          → derive it
-Is an external system owner? → synchronize at boundary
-Must it be shareable?       → URL
-Must it survive sessions?   → persistence
-Who needs it now?           → smallest common owner
-Does it cross a workflow?   → reducer / state machine / store
+```mermaid
+flowchart TD
+    Q1{"Is it calculable from existing data?"} -- Yes --> A1["Derive it (Pure computed / inline)"]
+    Q1 -- No --> Q2{"Is an external system the owner?"}
+    Q2 -- Yes --> A2["Synchronize at boundary (API/Storage)"]
+    Q2 -- No --> Q3{"Must it be bookmarkable / shareable?"}
+    Q3 -- Yes --> A3["URL Query Parameter"]
+    Q3 -- No --> Q4{"Must it survive reloads / sessions?"}
+    Q4 -- Yes --> A4["Persistent Client Storage (localStorage/IndexedDB)"]
+    Q4 -- No --> Q5{"Who needs it?"}
+    Q5 -- Single component --> A5["Local Component State"]
+    Q5 -- Component subtree --> A6["Context / Provide-Inject"]
+    Q5 -- Cross-feature domain workflow --> A7["Dedicated Store / State Machine"]
 ```
 
 This is a reasoning aid, not a mechanical law.
@@ -1236,11 +1270,21 @@ Again, compare ownership and transitions rather than framework syntax.
 
 ## Forms in React and Vue
 
-```text
-React controlled input  ≈ Vue v-model
-React reducer           ≈ Vue reactive state + actions
-React effect            ≈ Vue watch
-FormData                ≈ native browser boundary in both
+```mermaid
+flowchart LR
+    subgraph ReactWorld["React Paradigm"]
+        R1["Controlled Input (value + onChange)"]
+        R2["useReducer (state + dispatch)"]
+        R3["useEffect (synchronization)"]
+    end
+    subgraph VueWorld["Vue Paradigm"]
+        V1["v-model (two-way binding syntax)"]
+        V2["reactive + action methods"]
+        V3["watch / watchEffect"]
+    end
+    R1 <-->|Equivalent| V1
+    R2 <-->|Equivalent| V2
+    R3 <-->|Equivalent| V3
 ```
 
 The important design questions remain:
@@ -1284,14 +1328,14 @@ Explicit actions make it possible to test dirty state, touched state, validation
 
 ## Route plus form interaction
 
-```text
-route /products/p-42/edit
-  → load server product
-  → initialize local draft
-  → edit without mutating server cache
-  → validate and submit command
-  → invalidate or update server state
-  → navigate to canonical view
+```mermaid
+flowchart TD
+    Route["1. Route: /products/p-42/edit"] --> Load["2. Load Server Product into Cache"]
+    Load --> Init["3. Initialize Local Form Draft (Detached copy)"]
+    Init --> Edit["4. User Edits Draft (Zero mutation of server cache)"]
+    Edit --> Validate["5. Validate & Submit Command"]
+    Validate --> Inval["6. Invalidate / Update Server State"]
+    Inval --> Nav["7. Navigate to Canonical Resource View"]
 ```
 
 Each arrow is a deliberate ownership transition.
@@ -1329,10 +1373,12 @@ Persistence is another external boundary with lifecycle and privacy decisions.
 
 ## Local state versus context versus store
 
-```text
-local      → one feature or component owns it
-context    → a related component family shares it
-store      → a longer-lived domain or server-oriented owner is needed
+```mermaid
+flowchart TD
+    Local["Local State: One component / feature owns it"]
+    Context["Context State: Related family shares it without prop drilling"]
+    Store["Store State: Cross-feature domain workflow / server data"]
+    Local --> Context --> Store
 ```
 
 Start with the smallest scope that satisfies the real consumers.
@@ -1341,10 +1387,11 @@ Start with the smallest scope that satisfies the real consumers.
 
 ## Server state versus client state
 
-```text
-server data       remote owner, stale, refetchable
-client UI state   local decisions, immediate interaction
-domain state      business transitions and accepted values
+```mermaid
+flowchart TD
+    S1["Server Data: Remote owner, asynchronous, stale, refetchable"]
+    S2["Client UI State: Local user choices, immediate interaction, ephemeral"]
+    S3["Domain State: Business transitions, validated models, domain rules"]
 ```
 
 The same object may be represented in more than one layer, but each representation needs a clear owner and synchronization rule.
@@ -1353,9 +1400,10 @@ The same object may be represented in more than one layer, but each representati
 
 ## URL state versus persistent state
 
-```text
-URL                current shareable view
-persistent storage long-lived user preference or draft
+```mermaid
+flowchart LR
+    URL["URL State: Current shareable view & navigation bookmark"]
+    Storage["Persistent Storage: Long-lived preference or offline draft across sessions"]
 ```
 
 The URL is visible and navigable.
@@ -1453,8 +1501,11 @@ Include loading, error, retry, unsaved-change, and back/forward behavior.
 
 Add:
 
-```text
-local input → debounce → cancellable request → server-state cache
+```mermaid
+flowchart LR
+    Input["Local Keystrokes"] --> Debounce["Debounce Timer"]
+    Debounce --> Cancel["AbortController (Cancel in-flight)"]
+    Cancel --> Cache["Server-State Cache (Query Result)"]
 ```
 
 Keep the local suggestion draft separate from the committed URL query.
@@ -1481,8 +1532,7 @@ filtered rows
 Write the owner and lifetime beside each one before writing components.
 
 ---
-
-## Troubleshooting guide
+## Troubleshooting guide (Part 1)
 
 | Symptom | Likely cause |
 |---|---|
@@ -1490,11 +1540,15 @@ Write the owner and lifetime beside each one before writing components.
 | Back button feels noisy | Every transient edit pushed history |
 | Refresh loses the view | Shareable state stayed local |
 | Old API data overwrites new data | Server-state race lacks cancellation or identity |
+---
+## Troubleshooting guide (Part 2)
+
+| Symptom | Likely cause |
+|---|---|
 | Form loses work on navigation | Dirty policy is undefined |
 | Validation flickers | Draft, touched, and errors are conflated |
 | Store contains everything | State categories were never classified |
 | Child route feels like a full reset | Parent context or layout is not preserved |
-
 ---
 
 ## Completion checklist
@@ -1511,8 +1565,7 @@ Write the owner and lifetime beside each one before writing components.
 - [ ] route and form behavior is tested from the user's perspective.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -1522,12 +1575,16 @@ Write the owner and lifetime beside each one before writing components.
 | The URL is just routing | It is public, serializable view state |
 | Every option belongs in the URL | Ephemeral and sensitive values have other owners |
 | Forms are collections of controlled inputs | Forms are workflows with drafts and transitions |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | Controlled forms are always better | Choose based on coordination needs |
 | Draft and domain models must match | Input representation can differ from accepted data |
 | Dirty and touched mean the same thing | They record different interaction facts |
 | A reducer is only for global state | Local complex transitions benefit too |
 | Back/forward is only the router's problem | History behavior is product architecture |
-
 ---
 
 ## The chapter in one sentence
