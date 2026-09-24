@@ -72,13 +72,13 @@ The answer determines where to invest test effort.
 
 ## Confidence comes from different evidence
 
-```text
-static checks → contracts and structure
-unit tests    → deterministic logic
-component     → UI behavior and semantics
-integration   → boundaries working together
-E2E           → real user journeys
-field signals → production behavior
+```mermaid
+flowchart TD
+    SA["Static Checks<br/>(Types, Linters, Schema)"] --> UT["Unit Tests<br/>(Pure Logic & Reducers)"]
+    UT --> CT["Component Tests<br/>(DOM Semantics & Events)"]
+    CT --> IT["Integration Tests<br/>(Boundaries & State Flow)"]
+    IT --> E2E["E2E Tests<br/>(Real Browser Journeys)"]
+    E2E --> FS["Field Signals<br/>(RUM & Telemetry)"]
 ```
 
 No one layer can prove the others.
@@ -100,9 +100,12 @@ Choose the mix from risk, not from a diagram's proportions.
 
 ## The cost-confidence spectrum
 
-```text
-low cost / narrow confidence → high cost / broad confidence
-static → unit → component → integration → browser journey
+```mermaid
+flowchart LR
+    A["Static Checks<br/>Lowest Cost / Narrow"] --> B["Unit Tests"]
+    B --> C["Component Tests"]
+    C --> D["Integration Tests"]
+    D --> E["Browser Journeys<br/>Highest Cost / Broad"]
 ```
 
 Use the narrowest test that provides enough confidence for the risk.
@@ -365,8 +368,11 @@ The scope should reflect a real interaction boundary.
 
 ## Integration is a spectrum
 
-```text
-two modules → feature boundary → route → application workflow
+```mermaid
+flowchart LR
+    M["Two Collaborating Modules"] --> FB["Feature Boundary"]
+    FB --> RT["Route & URL State"]
+    RT --> AW["Application Workflow"]
 ```
 
 Name the scope clearly.
@@ -447,10 +453,14 @@ Know what the environment does not implement before trusting it for a browser-sp
 
 ## User event simulation
 
-Prefer realistic sequences:
+Prefer realistic sequences over synthetic dispatch:
 
-```text
-focus → keydown → input → change → blur
+```mermaid
+flowchart LR
+    F["focus"] --> KD["keydown"]
+    KD --> IN["input"]
+    IN --> CH["change"]
+    CH --> BL["blur"]
 ```
 
 A single direct property assignment may skip behavior your product depends on.
@@ -490,12 +500,18 @@ Test where focus goes, what happens on dismissal, and whether the trigger is res
 
 ## Testing async UI
 
-Cover transitions such as:
+Cover asynchronous state transitions:
 
-```text
-idle → loading → success
-idle → loading → empty
-idle → loading → error → retry
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Loading: User Trigger / Fetch
+    Loading --> Success: 200 OK Response
+    Loading --> Empty: Zero Results Found
+    Loading --> Error: Network / 500 Fail
+    Error --> Loading: Retry Action
+    Success --> [*]
+    Empty --> [*]
 ```
 
 Assert after the relevant state settles, not immediately after starting an asynchronous operation.
@@ -597,13 +613,110 @@ The happy path is one state among several that users will encounter.
 
 ## Test cancellation and races where relevant
 
-```text
-query A → query B → A resolves late
+```mermaid
+sequenceDiagram
+    autonumber
+    participant UI as Search Input
+    participant Net as Network Boundary
+    participant Srv as Server
+    UI->>Net: Query "erb" (Request 1)
+    UI->>Net: Query "erbil" (Request 2)
+    Note over Net: Request 1 delayed (800ms)
+    Net->>Srv: Process Request 2
+    Srv-->>UI: Results for "erbil" (Arrives at 200ms)
+    Srv-->>UI: Results for "erb" (Arrives at 800ms - LATE!)
+    Note over UI: Race Bug: Stale results clobber newest search!
 ```
 
-The test should prove that B remains authoritative.
+The test should prove that Query 2 remains authoritative and Request 1 was aborted.
 
-Also test cleanup when a component leaves the tree or a request is aborted.
+---
+
+## Demonstration: Failing race condition
+
+```ts
+// User types rapidly: "erb" then "erbil"
+// Without AbortController, Request 1 resolves after Request 2:
+test("demonstrates race condition failure", async () => {
+  render(<LiveSearch />);
+  await user.type(screen.getByRole("searchbox"), "erb");
+  await user.type(screen.getByRole("searchbox"), "il");
+  // If the component lacks cancellation, delayed response for "erb"
+  // overwrites the newer "erbil" results in the DOM!
+  expect(screen.getByRole("searchbox")).toHaveValue("erbil");
+  // FAILS: DOM displays items for "erb" instead of "erbil"
+  expect(await screen.findByText("Erbil International Airport")).toBeInTheDocument();
+});
+```
+
+A test that does not control network timing will never detect this intermittent race.
+
+---
+
+## Demonstration: Setting up the race test
+
+Simulate network latency on the first query using MSW:
+
+```ts
+const heldResolvers: Array<() => void> = [];
+server.use(
+  http.get("/api/search", ({ request }) => {
+    const q = new URL(request.url).searchParams.get("q");
+    if (q === "erb") {
+      // Hold Request 1 until manually released
+      return new Promise(r => heldResolvers.push(() => 
+        r(HttpResponse.json([{ id: 1, name: "Old Erbil Entry" }]))
+      ));
+    }
+    return HttpResponse.json([{ id: 2, name: "Erbil International Airport" }]);
+  })
+);
+```
+
+---
+
+## Demonstration: Asserting race resilience
+
+Trigger rapid typing and verify late responses are ignored:
+
+```ts
+render(<LiveSearch />);
+
+// User types "erbil" - Request 2 resolves quickly
+await user.type(screen.getByRole("searchbox"), "erbil");
+expect(await screen.findByText("Erbil International Airport")).toBeInTheDocument();
+
+// Resolve delayed Request 1: must NOT clobber current UI
+heldResolvers[0]?.();
+expect(screen.queryByText("Old Erbil Entry")).not.toBeInTheDocument();
+```
+
+The test controls network timing at the transport boundary.
+
+---
+
+## What the passing race test proves
+
+Passing the mocked component race test validates:
+
+- **Order-independence:** delayed earlier requests do not overwrite newer state;
+- **DOM accuracy:** rendered search results reflect the active query;
+- **Cancellation:** `AbortController` dispatches signal on new keystrokes.
+
+The contract between input and view is verified.
+
+---
+
+## What the passing test still cannot prove
+
+Even with the component test green, it cannot prove:
+
+- **Backend capacity:** server rate-limiting under concurrent queries;
+- **Screen-reader cadence:** `aria-live` speech queue congestion;
+- **Device rendering:** frame drops on low-tier mobile hardware;
+- **Input methods:** IME Arabic/CJK composition events.
+
+Confidence requires complementary evidence across layers.
 
 ---
 
@@ -1007,10 +1120,10 @@ Name the behavior and the important condition.
 
 ## Arrange–Act–Assert
 
-```text
-Arrange → establish state and dependencies
-Act     → perform the meaningful interaction
-Assert  → verify the user-visible outcome
+```mermaid
+flowchart LR
+    ARR["Arrange<br/>Establish state & mock boundaries"] --> ACT["Act<br/>Perform meaningful user interaction"]
+    ACT --> AST["Assert<br/>Verify user-visible outcomes & semantics"]
 ```
 
 Keep the structure readable, even when a test uses several assertions.
@@ -1155,13 +1268,21 @@ Do not test only the connected happy path.
 
 ## Race testing
 
-Make the race controllable:
+Make the race controllable at the boundary:
 
-```text
-hold response A
-start request B
-resolve A
-resolve B
+```mermaid
+sequenceDiagram
+    participant Test as Test Runner
+    participant MSW as Mock Boundary
+    participant App as Client UI
+    Test->>MSW: Hold Response A
+    App->>MSW: Dispatch Request A
+    App->>MSW: Dispatch Request B
+    Test->>MSW: Resolve Response B
+    MSW-->>App: Render B
+    Test->>MSW: Resolve Response A (Delayed)
+    MSW-->>App: Discard or Ignore A
+    Test->>App: Assert UI displays B
 ```
 
 Assert that the current identity or version wins according to the product policy.
@@ -1199,13 +1320,15 @@ A cache test should prove what the user sees, not merely that a map received a v
 
 ## Optimistic update test
 
-Cover:
+Cover the optimistic state lifecycle:
 
-```text
-apply provisional value
-server confirms → preserve or reconcile
-server rejects   → rollback and show recovery
-newer update     → avoid overwriting current truth
+```mermaid
+flowchart TD
+    Init["User Submits Action"] --> Prov["Apply Provisional Value to UI"]
+    Prov --> Net{"Server Response"}
+    Net -->|200 Confirmed| Keep["Preserve or Reconcile"]
+    Net -->|500 Rejected| Roll["Rollback to Previous State & Show Error Alert"]
+    Net -->|Newer Update Exists| Guard["Avoid Overwriting Newer Truth"]
 ```
 
 Optimism without rollback testing is only a happy-path demo.
@@ -1316,12 +1439,12 @@ A component that looks correct in one theme and viewport is not fully verified.
 
 Define which environment supports each layer:
 
-```text
-unit        → local fast runtime
-component   → simulated or real browser
-integration → controlled services
-E2E         → deployed-like app and data
-production  → safe smoke and monitoring
+```mermaid
+flowchart LR
+    U["Unit<br/>Fast Node / Bun"] --> C["Component<br/>jsdom / Browser Runner"]
+    C --> I["Integration<br/>Controlled Mock Services"]
+    I --> E["E2E<br/>Real Headless Browsers"]
+    E --> P["Production<br/>Canary / RUM Telemetry"]
 ```
 
 Keep environment differences documented and intentional.
@@ -1468,13 +1591,16 @@ These are signals to redesign the evidence strategy.
 
 ## A balanced strategy by layer
 
-```text
-static    → contracts and unsafe patterns
-unit      → pure rules and transformations
-component → visible interaction and semantics
-integration → boundaries and recovery
-E2E       → critical journeys
-production → safe smoke, RUM, and incident evidence
+```mermaid
+flowchart TD
+    S["Static Checks: Contracts & unsafe patterns"]
+    U["Unit Tests: Pure rules & transformations"]
+    C["Component Tests: Visible interaction & semantics"]
+    I["Integration Tests: Boundaries & failure recovery"]
+    E["E2E Tests: Critical user revenue journeys"]
+    P["Production: Safe smoke, RUM & telemetry"]
+
+    S --> U --> C --> I --> E --> P
 ```
 
 The layers should reinforce rather than duplicate one another.
@@ -1513,13 +1639,15 @@ Then integration-test where the formatted value appears in a real product journe
 
 ## Testing search
 
-Cover:
+Cover the complete search user journey:
 
-```text
-typing → debounce → request → loading → results
-query B supersedes query A
-empty and error states
-retry and URL synchronization
+```mermaid
+flowchart LR
+    Type["User Types Query"] --> Debounce["Debounce Timer"]
+    Debounce --> Req["Network Request"]
+    Req --> Load["Loading Skeleton"]
+    Load --> Res["Results Display"]
+    Res --> URL["Sync URL Search Params"]
 ```
 
 Search is a small feature with many asynchronous contracts.
@@ -1625,12 +1753,15 @@ The document keeps the suite intentional as the system evolves.
 
 ## Testing philosophy
 
-```text
-test the contract
-choose the nearest useful boundary
-make failure actionable
-protect critical journeys
-keep the suite trustworthy
+```mermaid
+flowchart TD
+    C["Test the Contract, Not Implementation"]
+    B["Choose the Nearest Useful Boundary"]
+    A["Make Every Failure Actionable"]
+    J["Protect Critical Revenue Journeys"]
+    T["Keep the Suite Fast & Trustworthy"]
+
+    C --- B --- A --- J --- T
 ```
 
 More tests do not automatically mean higher quality.
@@ -1647,69 +1778,40 @@ The practical builds a layered strategy rather than one giant end-to-end test.
 
 ---
 
-## Practical stages 1–7: static, unit, and semantics
+## Practical stages 1–2: pure logic & accessible semantics
 
-1. Define risk.
-2. Add static checks.
-3. Unit-test pricing logic.
-4. Unit-test URL parsing.
-5. Component-test a search form.
-6. Compare selector quality.
-7. Test accessible form labels.
+1. **Stage 1 (Pure Logic & Parser Unit Testing):**
+   - Test price formatting, pagination math, and schema parsers against valid, boundary, and corrupt input.
+   - Pure fast Node runtime without DOM overhead.
+2. **Stage 2 (Component Semantics & Accessible Names):**
+   - Query by `getByRole` and `getByLabelText`.
+   - Test keyboard navigation (`Tab`, `Escape`) and focus retention.
 
-Verification: tests use user-facing semantics where those semantics are the contract.
-
----
-
-## Practical stages 8–13: interaction and network
-
-8. Test keyboard behavior.
-9. Test focus management.
-10. Add automated accessibility checks.
-11. Add network mocking.
-12. Test remote states.
-13. Test search race handling.
-
-Cover loading, empty, success, validation error, server error, cancellation, and retry.
+Verification: Tests depend on platform accessibility contracts, not CSS classes or private component state.
 
 ---
 
-## Practical stages 14–18: mutation and browser journey
+## Practical stages 3–4: boundary mocking & fault injection
 
-14. Test a product mutation.
-15. Test server validation failure.
-16. Test optimistic rollback.
-17. Add Playwright E2E.
-18. Add E2E failure artifacts.
+3. **Stage 3 (Network Interception with MSW):**
+   - Intercept requests at the HTTP transport boundary.
+   - Simulate network delays, 500 server crashes, and offline states.
+4. **Stage 4 (Asynchronous Resilience & Fault Injection):**
+   - Inject deliberate faults (dropped `AbortController`, broken optimistic rollback, missing `aria-invalid`).
+   - Confirm tests fail immediately and pinpoint the exact failure mechanism.
 
-Keep the draft after failure and make the browser journey diagnosable.
-
----
-
-## Practical stages 19–24: routes, browsers, and visual states
-
-19. Test back and forward navigation.
-20. Test multiple browsers.
-21. Test mobile layout.
-22. Add visual regression.
-23. Add RTL visual coverage.
-24. Test an offline draft.
-
-Test the supported matrix intentionally rather than multiplying every test everywhere.
+Verification: Tests prove loading, empty, error, retry, and cancellation behaviors without arbitrary `sleep()` delays.
 
 ---
 
-## Practical stages 25–31: maintenance and architecture
+## Practical stage 5: Playwright critical-path journey
 
-25. Test memory-sensitive cleanup.
-26. Create a flaky test intentionally.
-27. Create test-data builders.
-28. Add a contract test.
-29. Create the browser matrix.
-30. Create a flaky-test policy.
-31. Draw the final test architecture diagram.
+5. **Stage 5 (Playwright Critical-Path Browser Journey):**
+   - Run a real headless Chromium/Firefox/WebKit test.
+   - Exercise the full user journey: search, filter, optimistic order drafting, and error recovery.
+   - Capture trace artifacts, network waterfalls, and screenshots on failure.
 
-The suite should explain where confidence comes from and who maintains each layer.
+Verification: Fast feedback in CI with zero flakiness; high confidence across real browser layout engines.
 
 ---
 
@@ -1728,15 +1830,19 @@ Confirm that the suite fails for the right reason and reports an actionable diff
 
 Choose one critical user journey and map:
 
-```text
-risk → test boundary → setup → user action → assertion → artifact
+```mermaid
+flowchart LR
+    R["Risk Identified"] --> B["Test Boundary"]
+    B --> S["Setup / Seed"]
+    S --> A["User Action"]
+    A --> AS["Semantic Assertion"]
+    AS --> AR["Diagnosable Artifact"]
 ```
 
 Then remove one test that duplicates stronger evidence and explain why confidence remains adequate.
 
 ---
-
-## Troubleshooting guide
+## Troubleshooting guide (Part 1)
 
 | Symptom | Likely cause |
 |---|---|
@@ -1745,11 +1851,15 @@ Then remove one test that duplicates stronger evidence and explain why confidenc
 | Async tests need sleeps | Tests wait for time instead of conditions |
 | Mocks hide integration failures | Mock boundary is too deep |
 | E2E suite is slow and flaky | Too much setup and shared mutable data |
+---
+## Troubleshooting guide (Part 2)
+
+| Symptom | Likely cause |
+|---|---|
 | Retry makes CI green | Flakiness is being normalized |
 | Coverage is high but bugs escape | Assertions and risk mapping are weak |
 | Visual diffs are always approved | Review policy and baseline ownership are weak |
 | Offline test passes only once | Storage and cleanup are not isolated |
-
 ---
 
 ## Completion checklist
@@ -1766,8 +1876,7 @@ Then remove one test that duplicates stronger evidence and explain why confidenc
 - [ ] coverage and CI selection support, rather than replace, judgment.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -1777,13 +1886,17 @@ Then remove one test that duplicates stronger evidence and explain why confidenc
 | Component tests should inspect state | Test visible behavior and semantics |
 | CSS selectors are forbidden | Use the selector that matches the contract |
 | Test IDs are bad | They are a legitimate fallback when semantics are unsuitable |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | `getByRole` certifies accessibility | Queries are one quality signal, not an audit |
 | Simulated DOM equals a browser | Real browser behavior needs targeted tests |
 | Mocks make tests reliable | Boundary choice and realistic failures matter |
 | Sleeps fix async tests | Wait for meaningful conditions |
 | Retries solve flaky tests | They can hide nondeterminism |
 | More tests always mean higher quality | Better evidence and maintainability matter |
-
 ---
 
 ## The chapter in one sentence
