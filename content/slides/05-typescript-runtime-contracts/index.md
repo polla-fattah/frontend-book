@@ -47,10 +47,10 @@ We will connect:
 
 ## The central lesson
 
-```text
-TypeScript describes what the program believes
-                 ≠
-runtime validation checks what the outside world delivered
+```mermaid
+flowchart LR
+    A["TypeScript Static Types\n(Accepted by Compiler)"] -.->|Type Erasure| B["Runtime JavaScript"]
+    C["Runtime Data\n(Delivered from Outside)"] --> D["Runtime Validation Boundary"]
 ```
 
 An annotation is useful for the compiler and editor.
@@ -61,15 +61,15 @@ It is not a force field around a value arriving from a network, URL, browser, or
 
 ## The chapter's progression
 
-```text
-inference
-  → data modeling
-  → unions and narrowing
-  → generics
-  → strictness and DOM typing
-  → trust boundaries
-  → runtime validation
-  → trusted domain data
+```mermaid
+flowchart TD
+    A[Type Inference] --> B[Data Modeling]
+    B --> C[Unions & Narrowing]
+    C --> D[Generics]
+    D --> E[Strictness & DOM Typing]
+    E --> F[Trust Boundaries]
+    F --> G[Runtime Validation]
+    G --> H[Trusted Domain Data]
 ```
 
 The order matters: prove small facts first, then compose them into safe boundaries.
@@ -556,11 +556,16 @@ A conversion or parser changes or inspects a runtime value.
 
 ## What counts as a trust boundary?
 
-```text
-API response       URL and query string
-browser storage    form input
-environment config imported files
-postMessage        third-party SDKs
+```mermaid
+flowchart TD
+    subgraph Boundaries["Untrusted External Trust Boundaries"]
+        API[API responses]
+        URL[URL & query string]
+        Storage[Browser storage]
+        Forms[Form input]
+        Post[postMessage]
+        SDK[Third-party SDKs]
+    end
 ```
 
 Every source outside the current trusted function may be malformed, stale, partial, or surprising.
@@ -734,16 +739,14 @@ Transport failure and schema failure are separate facts and should remain distin
 
 ## Keep raw data unknown at the edge
 
-```text
-fetch / storage / URL / form
-             ↓
-           unknown
-             ↓ parse + validate
-      trusted transport data
-             ↓ map
-       trusted domain model
-             ↓
-       components and features
+```mermaid
+flowchart TD
+    A[fetch / storage / URL / form] --> B[unknown]
+    B --> C[parse + validate]
+    C --> D[trusted transport data]
+    D --> E[map to domain]
+    E --> F[trusted domain model]
+    F --> G[components and features]
 ```
 
 The farther a value travels from the edge, the less useful it is to keep asking whether it is valid.
@@ -752,12 +755,12 @@ The farther a value travels from the edge, the less useful it is to keep asking 
 
 ## The boundary architecture
 
-```text
-adapter       knows the external format
-parser        checks runtime shape
-mapper        creates domain vocabulary
-application   consumes trusted values
-view          renders explicit state
+```mermaid
+flowchart TD
+    Adapter["Adapter: knows external format"] --> Parser["Parser: checks runtime shape"]
+    Parser --> Mapper["Mapper: creates domain vocabulary"]
+    Mapper --> App["Application: consumes trusted values"]
+    App --> View["View: renders explicit state"]
 ```
 
 Each layer has a small responsibility and a clear reason to change.
@@ -894,10 +897,13 @@ Do not brand every primitive. Extra vocabulary should reduce real mistakes, not 
 
 ## Static contracts are not shared runtime validation
 
-```text
-shared TypeScript type  → agreement during development
-runtime schema          → verification of delivered data
-generated API types     → synchronized description
+```mermaid
+flowchart TD
+    A["Shared TypeScript type: agreement during development"]
+    B["Runtime schema: verification of delivered data"]
+    C["Generated API types: synchronized description"]
+    A -.->|requires| B
+    C -.->|requires| B
 ```
 
 Even generated types can become stale or be bypassed by a broken server.
@@ -908,11 +914,12 @@ The receiving application still owns its trust boundary.
 
 ## Choose validation proportionately
 
-```text
-small local constant     → direct type / simple check
-stable internal module   → typed constructor or parser
-external API             → schema and useful errors
-security-sensitive data  → strict validation, tests, logging policy
+```mermaid
+flowchart TD
+    A["Small local constant: direct type / simple check"]
+    B["Stable internal module: typed constructor or parser"]
+    C["External API: schema and useful errors"]
+    D["Security-sensitive data: strict validation & logging policy"]
 ```
 
 The goal is reliable boundaries, not maximum ceremony everywhere.
