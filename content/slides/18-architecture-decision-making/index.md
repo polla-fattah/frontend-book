@@ -56,15 +56,17 @@ Good architecture makes important change cheaper, safer, and easier to reason ab
 
 ## The decision progression
 
-```text
-define problem
-  → identify quality attributes
-  → record constraints
-  → generate alternatives
-  → reduce unknowns
-  → decide and document
-  → enforce important properties
-  → observe and revisit
+```mermaid
+flowchart TD
+    Prob["1. Define Problem & Context"] --> Qual["2. Identify Quality Attributes"]
+    Qual --> Const["3. Record Constraints"]
+    Const --> Alt["4. Generate Alternatives"]
+    Alt --> Spike["5. Reduce Unknowns via Spikes"]
+    Spike --> ADR["6. Decide & Document in ADR"]
+    ADR --> Guard["7. Enforce via CI Guardrails"]
+    Guard --> Rev["8. Observe & Revisit with Evidence"]
+
+    Rev -. Feeds into new decisions .-> Prob
 ```
 
 Architecture remains a loop rather than a one-time ceremony.
@@ -195,10 +197,17 @@ Constraints are not annoyances to ignore; they define the decision space.
 
 ## Requirements, constraints, and decisions
 
-```text
-requirement → what must be achieved
-constraint   → what limits the options
-decision     → chosen response and trade-off
+```mermaid
+flowchart TD
+    subgraph DecisionForces["The Forces Shaping Architecture"]
+        Req["Functional Requirements<br/>(What the system must achieve)"]
+        Qual["Quality Attributes<br/>(How well the system must perform: LCP, a11y, MTTR)"]
+        Const["Constraints<br/>(Budget, team size, legacy APIs, legal compliance)"]
+        
+        Req --- Dec["Architecture Decision<br/>(Selected structure & accepted trade-offs)"]
+        Qual --- Dec
+        Const --- Dec
+    end
 ```
 
 Confusing a preference with a constraint produces unnecessary architecture.
@@ -240,11 +249,12 @@ The tool choice follows the problem model.
 
 ## Technology selection is downstream
 
-```text
-requirements + quality + constraints
-  → boundaries and operating model
-  → technology candidates
-  → experiment and decision
+```mermaid
+flowchart LR
+    Forces["Requirements + Quality + Constraints"] --> Boundaries["Boundaries & Operating Model"]
+    Boundaries --> Candidates["Evaluate 3+ Technology Candidates"]
+    Candidates --> Spike["Empirical Spike & Evidence"]
+    Spike --> Selection["Committed Technology Selection"]
 ```
 
 Choosing a library before defining the need turns a decision into a justification exercise.
@@ -281,9 +291,20 @@ The boundary should expose a stable contract and keep volatile implementation pr
 
 ## Cohesion and coupling
 
-```text
-cohesion → things that belong together change together
-coupling → one thing must know or change because of another
+```mermaid
+flowchart LR
+    subgraph HighCohesion["High Cohesion (Desirable)"]
+        direction TB
+        C1["Route Logic"] <--> C2["UI View"]
+        C2 <--> C3["Local State"]
+        Note1["Changes together for one feature"]
+    end
+
+    subgraph LowCoupling["Low Coupling (Desirable)"]
+        direction LR
+        FeatureA["Catalogue Feature"] <-- Narrow API Contract --> FeatureB["Checkout Feature"]
+        Note2["Changes in A do not break B"]
+    end
 ```
 
 Good architecture seeks high cohesion inside meaningful units and intentional coupling between them.
@@ -319,8 +340,13 @@ Pass a product and an intent-oriented capability instead.
 
 ## Dependency direction
 
-```text
-application → feature → domain → shared foundation
+Depend toward stability:
+
+```mermaid
+flowchart TD
+    App["Application Entrypoint / Shell<br/>(Most Volatile)"] --> Feat["Feature Modules (Catalogue, Permits)"]
+    Feat --> Domain["Domain Rules & State Reducers"]
+    Domain --> Found["Shared Foundation & Design Tokens<br/>(Most Stable)"]
 ```
 
 Dependencies should flow toward stable, reusable concepts.
@@ -443,9 +469,23 @@ Reversibility buys learning time.
 
 ## One-way and two-way doors
 
-```text
-two-way door → easy to reverse, decide quickly with bounded risk
-one-way door  → costly or dangerous to reverse, investigate carefully
+Categorize decisions by reversibility:
+
+```mermaid
+flowchart LR
+    subgraph TwoWay["Two-Way Door (Reversible)"]
+        direction TB
+        D1["Decision: UI styling library / Local state tool"]
+        D1 --> E1["Easy to migrate or revert"]
+        D1 --> A1["Rule: Decide quickly, test in production"]
+    end
+
+    subgraph OneWay["One-Way Door (Hard to Reverse)"]
+        direction TB
+        D2["Decision: Micro-frontends / Core database schema"]
+        D2 --> E2["Costly, multi-month migration to undo"]
+        D2 --> A2["Rule: Require spikes, ADRs & executive sign-off"]
+    end
 ```
 
 Do not apply heavyweight governance to every reversible choice.
@@ -811,12 +851,18 @@ Architecture can evolve safely when important properties are observable and prot
 
 ## Fitness functions
 
-A fitness function is an automated or repeatable check for an architectural property.
+Automate checks that preserve properties continuously:
 
-```text
-fail if shared package imports feature code
-fail if initial route exceeds budget
-fail if API response violates schema
+```mermaid
+flowchart LR
+    Code["Pull Request Code Push"] --> Linter["ESLint Boundary Rules<br/>(No feature-to-feature imports)"]
+    Code --> Budget["Bundle Budget Checker<br/>(Initial route < 180 KB)"]
+    Code --> Schema["Contract Validator<br/>(Validates Zod schemas)"]
+    Linter --> Gate{"CI Gate"}
+    Budget --> Gate
+    Schema --> Gate
+    Gate -->|All Pass| Merge["Merge Approved"]
+    Gate -->|Any Fail| Block["Block PR Deployment"]
 ```
 
 Automate rules that matter enough to protect continuously.
@@ -887,12 +933,65 @@ when to revisit
 
 ## Example ADR: URL state for catalogue filters
 
-```text
-Context: filters should survive reload and sharing.
-Decision: committed filters live in query parameters.
-Alternatives: local state, global store.
-Consequence: parse and validate public URL input.
-Revisit: if filter data becomes sensitive or too large.
+```mermaid
+flowchart LR
+    URL["URL Query Params<br/>(?category=permits&page=2)"] --> Router["Router State Hook"]
+    Router --> Search["Search Input Component"]
+    Search --> API["Fetch API Client"]
+    API --> Results["Display Results Table"]
+```
+
+---
+
+## Worked decision: Civic Platform Architecture
+
+**Context & Forces (Erbil Citizen Portal):**
+- 4 autonomous product squads (Health, Transport, Commerce, Education).
+- Target users: 70% mobile browsers on congested 3G/4G networks; WCAG 2.1 AA legal mandate.
+- High SEO requirement for public municipal announcements and legal circulars.
+
+```mermaid
+flowchart TD
+    Req["Citizen Portal Forces"] --> F1["Autonomy for 4 Squads"]
+    Req --> F2["Fast Mobile LCP < 2.0s over 3G"]
+    Req --> F3["Zero Accessible Regressions"]
+    Req --> F4["SEO for Legal Circulars"]
+```
+
+---
+
+## Candidate architectures: Rejected options
+
+| Candidate Option | Architecture Model | Reason for Rejection |
+| :--- | :--- | :--- |
+| **Option A: Micro-Frontends** | Webpack Module Federation; multi-repo independent deploys | **4.2s mobile LCP on 3G:** duplicate React vendor runtimes violate performance budget |
+| **Option B: Client-Side SPA** | Pure CSR single-page app; static CDN hosting | **SEO & blank screen:** fails public legal circular indexing and initial 3G render |
+
+---
+
+## Candidate architectures: Accepted decision
+
+**Option C: Modular Monolith with Edge SSR (ACCEPTED)**
+
+| Architectural Dimension | Strategy & Evaluation |
+| :--- | :--- |
+| **Mobile LCP** | **1.4s (p75):** cached semantic HTML at CDN edge |
+| **Search Engine Indexing** | **100% crawlable:** complete server-rendered document |
+| **Squad Autonomy** | `pnpm` monorepo with strict `package.json` `"exports"` |
+| **Operational Overhead** | Single container pipeline; zero distributed federation complexity |
+
+---
+
+## Worked decision: Evidence that would reverse it
+
+The decision to adopt a **Modular Monolith with Edge SSR** will be formally revisited if:
+
+```mermaid
+flowchart TD
+    Rev["Reversal Triggers (ADR-018)"]
+    Rev --> T1["Team Scale: Engineering squads grow from 4 to >12 squads<br/>and CI queue times exceed 30 minutes"]
+    Rev --> T2["Regulatory Mandate: Ministry of Education mandates<br/>hosting in an independent sovereign data center"]
+    Rev --> T3["Traffic Spikes: SSR compute costs exceed budget<br/>requiring static HTML export for catalog routes"]
 ```
 
 The ADR makes ownership and trade-offs explicit.
@@ -901,10 +1000,16 @@ The ADR makes ownership and trade-offs explicit.
 
 ## ADR status
 
-Useful statuses include:
-
-```text
-proposed → accepted → superseded / deprecated / rejected
+```mermaid
+stateDiagram-v2
+    [*] --> Proposed: Drafted by Engineer
+    Proposed --> Accepted: Team Architectural Consensus
+    Proposed --> Rejected: Fails Constraints / Trade-offs
+    Accepted --> Superseded: Replaced by Newer ADR
+    Accepted --> Deprecated: Capability Retired
+    Superseded --> [*]
+    Deprecated --> [*]
+    Rejected --> [*]
 ```
 
 Status tells readers whether the decision is active and whether another document replaces it.
@@ -952,9 +1057,17 @@ Show the assumptions and discuss the decisive trade-offs directly.
 
 ## Proof of concept and spike
 
-```text
-spike → answer one unknown quickly
-proof of concept → test a plausible solution in representative context
+```mermaid
+flowchart LR
+    subgraph Spike["Technical Spike"]
+        Q1["Question: Does Rolldown bundle this in <500ms?"] --> Code1["Write 30-line test script"]
+        Code1 --> Ans1["Answer: Yes (420ms). Spike discarded."]
+    end
+
+    subgraph PoC["Proof of Concept"]
+        Q2["Question: Can Edge SSR integrate with legacy auth?"] --> Code2["Build skeleton prototype with 2 routes"]
+        Code2 --> Ans2["Validate feasibility across systems"]
+    end
 ```
 
 Keep the purpose narrow and record what was learned.
@@ -1243,10 +1356,13 @@ Document decisions that future maintainers need to preserve or revisit.
 
 ## C4-style thinking
 
-Move through levels:
+Move through levels of architectural abstraction:
 
-```text
-context → containers → components → code
+```mermaid
+flowchart TD
+    L1["1. System Context<br/>Citizens, Portal, External Auth, Ministry APIs"] --> L2["2. Containers<br/>Web App SPA, Edge SSR Gateway, Redis Cache"]
+    L2 --> L3["3. Components<br/>Permit Catalogue, Routing Shell, Auth Provider"]
+    L3 --> L4["4. Code<br/>TypeScript Classes, Functions, React/Vue Components"]
 ```
 
 Use the level that answers the current question.
@@ -2037,23 +2153,25 @@ The spike should answer the highest-risk unknown, not build the entire future sy
 
 ## Practical stages 25–27: migration and defense
 
-25. Define a migration path.
-26. Create the final architecture diagram.
-27. Write the decision report.
+## Practical stages 1–3: constraints, options & empirical spike
 
-Verification: the decision follows requirements, considers plausible alternatives, records uncertainty, and includes a review date.
+1. **Stage 1 (Explicit Problem & Constraint Mapping):**
+   - Document functional goals and prioritize non-negotiable quality attributes.
+2. **Stage 2 (Formulating Three Viable Candidate Architectures):**
+   - Candidate A (Micro-Frontends), Candidate B (Client-Side SPA), Candidate C (Modular Monolith with Edge SSR).
+3. **Stage 3 (The Investigative Technical Spike):**
+   - Run a benchmark spike measuring bundle size and p75 LCP under 4x CPU throttling.
 
 ---
 
-## Practical extension: reversal plan
+## Practical stages 4–5: ADR & reversal plan
 
-Write what evidence would cause the team to revisit the decision:
+4. **Stage 4 (Drafting the Formal ADR):**
+   - Record Title, Status, Context, Decision, Consequences, and Automated Fitness Functions.
+5. **Stage 5 (Reversal Plan & Review Trigger Conditions):**
+   - Define exact quantitative thresholds (team size >12 squads, CI queue >30m) that trigger architectural review.
 
-```text
-metric / event / constraint change / user harm / team bottleneck
-```
-
-Include how the system would safely move to the alternative.
+Verification: Decisions reflect empirical evidence and trade-offs rather than technology fashion.
 
 ---
 
@@ -2076,8 +2194,7 @@ revisit trigger:
 If the decision cannot name a problem, it may be technology fashion rather than architecture.
 
 ---
-
-## Troubleshooting guide
+## Troubleshooting guide (Part 1)
 
 | Symptom | Likely cause |
 |---|---|
@@ -2086,11 +2203,15 @@ If the decision cannot name a problem, it may be technology fashion rather than 
 | Micro-frontends are proposed immediately | Organizational pressure was mistaken for runtime need |
 | ADRs are long and unread | They record meetings instead of decisions |
 | Fitness checks are ignored | They protect preferences rather than important properties |
+---
+## Troubleshooting guide (Part 2)
+
+| Symptom | Likely cause |
+|---|---|
 | Rewrite feels safer than migration | Hidden behavior and compatibility cost are underestimated |
 | Shared package changes break everyone | Public API and versioning are weak |
 | Architecture depends on one expert | Ownership, documentation, and runbooks are insufficient |
 | “Simple” system fails at scale | The relevant quality attribute was not measured |
-
 ---
 
 ## Completion checklist
@@ -2107,8 +2228,7 @@ If the decision cannot name a problem, it may be technology fashion rather than 
 - [ ] the decision has an owner and revisit trigger.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -2119,13 +2239,17 @@ If the decision cannot name a problem, it may be technology fashion rather than 
 | Global state is required for scale | Ownership and lifetime determine scope |
 | SSR is more architectural than CSR | Rendering is one contextual decision |
 | Micro-frontends are the natural future | Distribution is justified by real independence needs |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | Every shared component belongs centrally | Stable shared concepts deserve promotion |
 | ADRs are bureaucracy | They preserve reasoning and revisit conditions |
 | A decision cannot change | Architecture should learn from evidence |
 | A rewrite is cleaner | Incremental migration often reduces risk |
 | Technical debt must always be removed | Prioritize by impact and change cost |
 | Simplicity means underengineering | Simplicity can be deliberate, bounded architecture |
-
 ---
 
 ## The chapter in one sentence
@@ -2134,15 +2258,16 @@ If the decision cannot name a problem, it may be technology fashion rather than 
 
 ---
 
-## Next: Chapter 19
+## Course completion: Capstone architecture
 
-The next chapter will build on the full architecture model with:
+Congratulations on completing all 18 chapters of modern web application engineering!
 
-- capstone system design;
-- integrated product constraints;
-- end-to-end architecture defense;
-- final implementation and review;
-- a complete front-end engineering blueprint.
+Next steps to master front-end architecture:
+
+- **Capstone Architecture Project:** Build and defend an end-to-end civic application platform;
+- **Appendix A:** Review the Architectural Rosetta Stone (React vs. Vue mechanics);
+- **Appendix B:** Consult the Modern Browser APIs Reference;
+- **Appendix C:** Run the Production Deployment Checklist before every release.
 
 ---
 
