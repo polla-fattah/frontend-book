@@ -59,14 +59,19 @@ It resolves dependencies, serves development code, creates production artifacts,
 
 ## The source-to-delivery pipeline
 
-```text
-source files
-  → package resolution
-  → module graph
-  → transformation
-  → development server or production bundle
-  → assets and maps
-  → deployment
+```mermaid
+flowchart LR
+    A["1. Source Files
+(TS, TSX, CSS)"] --> B["2. Package Resolution
+(node_modules, exports)"]
+    B --> C["3. Module Graph
+(Static dependency DAG)"]
+    C --> D["4. Transformation
+(TypeScript/JSX stripping)"]
+    D --> E["5. Bundler / Tree Shaking
+(Chunk splitting & minification)"]
+    E --> F["6. Production Artifacts
+(Hashed JS, CSS, Source Maps)"]
 ```
 
 Each stage answers a different question and has different failure modes.
@@ -75,9 +80,21 @@ Each stage answers a different question and has different failure modes.
 
 ## Development and production optimize differently
 
-```text
-development → fast startup, fast updates, useful diagnostics
-production   → small transfer, stable caching, optimized execution
+```mermaid
+flowchart TD
+    subgraph DevelopmentMode["Development Environment (Inner Loop)"]
+        D1["Unbundled Native ESM
+(Instant server boot)"]
+        D2["Hot Module Replacement (HMR)
+(<50ms stateful updates)"]
+        D3["Detailed Source Maps & Error Overlays"]
+    end
+    subgraph ProductionMode["Production Environment (Delivery Artifacts)"]
+        P1["Aggressive Dead-Code Elimination (Tree Shaking)"]
+        P2["Route-Level Code Splitting & Chunking"]
+        P3["Content-Hashed Filenames for Immutable CDN Caching"]
+        P4["Byte Minification & Production Tree Stripping"]
+    end
 ```
 
 A development server is not automatically a production server.
@@ -264,8 +281,17 @@ Use aliases to communicate architecture, not to avoid designing it.
 
 ## Transformation is not one operation
 
-```text
-source syntax → parse → transform → emit browser-compatible code
+```mermaid
+flowchart LR
+    Src["Source Code
+(TypeScript / JSX)"] --> Parse["Parser
+(Generate AST)"]
+    Parse --> AST["Abstract Syntax Tree
+(AST Data Structure)"]
+    AST --> Transform["Transforms
+(Strip types, lower syntax)"]
+    Transform --> Emit["Code Generator
+(Standard ES2022 JavaScript)"]
 ```
 
 Transformation may include:
@@ -323,11 +349,22 @@ It should make the smallest useful update quickly and explain failures clearly.
 
 ## Hot Module Replacement
 
-```text
-edit source
-  → tool transforms changed module
-  → browser receives update
-  → runtime replaces or refreshes behavior
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Developer
+    participant FS as File System Watcher
+    participant Server as Dev Server (Vite)
+    participant Browser as Browser Client
+
+    Dev->>FS: Saves Button.tsx
+    FS->>Server: File change detected
+    Server->>Server: Re-transform single module (15ms)
+    Server-->>Browser: WebSocket: { type: 'update', path: '/src/Button.tsx' }
+    Browser->>Server: HTTP fetch(/src/Button.tsx?t=171000)
+    Server-->>Browser: Fresh module code
+    Note over Browser: HMR Runtime replaces module without full page reload!
+Component state preserved.
 ```
 
 HMR shortens feedback loops, but it is not identical to a fresh application start.
@@ -393,10 +430,19 @@ It does not mean the production bundle and development graph are identical.
 
 ## Native ESM is an important mental model
 
-```text
-browser requests module A
-  → A imports B
-  → browser requests B
+```mermaid
+flowchart TD
+    subgraph NativeESM["Unbundled Dev Server (Vite / Dev)"]
+        B["Browser requests /src/main.ts"] --> S["Dev Server compiles on demand"]
+        S --> M1["main.ts imports App.ts"]
+        M1 --> M2["App.ts imports Button.ts"]
+        M2 --> M3["Browser requests individual modules via native HTTP/2"]
+    end
+    subgraph ProductionBundling["Bundled Production Output (Rollup / esbuild)"]
+        G["Module Graph Crawler"] --> T["Tree Shaking & DCE"]
+        T --> C1["Chunk 1: app.8f2a.js (120KB)"]
+        T --> C2["Chunk 2: vendor.3c1d.js (80KB)"]
+    end
 ```
 
 Development tools can preserve a module-oriented model while adding transforms, caching, and dependency optimization.
@@ -482,10 +528,14 @@ It improves transfer and sometimes execution, but it makes debugging harder with
 
 ## Source maps connect artifacts to source
 
-```text
-browser error in chunk.js
-  → source map
-  → original TypeScript / component file
+```mermaid
+flowchart LR
+    Err["Runtime Error in Browser
+(vendor.8f31c.js:1:4210)"] --> Map["Source Map File
+(vendor.8f31c.js.map
+VLQ Mappings)"]
+    Map --> Src["Original Source Code in DevTools
+(src/services/permitApi.ts:42:15)"]
 ```
 
 Source maps are an operational policy:
@@ -511,10 +561,19 @@ HTML or manifests must point to the current fingerprinted files.
 
 ## Code splitting creates delivery choices
 
-```text
-initial route chunk
-  → lazy reports chunk
-  → shared dependency chunk
+```mermaid
+flowchart TD
+    Entry["Main Entrypoint (main.ts)"] --> AppChunk["Initial Core Bundle
+(Header, Nav, Router, Theme)
+[app.8f31c.js - 45KB]"]
+    
+    AppChunk -.->|Static Import| Shared["Shared Vendor Chunk
+(React, Query Cache)
+[vendor.2e1a.js - 75KB]"]
+    AppChunk -->|Dynamic import('./Reports')| RouteA["Async Route: Reports & Charts
+[reports.6d4b.js - 180KB]"]
+    AppChunk -->|Dynamic import('./Admin')| RouteB["Async Route: Admin Console
+[admin.9c2e.js - 95KB]"]
 ```
 
 Split points affect:
@@ -606,9 +665,18 @@ The runtime receives a reference appropriate to the target environment.
 
 ## Environment variables have a boundary
 
-```text
-build-time configuration → embedded or replaced during build
-runtime configuration     → read by the deployed environment
+```mermaid
+flowchart TD
+    subgraph BuildTime["Build-Time Replacement (Vite / Bundler)"]
+        E1["import.meta.env.VITE_API_URL"] --> R1["Replaced during build with string literal
+'https://api.erbil.gov.krd'"]
+        Note1["WARNING: Embedded into public client bundle!
+Never place database passwords here."]
+    end
+    subgraph RuntimeConfig["Runtime Environment Configuration"]
+        E2["process.env.DATABASE_PASSWORD"] --> R2["Read dynamically on server execution"]
+        Note2["Safe: Stays inside secure container / server."]
+    end
 ```
 
 Browser-exposed variables are public.
@@ -778,12 +846,20 @@ Formatting should support review, not dominate it.
 
 ## Type checking verifies static contracts
 
-```text
-lint       → suspicious patterns
-format     → stable representation
-typecheck  → static relationships
-test       → observed behavior
-build      → delivery graph and artifacts
+```mermaid
+flowchart TD
+    subgraph QualityPillars["The Five Quality Gates of Front-End Delivery"]
+        Q1["1. Linter (ESLint / Biome)
+Flags bug-prone anti-patterns & security flaws"]
+        Q2["2. Formatter (Prettier / Biome)
+Guarantees deterministic code style across team"]
+        Q3["3. Type Checker (tsc --noEmit)
+Verifies compile-time type safety & API contracts"]
+        Q4["4. Test Runner (Vitest / Playwright)
+Verifies runtime behavioral correctness"]
+        Q5["5. Production Bundler (Vite build)
+Verifies module graph resolution & asset generation"]
+    end
 ```
 
 These gates overlap in value but do not answer the same question.
@@ -792,11 +868,15 @@ These gates overlap in value but do not answer the same question.
 
 ## Local feedback should be fast
 
-```text
-edit → immediate editor feedback
-    → local targeted check
-    → pre-commit / pre-push gate
-    → CI full verification
+```mermaid
+flowchart LR
+    IDE["1. IDE / Editor
+(<50ms inline feedback)"] --> GitHook["2. Pre-Commit Hook
+(lint-staged on changed files)"]
+    GitHook --> PR["3. Git Pull Request"]
+    PR --> CI["4. CI Automation Pipeline
+(Full clean install, typecheck, test, build)"]
+    CI --> Prod["5. Verified Deployment Artifact"]
 ```
 
 Fast feedback catches cheap mistakes close to the change.
@@ -976,8 +1056,12 @@ Private file imports bypass encapsulation and make internal restructuring expens
 
 ## Dependency direction matters
 
-```text
-app → feature → domain → shared
+```mermaid
+flowchart TD
+    App["apps/citizen-portal (Applications)"] --> Feat["packages/feature-permits (Feature Libraries)"]
+    Feat --> Domain["packages/domain-licensing (Domain Models & Rules)"]
+    Domain --> Core["packages/ui-components (Design System & Primitives)"]
+    Core --> Util["packages/utilities (Pure helpers & math)"]
 ```
 
 Lower-level packages should not import higher-level application decisions.
@@ -1248,15 +1332,15 @@ The toolchain is part of the application's attack surface.
 
 ## A reference workflow
 
-```text
-edit
-  → editor feedback
-  → targeted test / lint
-  → reviewable commit
-  → CI clean install
-  → typecheck + test + production build
-  → inspect artifacts
-  → deploy immutable output
+```mermaid
+flowchart TD
+    A["1. Developer edits component in IDE"] --> B["2. Instant HMR verification in browser"]
+    B --> C["3. Local targeted lint and test execution"]
+    C --> D["4. Git commit & push to pull request"]
+    D --> E["5. CI executes clean install (npm ci with locked dependencies)"]
+    E --> F["6. Automated verification: lint + tsc + test suite"]
+    F --> G["7. Production build & asset budget check"]
+    G --> H["8. Immutable content-hashed artifacts deployed to CDN"]
 ```
 
 Each stage should add confidence without repeating every earlier cost.
@@ -1284,14 +1368,15 @@ The important point is that source, configuration, scripts, and lockfile form on
 
 ## Build pipeline for the storefront
 
-```text
-resolve imports
-  → transform TypeScript and JSX
-  → split routes
-  → tree shake
-  → minify
-  → fingerprint assets
-  → emit maps and manifest
+```mermaid
+flowchart LR
+    S1["1. Resolve Imports"] --> S2["2. Transform TS / JSX"]
+    S2 --> S3["3. Route Code Splitting"]
+    S3 --> S4["4. Tree Shaking & DCE"]
+    S4 --> S5["5. Minification"]
+    S5 --> S6["6. Asset Fingerprinting
+(app.8f31c.js)"]
+    S6 --> S7["7. Emit Manifest & Maps"]
 ```
 
 Trace a source module through this pipeline to understand what the browser receives.
@@ -1454,8 +1539,7 @@ Pick one initial route and answer:
 Then verify every answer against the emitted build.
 
 ---
-
-## Troubleshooting guide
+## Troubleshooting guide (Part 1)
 
 | Symptom | Likely cause |
 |---|---|
@@ -1464,11 +1548,15 @@ Then verify every answer against the emitted build.
 | Unused package code remains | Side effects, module format, or graph opacity |
 | CI differs from local | Lockfile, runtime, or global tool mismatch |
 | Secret appears in client output | Public build-time variable was treated as private |
+---
+## Troubleshooting guide (Part 2)
+
+| Symptom | Likely cause |
+|---|---|
 | Package consumers import private files | Public API is incomplete or undocumented |
 | HMR behaves strangely | Import-time side effects or cleanup missing |
 | Tiny chunks hurt navigation | Split points follow files rather than user journeys |
 | Build graph contains cycles | Dependency direction is unclear |
-
 ---
 
 ## Completion checklist
@@ -1485,8 +1573,7 @@ Then verify every answer against the emitted build.
 - [ ] emitted artifacts are inspected rather than guessed at.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -1496,13 +1583,17 @@ Then verify every answer against the emitted build.
 | Transpilation adds missing browser APIs | Polyfills and runtime support are separate |
 | More code splitting is always better | Split around user journeys and costs |
 | Tree shaking removes anything not called | It depends on analyzable graphs and side effects |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | Minification makes source maps unnecessary | Debugging still needs source policy |
 | `.env` values are secret | Client-exposed values are public |
 | A workspace is a monorepo architecture | Coordination tooling and boundaries differ |
 | A successful circular build is healthy | Cycles are dependency-design feedback |
 | The dev server is production | Production artifacts and serving behavior differ |
 | Quality gates are interchangeable | Lint, format, types, tests, and build answer different questions |
-
 ---
 
 ## The chapter in one sentence
