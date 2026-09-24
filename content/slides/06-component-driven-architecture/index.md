@@ -59,15 +59,15 @@ The responsibility boundary is the architecture.
 
 ## The chapter's progression
 
-```text
-complex interface
-  → identify responsibilities
-  → find boundaries
-  → define inputs and outputs
-  → compose components
-  → decide state ownership
-  → share dependencies carefully
-  → organize by feature, domain, or system
+```mermaid
+flowchart TD
+    A[Complex Interface] --> B[Identify Responsibilities]
+    B --> C[Find Boundaries]
+    C --> D[Define Inputs & Outputs]
+    D --> E[Compose Components]
+    E --> F[Decide State Ownership]
+    F --> G[Share Dependencies Carefully]
+    G --> H[Organize by Feature, Domain, or System]
 ```
 
 Every step reduces accidental coupling while preserving understandable flow.
@@ -94,16 +94,17 @@ That does not mean one function is a good unit of reasoning.
 
 ## Components reduce the amount we understand at once
 
-```text
-CataloguePage
-├─ SearchControls
-├─ FilterPanel
-├─ ProductGrid
-│  └─ ProductCard
-│     ├─ Price
-│     ├─ StockStatus
-│     └─ AddToCartButton
-└─ Pagination
+```mermaid
+flowchart TD
+    Page["CataloguePage"]
+    Page --> Search["SearchControls"]
+    Page --> Filter["FilterPanel"]
+    Page --> Grid["ProductGrid"]
+    Page --> Paging["Pagination"]
+    Grid --> Card["ProductCard"]
+    Card --> Price["Price"]
+    Card --> Stock["StockStatus"]
+    Card --> AddBtn["AddToCartButton"]
 ```
 
 If price formatting changes, we should not need to understand pagination, filters, and cart state at the same time.
@@ -204,13 +205,13 @@ Typical symptoms:
 
 ## Bad extreme: component explosion
 
-```text
-Page
-└─ Section
-   └─ Wrapper
-      └─ Row
-         └─ Text
-            └─ Label
+```mermaid
+flowchart TD
+    Page["Page"] --> Section["Section"]
+    Section --> Wrapper["Wrapper"]
+    Wrapper --> Row["Row"]
+    Row --> Text["Text"]
+    Text --> Label["Label"]
 ```
 
 Small is not automatically good.
@@ -345,9 +346,11 @@ Do not force every component to own every value it displays.
 
 ## Inputs and outputs define the contract
 
-```text
-outside values → component → visible result / intent
-     props      →          → events, callbacks, emitted events
+```mermaid
+flowchart LR
+    Inputs["Inputs / Props\n(Outside Values)"] --> Comp["Component\n(Encapsulated Logic)"]
+    Comp --> UI["Rendered Output\n(Visible Result)"]
+    Comp --> Outputs["Outputs / Callbacks\n(Events & Intent)"]
 ```
 
 The public contract should be smaller and more stable than the implementation.
@@ -445,11 +448,12 @@ Named composition points communicate where variation belongs without adding a bo
 
 ## Composition over inheritance
 
-```text
-Card
-├─ Header
-├─ Body
-└─ Actions
+```mermaid
+flowchart TD
+    Card["Card Container"]
+    Card --> Header["Header (Slot / Child)"]
+    Card --> Body["Body (Slot / Child)"]
+    Card --> Actions["Actions (Slot / Child)"]
 ```
 
 Compose small capabilities and content rather than building a deep inheritance hierarchy.
@@ -505,10 +509,12 @@ This can simplify local interactions when the parent does not need every interme
 
 ## Controlled versus uncontrolled is an ownership decision
 
-```text
-Need synchronization outside? → controlled
-Need only the final result?    → uncontrolled
-Need both?                    → define a deliberate bridge
+```mermaid
+flowchart TD
+    A{"State Ownership Need"}
+    A -- Synchronize with external state / URL --> B["Controlled Component\n(Parent owns state via props & callbacks)"]
+    A -- Only final submission value required --> C["Uncontrolled Component\n(Component manages internal state)"]
+    A -- Both local reactivity & parent control --> D["Deliberate Bridge Pattern\n(Explicit value + onChange synchronization)"]
 ```
 
 Neither mode is universally better.
@@ -552,10 +558,19 @@ type SubmitButtonProps =
 
 ## Keep the public surface small and stable
 
-```text
-public props / events / slots
-            ↓
-private state and helpers
+```mermaid
+flowchart TD
+    subgraph PublicContract["Public Interface (Contract)"]
+        Props["Props / Attributes"]
+        Events["Events / Callbacks"]
+        Slots["Slots / Children"]
+    end
+    subgraph PrivateImpl["Private Implementation (Encapsulated)"]
+        State["Internal State"]
+        Helpers["Private Helpers & Handlers"]
+        DOM["Internal DOM Nodes"]
+    end
+    PublicContract --> PrivateImpl
 ```
 
 Every public prop is a promise.
@@ -613,14 +628,20 @@ Use the pattern when the relationship is real and repeated—not because the API
 
 ## Headless components separate behavior from styling
 
-```text
-headless behavior
-  keyboard rules
-  selection state
-  ARIA relationships
-  focus management
-          ↓
-consumer-owned markup and styles
+```mermaid
+flowchart TD
+    subgraph HeadlessLogic["Headless Behavior Layer"]
+        KB["Keyboard Navigation Rules"]
+        Sel["Selection State Machine"]
+        ARIA["ARIA Attributes & Relationships"]
+        Focus["Focus Management"]
+    end
+    subgraph ConsumerUI["Consumer UI Layer"]
+        Markup["Consumer-Owned Markup"]
+        Styles["Tailwind / Custom CSS Styles"]
+        Layout["Flexible Component Layout"]
+    end
+    HeadlessLogic --> ConsumerUI
 ```
 
 A headless component supplies interaction logic without imposing a visual design.
@@ -756,11 +777,11 @@ Application components should speak the domain language and may coordinate sever
 
 ## Reuse has levels
 
-```text
-one feature
-  → one application
-  → multiple products
-  → design system / package
+```mermaid
+flowchart TD
+    A["One Feature Boundary\n(Lowest cost, highest velocity)"] --> B["One Application Boundary\n(Shared across feature teams)"]
+    B --> C["Multiple Products Boundary\n(Multi-app shared packages)"]
+    C --> D["Global Design System Package\n(Highest contract cost, strict versioning)"]
 ```
 
 The wider the reuse boundary, the more expensive the public contract becomes.
@@ -948,15 +969,13 @@ Application coordination belongs above the reusable boundary.
 
 ## Smart and presentational is a useful distinction
 
-```text
-CatalogueContainer
-  fetches, owns state, coordinates
-        ↓
-ProductGrid
-  lays out a collection
-        ↓
-ProductCard
-  presents one product and emits intent
+```mermaid
+flowchart TD
+    Container["CatalogueContainer\n(Fetches data, owns state, coordinates features)"]
+    Grid["ProductGrid\n(Lays out collection, handles viewport)"]
+    Card["ProductCard\n(Presents one item, emits user intent)"]
+    Container --> Grid
+    Grid --> Card
 ```
 
 The names are less important than the separation of coordination from presentation.
@@ -1021,11 +1040,24 @@ Compare the responsibilities and data flow, not the framework punctuation.
 
 ## Compare architecture, not syntax
 
-```text
-React props + callbacks   ≈ Vue props + emits
-React children            ≈ Vue slots
-React context             ≈ Vue provide/inject
-custom hooks              ≈ composables
+```mermaid
+flowchart LR
+    subgraph React["React Paradigm"]
+        RProps["Props + Callbacks"]
+        RChild["Children"]
+        RCtx["React Context"]
+        RHooks["Custom Hooks"]
+    end
+    subgraph Vue["Vue Paradigm"]
+        VProps["Props + Emits"]
+        VSlots["Slots"]
+        VPI["provide / inject"]
+        VComp["Composables"]
+    end
+    RProps <-->|Architectural Equivalent| VProps
+    RChild <-->|Architectural Equivalent| VSlots
+    RCtx <-->|Architectural Equivalent| VPI
+    RHooks <-->|Architectural Equivalent| VComp
 ```
 
 Frameworks provide mechanisms.
@@ -1140,8 +1172,10 @@ Text, plural rules, direction, and date conventions are part of the public behav
 
 Keep trust-sensitive behavior near the boundary that understands it.
 
-```text
-external content → sanitize / validate → trusted display component
+```mermaid
+flowchart LR
+    External["External / User Content"] --> Sanitize["Sanitize & Validate Boundary"]
+    Sanitize --> Trusted["Trusted Display Component"]
 ```
 
 Do not make a generic renderer responsible for deciding whether arbitrary HTML is safe.
@@ -1167,9 +1201,10 @@ Treat component APIs with the same care as a service boundary: explicit, intenti
 
 ## A component is not automatically a design-system component
 
-```text
-application component → one product's domain language
-design-system component → cross-product stable behavior and appearance
+```mermaid
+flowchart LR
+    App["Application Component"] --- AppDesc["Speaks one product's domain language"]
+    DS["Design-System Component"] --- DSDesc["Cross-product stable behavior & appearance"]
 ```
 
 Promoting a local component too early creates a public API before variation is understood.
@@ -1180,16 +1215,12 @@ Keep application components local until real reuse proves the broader boundary.
 
 ## One possible layering model
 
-```text
-application shell
-  ↓
-feature components
-  ↓
-domain components
-  ↓
-shared behavior / data adapters
-  ↓
-reusable UI primitives
+```mermaid
+flowchart TD
+    Shell["Application Shell"] --> Feature["Feature Components"]
+    Feature --> Domain["Domain Components"]
+    Domain --> Adapter["Shared Behavior & Data Adapters"]
+    Adapter --> UI["Reusable UI Primitives"]
 ```
 
 The dependency direction should be intentional.
@@ -1214,14 +1245,14 @@ Refactoring is a sequence of smaller decisions, not a single rewrite.
 
 ## Refactor the monolith in observable steps
 
-```text
-monolith
-  → stable layout components
-  → product collection boundary
-  → product item boundary
-  → controlled search boundary
-  → composition boundary
-  → shared behavior where justified
+```mermaid
+flowchart TD
+    Monolith["Monolithic Interface"] --> Layout["1. Stable Layout Shell"]
+    Layout --> Collection["2. Product Collection Boundary"]
+    Collection --> Item["3. Product Item Boundary (ProductCard)"]
+    Item --> Search["4. Controlled Search & Filter Boundary"]
+    Search --> Composition["5. Composition Slot / Children Boundary"]
+    Composition --> Shared["6. Shared Primitives (Only where justified)"]
 ```
 
 After each step, preserve behavior and re-check ownership.
@@ -1262,9 +1293,12 @@ Add lazy panel loading.
 
 Document the states explicitly:
 
-```text
-not requested → loading → ready
-                    ↘ error → retry
+```mermaid
+flowchart LR
+    Unrequested["Not Requested"] --> Loading["Loading"]
+    Loading --> Ready["Ready"]
+    Loading --> ErrorState["Error"]
+    ErrorState -->|User Retry| Loading
 ```
 
 The tabs contract should make loading and failure visible rather than hiding them inside a boolean prop combination.
@@ -1284,8 +1318,7 @@ Add a disabled tab that:
 Write the behavioral contract before the implementation.
 
 ---
-
-## Troubleshooting guide
+## Troubleshooting guide (Part 1)
 
 | Symptom | Likely cause |
 |---|---|
@@ -1293,10 +1326,14 @@ Write the behavioral contract before the implementation.
 | Every component has many booleans | Invalid combinations are not modeled |
 | A child and parent fight over state | The controlled contract is ambiguous |
 | Context appears everywhere | Dependencies are hidden instead of designed |
+---
+## Troubleshooting guide (Part 2)
+
+| Symptom | Likely cause |
+|---|---|
 | Reusable component needs feature knowledge | The boundary is too low or too broad |
 | Refactor creates dozens of files | Extraction followed markup, not responsibility |
 | Keyboard behavior is duplicated | Interaction logic lacks one owner |
-
 ---
 
 ## Completion checklist
@@ -1312,8 +1349,7 @@ Write the behavioral contract before the implementation.
 - [ ] the final structure reflects feature or domain change patterns.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -1321,11 +1357,15 @@ Write the behavioral contract before the implementation.
 | Components exist mainly for reuse | Reasoning, isolation, and ownership matter too |
 | Smaller components are always better | Navigation cost is part of quality |
 | Each component owns all its state | The owner is the decision-making unit |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | More props mean more flexibility | More public combinations mean more obligations |
 | Context is better than prop drilling | Context trades repetition for visibility |
 | Reusable means generic | Reuse should preserve meaningful vocabulary |
 | A framework decides architecture | Frameworks provide mechanisms, not boundaries |
-
 ---
 
 ## The chapter in one sentence
