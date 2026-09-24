@@ -45,23 +45,13 @@ and DOM operations deliberately.
 
 ## The chapter's single model
 
-```text
-Semantic HTML
-      |
-      v
-Native browser behaviour
-      |
-      v
-Accessibility representation
-      |
-      v
-Language and direction
-      |
-      v
-DOM tree and events
-      |
-      v
-Web Components
+```mermaid
+flowchart TD
+    A[Semantic HTML] --> B[Native browser behaviour]
+    B --> C[Accessibility representation]
+    C --> D[Language and direction]
+    D --> E[DOM tree and events]
+    E --> F[Web Components]
 ```
 
 These are not separate tricks. They are different views of the same interface
@@ -498,10 +488,10 @@ border and expect the user to infer the problem.
 ARIA can describe a custom interaction, but it does not automatically create
 the keyboard behaviour, focus management, state changes, or event handling.
 
-```text
-First choice: native HTML
-Second choice: native HTML plus a small enhancement
-Last choice: a custom ARIA widget with its full interaction contract
+```mermaid
+flowchart TD
+    A["First choice: Native HTML"] --> B["Second choice: Native HTML + enhancement"]
+    B --> C["Last choice: Custom ARIA widget with full contract"]
 ```
 
 ---
@@ -597,13 +587,13 @@ Do not replace every left value with right and call the interface localized.
 
 HTML is the source representation. The DOM is the browser's live object tree.
 
-```text
-Document
-└── html
-    ├── head
-    └── body
-        ├── header
-        └── main
+```mermaid
+flowchart TD
+    Doc[Document] --> HTML[html]
+    HTML --> Head[head]
+    HTML --> Body[body]
+    Body --> Header[header]
+    Body --> Main[main]
 ```
 
 JavaScript reads and changes this live tree. It does not edit the original
@@ -707,10 +697,17 @@ reliable than attaching random handlers until the interface appears to work.
 
 ## Event propagation has phases
 
-```text
-capture:   window → document → target ancestors
-target:     the target element
-bubble:    target ancestors → document → window
+```mermaid
+flowchart LR
+    subgraph Capture["1. Capture Phase"]
+        W1[window] --> D1[document] --> A1[ancestors]
+    end
+    subgraph Target["2. Target Phase"]
+        A1 --> T[target element]
+    end
+    subgraph Bubble["3. Bubble Phase"]
+        T --> A2[ancestors] --> D2[document] --> W2[window]
+    end
 ```
 
 The event can be observed at different points in the path. This is why a
@@ -855,8 +852,7 @@ Good component design preserves:
 Web Components are an extension point, not a replacement for semantic HTML.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better model |
 |---|---|
@@ -864,11 +860,15 @@ Web Components are an extension point, not a replacement for semantic HTML.
 | “A `<div>` can replace any element.” | Native elements bring behaviour and semantics. |
 | “ARIA makes custom controls accessible.” | ARIA describes; code must implement interaction. |
 | “Placeholder text is a label.” | Use a real label and associate it with the control. |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better model |
+|---|---|
 | “RTL means align everything right.” | Direction, layout, icons, and mixed text need separate decisions. |
 | “DOM means HTML.” | HTML is source; the DOM is the live runtime tree. |
 | “`stopPropagation()` prevents navigation.” | Default actions and propagation are different. |
 | “Shadow DOM is security.” | Shadow DOM is encapsulation, not isolation. |
-
 ---
 
 ## The practical lab
@@ -961,4 +961,4 @@ Chapter 3: the cascade, layout systems, responsive design, container queries,
 layers, design tokens, and the difference between visual flexibility and
 structural chaos.
 
-**Modern Front-End Architecture & Engineering**
+**Modern Front-End Engineering**
