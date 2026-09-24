@@ -69,10 +69,16 @@ The answers reveal the actual topology beneath a framework's terminology.
 
 ## Build time, request time, and browser time
 
-```text
-build time   → precompute output before deployment
-request time → compute for a request or user
-browser time → execute JavaScript and update the interface
+```mermaid
+flowchart LR
+    B["1. Build Time
+(Static precomputation,
+CI/CD compilation)"] --> R["2. Request Time
+(On-demand server render,
+data resolution per user)"]
+    R --> BR["3. Browser Time
+(Client JavaScript execution,
+hydration, reactivity)"]
 ```
 
 Every topology moves work among these three moments.
@@ -98,11 +104,12 @@ Rendering may include:
 
 ## Client-side rendering
 
-```text
-browser receives shell and JavaScript
-  → JavaScript loads data
-  → components calculate UI
-  → browser creates content
+```mermaid
+flowchart TD
+    A["1. Browser receives empty HTML shell (<div id='root'>) & JS bundle"] --> B["2. Browser downloads & executes JavaScript"]
+    B --> C["3. Client fires fetch() to API server"]
+    C --> D["4. Client calculates virtual DOM / reactive graph"]
+    D --> E["5. DOM created and painted (Content visible at last)"]
 ```
 
 CSR moves much of the initial rendering work to the device.
@@ -164,11 +171,12 @@ The correct choice depends on the content and delivery requirements.
 
 ## Server-side rendering
 
-```text
-request
-  → server loads data and renders HTML
-  → browser receives useful document
-  → client JavaScript hydrates interactive regions
+```mermaid
+flowchart TD
+    A["1. Browser requests URL (GET /permits/104)"] --> B["2. Server fetches database data & executes components to HTML"]
+    B --> C["3. Browser receives full HTML document (Instant FCP)"]
+    C --> D["4. Browser downloads client JavaScript bundle"]
+    D --> E["5. Client hydrates HTML: attaches listeners & reconciles state"]
 ```
 
 SSR moves initial rendering work to request time and improves the first document's content availability.
@@ -234,8 +242,15 @@ Rendering location alone does not determine speed.
 
 ## Static site generation
 
-```text
-build → render HTML → deploy files → serve quickly
+```mermaid
+flowchart LR
+    A["Build Command
+(Fetch data at compile)"] --> B["Generate Static HTML
+(/docs/intro.html)"]
+    B --> C["Deploy to Edge CDN
+(Globally distributed)"]
+    C --> D["Instant Edge Serve
+(<20ms TTFB globally)"]
 ```
 
 SSG moves rendering cost to deployment or build time.
@@ -314,10 +329,15 @@ Do not infer the entire runtime architecture from the first render label.
 
 ## Hydration reuses existing HTML
 
-```text
-server HTML
-  + client JavaScript
-  → attach behavior and state to matching output
+```mermaid
+flowchart LR
+    HTML["Server-Rendered HTML
+(Passive DOM structure)"] & JS["Client JavaScript Bundle
+(Component definitions & handlers)"] --> Hydrate["Hydration Step
+- Walk DOM tree
+- Attach event listeners
+- Initialize reactive state"]
+    Hydrate --> Interactive["Fully Interactive Page"]
 ```
 
 Hydration is a handoff from server-produced markup to an interactive browser runtime.
@@ -390,13 +410,13 @@ HTML existing on screen does not mean the page is ready for interaction.
 
 ## The server-to-client handoff
 
-```text
-server data and decisions
-  → serialized payload
-  → network transfer
-  → browser parse
-  → client state reconstruction
-  → interactive behavior
+```mermaid
+flowchart TD
+    A["Server fetches Database Entities"] --> B["renderToString(App) + JSON.stringify(data)"]
+    B --> C["Network Transfer (HTML payload + <script id='__DATA__'>)"]
+    C --> D["Browser parses HTML and JSON data"]
+    D --> E["Client framework reconstructs identical Component State"]
+    E --> F["Hydration completes (TTI reached)"]
 ```
 
 Design the handoff as a contract.
@@ -423,10 +443,16 @@ Use explicit transport models rather than passing arbitrary server objects.
 
 ## Secrets must stay server-side
 
-```text
-server credential / private query
-          ✕
-serialized browser payload
+```mermaid
+flowchart TD
+    subgraph ServerZone["Secure Server Boundary"]
+        Sec["Database Credentials / API Secrets / Private Columns"]
+        Comp["Server Component / Data Loader"]
+        Sec --> Comp
+    end
+    Comp -->|Explicit Public DTO / Props ONLY| Wire["Network Wire (HTML + Client State)"]
+    Wire --> BrowserZone["Browser Client Runtime"]
+    Sec -.->|BLOCKED: Never pass credentials or unscrubbed DB rows| Wire
 ```
 
 SSR does not make a secret safe if the secret is embedded in HTML or serialized props.
@@ -466,12 +492,19 @@ It requires clear boundaries for state and events.
 
 ## Islands architecture
 
-```text
-static page
-├─ navigation island
-├─ search island
-├─ product-card island
-└─ comments island
+```mermaid
+flowchart TD
+    subgraph StaticDocument["Zero-JS Static HTML Page"]
+        H["Header & Layout HTML"]
+        Content["Article / Product Text HTML"]
+        Footer["Footer HTML"]
+    end
+    StaticDocument -.-> I1["Island 1: Navigation Menu
+(client:load)"]
+    StaticDocument -.-> I2["Island 2: Search Autocomplete
+(client:idle)"]
+    StaticDocument -.-> I3["Island 3: Interactive Comments
+(client:visible)"]
 ```
 
 Each island can hydrate independently.
@@ -524,9 +557,19 @@ Do not recreate a hidden global application just to make every island know about
 
 ## Streaming changes delivery timing
 
-```text
-send shell and ready content
-  → send slower regions as they resolve
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Browser
+    participant Server
+    Browser->>Server: GET /dashboard
+    Note over Server: Fast data ready immediately
+    Server-->>Browser: Flush HTTP headers + App Shell + Fast HTML
+    Note over Browser: Browser parses & renders App Shell (Fast FCP!)
+    Note over Server: Slow analytics query resolves after 400ms
+    Server-->>Browser: Streamed HTML chunk <template id='chunk-1'>
+    Server-->>Browser: Inline script swaps placeholder with chunk
+    Note over Browser: Analytics widget renders without page reload
 ```
 
 Streaming can improve perceived progress and reduce waiting for the slowest dependency.
@@ -660,10 +703,21 @@ The important design is the stale and failure policy, not the product name of th
 
 ## Stale-while-revalidate rendering
 
-```text
-cached HTML → serve immediately
-            → regenerate in background
-            → future requests see newer output
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User1
+    participant CDN as Edge CDN / Cache
+    participant Server as Origin Server / Static Generator
+    actor User2
+
+    User1->>CDN: GET /permits/104 (Cache Stale, past max-age)
+    CDN-->>User1: Return cached stale HTML instantly (0ms latency)
+    CDN->>Server: Trigger background regeneration
+    Server->>Server: Re-fetch database & re-render HTML
+    Server-->>CDN: Update cache with fresh HTML version
+    User2->>CDN: GET /permits/104 (5 seconds later)
+    CDN-->>User2: Return fresh pre-rendered HTML
 ```
 
 This works well for content where slightly stale output is acceptable and fast delivery matters.
@@ -762,10 +816,16 @@ Keep the boundary as small as the interaction allows.
 
 ## Server/client boundaries are architectural boundaries
 
-```text
-server data and secrets
-          ↓ explicit serializable props
-client interaction
+```mermaid
+flowchart TD
+    subgraph ServerComponent["Server Component (PermitDetail.server.tsx)"]
+        DB[("Direct SQL / Internal Microservice")] --> SC["Executes exclusively on Server
+- Zero client bundle footprint
+- Keeps SQL drivers & secrets on server"]
+    end
+    SC -->|Passes Serialized Props| CC["Client Component ('use client')
+(PermitActionButtons.tsx)
+- Handles onClick, hover, local UI state"]
 ```
 
 The boundary controls:
@@ -889,9 +949,16 @@ Streaming improves timing of availability; it does not erase client responsibili
 
 ## Resumability changes the handoff shape
 
-```text
-hydration → execute client code to reconstruct behavior
-resumability → resume serialized work when interaction requires it
+```mermaid
+flowchart TD
+    subgraph HydrationModel["Hydration Model (React / Vue)"]
+        H1["Download all component JS"] --> H2["Execute all component functions"]
+        H2 --> H3["Rebuild VDOM & attach listeners"]
+    end
+    subgraph ResumabilityModel["Resumability Model (Qwik)"]
+        R1["Zero JS executed on initial load"] --> R2["DOM serialized with state & handler symbols"]
+        R2 --> R3["User clicks button → Download & execute ONLY that event handler"]
+    end
 ```
 
 Resumability can reduce eager browser execution by preserving more execution context across the server boundary.
@@ -927,13 +994,19 @@ Reducing initial work can move complexity into build output and programming cons
 
 ## Rendering topologies form a continuum
 
-```text
-prebuilt HTML
-  ↔ revalidated HTML
-  ↔ request-rendered HTML
-  ↔ streamed HTML
-  ↔ partial hydration / islands
-  ↔ full client application
+```mermaid
+flowchart LR
+    A["Pure Static
+(SSG)"] <--> B["Incremental
+(ISR)"]
+    B <--> C["Server-Side
+(SSR)"]
+    C <--> D["Streaming
+(SSR + Suspense)"]
+    D <--> E["Islands
+(Partial Hydration)"]
+    E <--> F["Pure Client
+(CSR / SPA)"]
 ```
 
 Real applications can occupy several points at once.
@@ -993,8 +1066,7 @@ Often:
 CSR or a hybrid shell with focused server data boundaries may be simpler and more effective.
 
 ---
-
-## A route decision matrix
+## A route decision matrix (Part 1)
 
 | Question | Push toward |
 |---|---|
@@ -1002,12 +1074,14 @@ CSR or a hybrid shell with focused server data boundaries may be simpler and mor
 | personalized per request? | SSR / client data |
 | high interaction density? | client boundaries / CSR |
 | slow independent region? | streaming |
+---
+## A route decision matrix (Part 2)
+
+| Question | Push toward |
+|---|---|
 | mostly static with small interactions? | islands |
 | expensive browser startup? | server rendering / partial hydration |
 | strict freshness and authorization? | request-time server boundary |
-
-Use several answers together.
-
 ---
 
 ## Personalization reduces cacheability
@@ -1200,12 +1274,16 @@ Do not treat a fast developer laptop as a universal client.
 
 ## The rendering cost triangle
 
-```text
-        server/request cost
-             /\
-            /  \
-           /    \
-build cost ───── client/device cost
+```mermaid
+flowchart TD
+    subgraph CostTriangle["The Web Rendering Cost Triangle"]
+        SC["Server & Request Cost\n(CPU, DB connections, edge compute bill)"]
+        BC["Build Cost\n(CI/CD minutes, deploy frequency, build queue)"]
+        CC["Client & Device Cost\n(Battery, main-thread blocking, RAM, TTI latency)"]
+        SC --- BC
+        BC --- CC
+        CC --- SC
+    end
 ```
 
 Moving work away from one corner usually adds cost or constraints to another.
@@ -1479,8 +1557,7 @@ Ask:
 - [ ] deployment and failure behavior match the topology.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -1490,13 +1567,17 @@ Ask:
 | SSR is always faster | Server latency, hydration, and cacheability matter |
 | SSG cannot be interactive | Static output can include client islands |
 | Static means always fresh | Publication and revalidation define freshness |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | Hydration rebuilds the DOM | It attaches client behavior to existing output |
 | Streaming removes handoff cost | It changes delivery timing, not all work |
 | Server components are just SSR | Execution location and HTML timing differ |
 | Islands are automatically better | Coordination and boundary costs still exist |
 | Edge is always faster | Runtime, data location, and cache behavior matter |
 | Resumability is just faster hydration | It changes the server-client handoff model |
-
 ---
 
 ## The chapter in one sentence
