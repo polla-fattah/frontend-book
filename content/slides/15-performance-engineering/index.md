@@ -58,14 +58,13 @@ It is successful when a user journey improves without unacceptable trade-offs.
 
 ## The performance journey
 
-```text
-request
-  → server response
-  → first content
-  → largest content
-  → interaction readiness
-  → stable layout
-  → useful route transition
+```mermaid
+flowchart TD
+    A["1. User Request (Navigation / URL enter)"] --> B["2. Time to First Byte (TTFB - Server Response)"]
+    B --> C["3. First Contentful Paint (FCP - Initial Typography/DOM)"]
+    C --> D["4. Largest Contentful Paint (LCP - Hero Image/Header Rendered)"]
+    D --> E["5. Interaction to Next Paint (INP - Responsive Main Thread)"]
+    E --> F["6. Cumulative Layout Shift (CLS - Visual Stability Maintained)"]
 ```
 
 Performance is a sequence of experiences, not one score.
@@ -74,10 +73,19 @@ Performance is a sequence of experiences, not one score.
 
 ## Core Web Vitals
 
-```text
-LCP → loading performance
-INP → interaction responsiveness
-CLS → visual stability
+```mermaid
+flowchart LR
+    subgraph CoreWebVitals["The Three Core Web Vitals (Google Web Standards)"]
+        LCP["Largest Contentful Paint (LCP)
+Target: <= 2.5s (p75)
+Measures: Perceived Loading Speed"]
+        INP["Interaction to Next Paint (INP)
+Target: <= 200ms (p75)
+Measures: Overall Page Responsiveness"]
+        CLS["Cumulative Layout Shift (CLS)
+Target: <= 0.1 (p75)
+Measures: Visual Stability & Jitter"]
+    end
 ```
 
 Together they cover important parts of the user journey.
@@ -217,11 +225,15 @@ An image can download quickly but still become LCP late because the page discove
 
 Diagnose:
 
-```text
-TTFB
-resource load delay
-resource load duration
-element render delay
+```mermaid
+flowchart LR
+    A["1. Time to First Byte
+(Server & Network TTFB)"] --> B["2. Resource Load Delay
+(Time until browser discovers LCP image)"]
+    B --> C["3. Resource Load Duration
+(Time to download image asset)"]
+    C --> D["4. Element Render Delay
+(Time spent decoding, layout & paint)"]
 ```
 
 Each subpart suggests a different fix.
@@ -388,11 +400,15 @@ Optimize the user journey, not only one fast demo click.
 
 ## Anatomy of an interaction
 
-```text
-input delay
-  → event processing
-  → style/layout/paint work
-  → next visible update
+```mermaid
+flowchart LR
+    subgraph INP_Anatomy["Anatomy of an Interaction (INP Breakdown)"]
+        I1["1. Input Delay
+(Queued behind prior main-thread long tasks)"] --> I2["2. Processing Time
+(Execution duration of event handlers)"]
+        I2 --> I3["3. Presentation Delay
+(Style recalc, layout, compositing & GPU paint)"]
+    end
 ```
 
 Any phase can dominate the perceived response.
@@ -417,10 +433,11 @@ The handler code may be fast while the user still waits.
 
 ## Main-thread contention
 
-```text
-rendering + parsing + JavaScript + input
-                      ↓
-              one main thread
+```mermaid
+flowchart TD
+    HTML["HTML Parsing"] & JS["Heavy JavaScript Execution"] & Style["Style Recalculations"] & Input["User Click / Keystroke"] --> MT["The Single Browser Main Thread"]
+    MT --> Blocked["Long Task (>50ms)
+Main thread frozen! User input delayed = High INP!"]
 ```
 
 Work competes for responsiveness.
@@ -512,8 +529,15 @@ Do not split components blindly; make the dependency graph narrower.
 
 Virtualization renders only the visible window plus a buffer.
 
-```text
-10,000 records → perhaps 40 DOM rows
+```mermaid
+flowchart LR
+    Data["Dataset in Memory
+(10,000 municipal records)"] --> Virtual["Virtual Scroller Window
+(Calculates scroll offset)"]
+    Virtual --> DOM["Lightweight DOM
+(Only 35 active rendered <tr> elements!)"]
+    DOM --> Smooth["60fps Butter-Smooth Scrolling
+Zero memory bloat!"]
 ```
 
 It can reduce rendering and layout cost for genuinely large collections.
@@ -552,9 +576,17 @@ They do not make an algorithm cheaper and do not remove communication or seriali
 
 ## Worker communication has cost
 
-```text
-main thread → serialize/transfer → worker
-worker      → result transfer   → main thread
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Main as Browser Main Thread (UI at 60fps)
+    participant Worker as Dedicated Web Worker Thread
+
+    Main->>Worker: postMessage({ type: 'CALCULATE_AUDIT', data: largeMatrix })
+    Note over Worker: Worker executes heavy 400ms calculation in background!
+Main thread remains 100% responsive to user clicks.
+    Worker-->>Main: postMessage({ type: 'AUDIT_COMPLETE', result: summary })
+    Note over Main: Main thread updates UI badge with zero frame drops
 ```
 
 Move enough work to justify the boundary.
@@ -712,8 +744,15 @@ Optimize the path that is actually slow.
 
 ## Request waterfalls
 
-```text
-HTML → JS → data → image
+```mermaid
+flowchart LR
+    A["1. HTML Document
+(index.html)"] -->|Downloads & Parses| B["2. Client JS Bundle
+(app.js)"]
+    B -->|Executes & Fetches| C["3. API JSON Data
+(/api/permits/104)"]
+    C -->|Reads Image URL| D["4. LCP Hero Image
+(hero.webp - Loaded at last!)"]
 ```
 
 Sequential discovery delays the final content.
@@ -910,8 +949,22 @@ Do not reduce markup mechanically; identify the subtree causing measured work.
 
 Avoid alternating layout reads and writes:
 
-```text
-read → write → read → write
+```mermaid
+flowchart TD
+    subgraph LayoutThrashing["The Layout Thrashing Anti-Pattern"]
+        R1["Read: elem1.offsetWidth"] --> W1["Write: elem1.style.width = '...'"]
+        W1 -->|Forces immediate sync layout recalc!| R2["Read: elem2.offsetWidth"]
+        R2 --> W2["Write: elem2.style.width = '...'"]
+        W2 -->|Forces second layout recalc!| Bad["Result: 30 dropped frames / massive jank"]
+    end
+    subgraph BatchedSolution["The Batched Solution (Fast)"]
+        BR1["Batch All Reads First:
+r1 = elem1.offsetWidth;
+r2 = elem2.offsetWidth;"] --> BW1["Batch All Writes in next frame:
+elem1.style.width = ...;
+elem2.style.width = ...;"]
+        BW1 --> Good["Result: Exactly ONE clean layout recalculation!"]
+    end
 ```
 
 Group reads, then writes where possible to reduce forced layout and synchronization.
@@ -1763,13 +1816,16 @@ Optimize the experience, not only the dashboard.
 
 ## A performance measurement stack
 
-```text
-browser metrics
-  → custom user timing
-  → lab traces and network inspection
-  → RUM aggregation
-  → release comparison
-  → route budgets and action
+```mermaid
+flowchart TD
+    A["1. Browser Native Observers
+(PerformanceObserver: LCP, INP, CLS)"] --> B["2. Custom User Timing API
+(performance.mark / performance.measure)"]
+    B --> C["3. Real User Monitoring (RUM) Beacon
+(navigator.sendBeacon to Telemetry API)"]
+    C --> D["4. Metric Aggregation & p75 Analysis
+(Segmented by device tier, connection, country)"]
+    D --> E["5. Performance Budget Alerts & Regression CI Gates"]
 ```
 
 Each layer answers different questions.
@@ -1970,8 +2026,7 @@ after measurement:
 If you cannot fill in the evidence, measure before changing code.
 
 ---
-
-## Troubleshooting guide
+## Troubleshooting guide (Part 1)
 
 | Symptom | Likely cause |
 |---|---|
@@ -1980,11 +2035,15 @@ If you cannot fill in the evidence, measure before changing code.
 | Click handler is short but INP is poor | Input delay or expensive rendering follows |
 | CLS occurs after font load | Metrics and fallback geometry differ |
 | Virtualization improves speed but breaks keyboard use | UX and accessibility contract was not tested |
+---
+## Troubleshooting guide (Part 2)
+
+| Symptom | Likely cause |
+|---|---|
 | Worker adds no benefit | Transfer and setup cost exceed CPU savings |
 | Bundle shrinks but interaction is unchanged | Execution, rendering, or network is the actual bottleneck |
 | Cache hit rate rises but data is wrong | Freshness, identity, or invalidation policy is weak |
 | Budget fails randomly | Sample, environment, or threshold is not controlled |
-
 ---
 
 ## Completion checklist
@@ -2001,8 +2060,7 @@ If you cannot fill in the evidence, measure before changing code.
 - [ ] production verification follows lab experiments.
 
 ---
-
-## Misconceptions to leave behind
+## Misconceptions to leave behind (Part 1)
 
 | Misconception | Better mental model |
 |---|---|
@@ -2014,6 +2072,11 @@ If you cannot fill in the evidence, measure before changing code.
 | Lazy loading always helps | It can delay content the user needs now |
 | INP is only handler duration | Input, processing, render, and paint form the interaction |
 | Memoization always improves speed | Caches have cost and may not target the cause |
+---
+## Misconceptions to leave behind (Part 2)
+
+| Misconception | Better mental model |
+|---|---|
 | Virtualize every list | Virtualization has UX and accessibility trade-offs |
 | Workers make code faster | They trade main-thread work for communication cost |
 | Compression solves JavaScript bloat | Parsing and execution remain |
@@ -2021,7 +2084,6 @@ If you cannot fill in the evidence, measure before changing code.
 | Prefetch everything | Speculation consumes user and server resources |
 | SSR guarantees good Web Vitals | Topology moves work; it does not remove it |
 | Optimization is final polish | Performance is an architectural constraint |
-
 ---
 
 ## The chapter in one sentence
