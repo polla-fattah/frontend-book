@@ -8,7 +8,7 @@ Each practical should be completed in a small Vite + TypeScript project unless t
 
 | Practical | Main chapter | Project |
 |---|---:|---|
-| 01 | 1 | Observe browser work and build a measured virtual scroller extension |
+| 01 | 1 | Observe browser work; optional measured virtual scroller extension |
 | 02 | 2 | Accessible composite listbox |
 | 03 | 3 | Intrinsic, container-aware dashboard |
 | 04 | 4 | Abortable, typed event hub |

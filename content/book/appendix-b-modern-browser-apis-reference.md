@@ -1,3 +1,9 @@
+---
+title: "Appendix B"
+type: book
+book_kind: book
+---
+
 # Appendix B — Modern Browser APIs Reference
 
 ## A Capability-Oriented Guide to the Web Platform

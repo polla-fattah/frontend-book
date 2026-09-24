@@ -1,6 +1,6 @@
 ---
 title: Frontend Playground
-description: Guided practicals for the Modern Front-End Architecture & Engineering book.
+description: Guided practicals for the Modern Front-End Engineering book.
 type: docs
 weight: 30
 icon: fa-solid fa-flask
@@ -17,7 +17,7 @@ chapters.
 
 | Practical | Related chapter | Focus |
 | --- | ---: | --- |
-| [01 — Browser Observation and Measured Virtualization](practical-01-browser-observation-and-virtual-scroller/) | 1 | Browser work and measured virtualization |
+| [01 — Browser Observation (optional virtualization)](practical-01-browser-observation-and-virtual-scroller/) | 1 | Browser work and measured virtualization |
 | [02 — Accessible Composite Listbox](practical-02-accessible-composite-listbox/) | 2 | Semantics, keyboard interaction, and accessibility |
 | [03 — Intrinsic, Container-Aware Dashboard](practical-03-intrinsic-dashboard/) | 3 | Modern CSS layout |
 | [04 — Typed, Abortable Event Hub](practical-04-abortable-event-hub/) | 4 | JavaScript events and cancellation |

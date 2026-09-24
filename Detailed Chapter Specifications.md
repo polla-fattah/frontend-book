@@ -1,4 +1,6 @@
-# Modern Front-End Architecture & Engineering
+# Modern Front-End Engineering
+
+*From Browser Fundamentals to Production Architecture*
 
 ## Detailed Chapter Specifications — Version 1.1
 

@@ -1,6 +1,6 @@
 ---
 title: Lecture slides
-description: Slides for teaching Modern Front-End Architecture & Engineering.
+description: Slides for teaching Modern Front-End Engineering.
 type: docs
 ---
 

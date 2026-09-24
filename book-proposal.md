@@ -1,4 +1,6 @@
-# Modern Front-End Architecture & Engineering
+# Modern Front-End Engineering
+
+*From Browser Fundamentals to Production Architecture*
 
 ## Final Proposed Book Structure
 

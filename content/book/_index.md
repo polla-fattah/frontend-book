@@ -1,12 +1,14 @@
 ---
-title: Modern Front-End Architecture & Engineering
-description: A practical guide to the modern web platform, application architecture, and production front-end engineering.
+title: Modern Front-End Engineering
+description: From Browser Fundamentals to Production Architecture
 type: book
 book_kind: book
 outputs: [HTML, print, markdown, BookManifest]
 cascade:
   type: book
 ---
+
+*From Browser Fundamentals to Production Architecture*
 
 {{< book-toc depth=2 >}}
 

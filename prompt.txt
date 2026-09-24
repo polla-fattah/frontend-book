@@ -1,6 +1,6 @@
-# Project: Modern Front-End Architecture & Engineering
+# Project: Modern Front-End Engineering
 
-This repository contains the manuscript for the technical book **Modern Front-End Architecture & Engineering**.
+This repository contains the manuscript for the technical book **Modern Front-End Engineering**.
 
 You are acting as a senior technical editor, frontend architect, and manuscript consistency reviewer.
 

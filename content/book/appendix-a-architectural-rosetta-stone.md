@@ -1,3 +1,9 @@
+---
+title: "Appendix A"
+type: book
+book_kind: book
+---
+
 # Appendix A — Front-End Architectural Rosetta Stone
 
 ## Vanilla JavaScript, React, and Vue Compared by Architectural Concept

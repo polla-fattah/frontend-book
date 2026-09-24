@@ -1,4 +1,6 @@
-# Modern Front-End Architecture & Engineering
+# Modern Front-End Engineering
+
+*From Browser Fundamentals to Production Architecture*
 
 This repository is the complete Hugo website for the front-end architecture and engineering book.
 
