@@ -1,0 +1,47 @@
+{{- /* A lecture deck. The page's Markdown is split into slides at each
+       thematic break (--- on its own line, which Goldmark renders as <hr>).
+       A slide that contains an h1 is styled as a title slide. This template
+       is a complete document on purpose: decks are presented full screen,
+       without the site shell. Without JavaScript the slides stack in order. */ -}}
+{{- $slides := split (string .Content) "<hr>" -}}
+{{- $total := len $slides -}}
+<!doctype html>
+<html lang="{{ .Site.Language.Lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ .Title }} | {{ .Site.Title }}</title>
+  {{- with .Description }}
+  <meta name="description" content="{{ . }}">
+  {{- end }}
+  <link rel="icon" type="image/svg+xml" href="{{ "icons/logo.svg" | relURL }}">
+  <link rel="alternate icon" type="image/svg+xml" href="{{ "favicon.svg" | relURL }}">
+  {{ partialCached "favicons.html" . }}
+  {{- with resources.Get "slides/deck.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
+  {{- end }}
+</head>
+<body class="deck">
+  <a class="deck-exit" href="{{ with .Parent }}{{ .RelPermalink }}{{ else }}{{ "" | relURL }}{{ end }}">{{ with .Parent }}{{ .Title }}{{ else }}{{ .Site.Title }}{{ end }}</a>
+  <main class="deck-slides" aria-roledescription="slide deck" aria-label="{{ .Title }}">
+    {{- range $i, $slide := $slides }}
+    {{- $n := add $i 1 }}
+    <section class="slide{{ if in $slide "<h1" }} slide--title{{ end }}" id="slide-{{ $n }}" aria-roledescription="slide" aria-label="{{ $n }} of {{ $total }}">
+      <div class="slide__inner">
+        {{ $slide | safeHTML }}
+      </div>
+    </section>
+    {{- end }}
+  </main>
+  <nav class="deck-controls" aria-label="Slide controls">
+    <button type="button" data-deck="prev" aria-label="Previous slide">&#8592;</button>
+    <span class="deck-count" aria-live="polite"><span data-deck="current">1</span> / {{ $total }}</span>
+    <button type="button" data-deck="next" aria-label="Next slide">&#8594;</button>
+    <button type="button" data-deck="fullscreen" aria-label="Full screen (F)">&#x26F6;</button>
+  </nav>
+  <div class="deck-progress" aria-hidden="true"><span></span></div>
+  {{- with resources.Get "slides/deck.js" | minify | fingerprint }}
+  <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" defer></script>
+  {{- end }}
+</body>
+</html>

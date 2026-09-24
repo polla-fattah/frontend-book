@@ -1,0 +1,252 @@
+/* Lecture decks. Each slide is a 16:9 stage scaled to fit the window; all
+   sizes derive from --u, one hundredth of the stage width, so a slide looks
+   the same on a laptop and a projector. Without JavaScript the slides stack. */
+
+@font-face { font-family: "Chakra Petch"; font-weight: 700; font-display: swap;
+  src: url("../webfonts/brand/chakra-petch-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 100 900; font-style: normal; font-display: swap;
+  src: url("../webfonts/inter/inter-latin-wght-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 100 900; font-style: italic; font-display: swap;
+  src: url("../webfonts/inter/inter-latin-wght-italic.woff2") format("woff2"); }
+@font-face { font-family: "Plex Mono"; font-weight: 400; font-display: swap;
+  src: url("../webfonts/brand/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Plex Mono"; font-weight: 600; font-display: swap;
+  src: url("../webfonts/brand/ibm-plex-mono-latin-600-normal.woff2") format("woff2"); }
+
+:root {
+  --navy: #1d588c;
+  --navy-deep: #0c2238;
+  --ink: #172a42;
+  --soft: #46586d;
+  --copper: #b4762e;
+  --copper-light: #e0b27a;
+  --paper: #f5f7fa;
+  --line: #d5dde8;
+  --u: min(1vw, 1.7778vh);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body.deck {
+  background: var(--navy-deep);
+  color: var(--ink);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* ---- Slides ------------------------------------------------------------ */
+
+.slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2vh 0;
+}
+.slide__inner {
+  position: relative;
+  width: calc(var(--u) * 100);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  padding: calc(var(--u) * 5.5) calc(var(--u) * 7);
+  background: var(--paper);
+  background-image:
+    linear-gradient(rgba(29, 88, 140, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 88, 140, 0.05) 1px, transparent 1px);
+  background-size: calc(var(--u) * 4) calc(var(--u) * 4);
+  font-size: calc(var(--u) * 2.3);
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.slide__inner > :first-child { margin-top: 0; }
+.slide__inner > :last-child { margin-bottom: 0; }
+
+h1, h2 { font-family: "Chakra Petch", sans-serif; font-weight: 700; line-height: 1.08; }
+h2 {
+  margin: 0 0 calc(var(--u) * 2.4);
+  color: var(--navy);
+  font-size: calc(var(--u) * 4.4);
+}
+h2::after {
+  content: "";
+  display: block;
+  width: calc(var(--u) * 7);
+  height: calc(var(--u) * 0.4);
+  margin-top: calc(var(--u) * 1.4);
+  background: var(--copper);
+  border-radius: 1em;
+}
+p { margin: 0 0 calc(var(--u) * 1.4); }
+strong { color: var(--navy); }
+ul, ol { margin: 0 0 calc(var(--u) * 1.4); padding-inline-start: 1.3em; }
+/* Space between a block and the sentence that follows it. */
+table, pre { margin-bottom: calc(var(--u) * 1.8) !important; }
+.slide__inner > :last-child { margin-bottom: 0 !important; }
+li { margin: 0 0 calc(var(--u) * 1); }
+li::marker { color: var(--copper); font-weight: 700; }
+ul ul, ol ul { margin-top: calc(var(--u) * 0.8); font-size: 0.92em; }
+
+code {
+  font-family: "Plex Mono", ui-monospace, monospace;
+  font-size: 0.9em;
+  padding: 0.08em 0.35em;
+  border-radius: 0.3em;
+  background: rgba(29, 88, 140, 0.09);
+  color: var(--navy);
+}
+pre {
+  margin: 0;
+  padding: calc(var(--u) * 2) calc(var(--u) * 2.6);
+  border-radius: calc(var(--u) * 1.2);
+  background: var(--navy-deep);
+  color: #d9e3ef;
+  /* --fit is set by deck.js when a long command would not fit. */
+  font-size: calc(var(--u) * 1.9 * var(--fit, 1));
+  line-height: 1.5;
+  overflow: hidden;
+}
+pre code { padding: 0; background: none; color: inherit; font-size: inherit; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.92em; }
+th, td { padding: calc(var(--u) * 0.9) calc(var(--u) * 1.2); text-align: start; border-bottom: 1px solid var(--line); }
+th { color: var(--soft); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.06em; }
+td:first-child { font-weight: 600; color: var(--navy); white-space: nowrap; }
+
+blockquote {
+  margin: calc(var(--u) * 2) 0 0;
+  padding: calc(var(--u) * 1.6) calc(var(--u) * 2.4);
+  border-inline-start: calc(var(--u) * 0.5) solid var(--copper);
+  background: rgba(180, 118, 46, 0.08);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: calc(var(--u) * 3);
+  color: var(--ink);
+}
+blockquote p { margin: 0; }
+
+a { color: var(--navy); }
+
+/* ---- Title slides: the cover's dark navy ------------------------------- */
+
+.slide--title .slide__inner {
+  background:
+    radial-gradient(ellipse 70% 60% at 85% 20%, rgba(201, 138, 63, 0.18), transparent 60%),
+    linear-gradient(160deg, #0a1d31 0%, var(--navy-deep) 45%, #143e63 100%);
+  color: #c3d1e2;
+}
+.slide--title .slide__inner::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: calc(var(--u) * 4) calc(var(--u) * 4);
+  pointer-events: none;
+}
+.slide--title .slide__inner > * { position: relative; }
+.slide--title h1 {
+  margin: 0 0 calc(var(--u) * 2.4);
+  color: #ffffff;
+  font-size: calc(var(--u) * 6);
+}
+.slide--title p { font-size: calc(var(--u) * 2.6); }
+.slide--title p:first-of-type { font-style: italic; }
+.slide--title strong { color: var(--copper-light); }
+.slide--title code { background: rgba(255, 255, 255, 0.1); color: var(--copper-light); }
+
+/* ---- Presenting (JavaScript on): one slide at a time ------------------- */
+
+.deck-exit,
+.deck-controls,
+.deck-progress { display: none; }
+
+.js .deck { overflow: hidden; }
+.js .slide {
+  position: fixed;
+  inset: 0;
+  padding: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+.js .slide.is-current { visibility: visible; opacity: 1; }
+
+.js .deck-exit {
+  display: block;
+  position: fixed;
+  top: 12px;
+  left: 16px;
+  z-index: 2;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: #c3d1e2;
+  font: 500 13px/1 "Inter", sans-serif;
+  text-decoration: none;
+  opacity: 0.55;
+}
+.js .deck-exit::before { content: "\2190  "; }
+.js .deck-exit:hover,
+.js .deck-exit:focus-visible { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+
+.js .deck-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: fixed;
+  right: 16px;
+  bottom: 14px;
+  z-index: 2;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(12, 34, 56, 0.72);
+  color: #c3d1e2;
+  font: 500 13px/1 "Plex Mono", monospace;
+  opacity: 0.4;
+  transition: opacity 160ms ease;
+}
+.js .deck-controls:hover,
+.js .deck-controls:focus-within { opacity: 1; }
+.deck-controls button {
+  width: 34px;
+  height: 30px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+.deck-controls button:hover { background: rgba(255, 255, 255, 0.1); }
+.deck-controls button:focus-visible { outline: 2px solid var(--copper-light); outline-offset: 1px; }
+.deck-count { min-width: 64px; text-align: center; }
+
+.js .deck-progress {
+  display: block;
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: 4px;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.06);
+}
+.deck-progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--copper);
+  transition: width 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .slide, .deck-progress span { transition: none; }
+}
+
+/* ---- Print: one slide per landscape page ------------------------------- */
+
+@page { size: 16in 9in; margin: 0; }
+@media print {
+  body.deck { background: #fff; }
+  .js .deck { overflow: visible; }
+  .js .slide { position: static; visibility: visible; opacity: 1; }
+  .slide { padding: 0; break-after: page; height: 9in; }
+  .slide__inner { --u: 0.16in; width: 16in; height: 9in; }
+  .deck-exit, .deck-controls, .deck-progress { display: none !important; }
+}

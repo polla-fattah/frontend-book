@@ -1,0 +1,57 @@
+baseURL: http://localhost:1313/
+title: "Modern Front-End Architecture & Engineering"
+theme: frontend-book
+defaultContentLanguage: en
+enableRobotsTXT: true
+
+taxonomies:
+  tag: tags
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+    parser:
+      wrapStandAloneImageWithinParagraph: false
+      attribute:
+        block: true
+
+outputs:
+  home: [HTML, LLMS, NAVJSON]
+  section: [HTML, print, markdown]
+  page: [HTML, markdown]
+
+params:
+  description: "A practical guide to modern front-end architecture and engineering."
+  ui:
+    docs_section: book
+    shell_types: [book, docs]
+    dark_mode:
+      enable: true
+      show_menu: true
+    offline_search: true
+    offline_search_index: summary
+    offline_search_summary_length: 80
+    section_index: list
+    footer_style: slim
+
+menus:
+  main:
+    - identifier: book
+      name: Book
+      pageRef: /book
+      weight: 10
+      params:
+        icon: false
+    - identifier: playground
+      name: Playground
+      pageRef: /playground
+      weight: 20
+      params:
+        icon: false
+    - identifier: slides
+      name: Lecture slides
+      pageRef: /slides
+      weight: 30
+      params:
+        icon: false
