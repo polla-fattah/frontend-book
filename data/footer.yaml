@@ -1,11 +1,18 @@
 brand:
   name: Modern Front-End Engineering
+  logo: icons/logo.svg
   tagline: From Browser Fundamentals to Production Architecture
+  slogan: |
+    **By Dr. Polla Abdulhamid Fattah**
+
+    An authoritative, end-to-end engineering guide to building scalable, resilient, and high-performance web applications. Moving beyond ephemeral framework syntax, this book deconstructs the modern browser platform: from rendering pipelines and hardware acceleration to reactive state systems, distributed persistence, micro-frontends, and production observability.
 columns:
 - title: Read and explore
   links:
   - label: The book
     url: book/
+  - label: Download PDF
+    url: downloads/Modern_Front_End_Engineering.pdf
   - label: Learning topics
     url: topics/
   - label: Learning paths
@@ -16,3 +23,4 @@ columns:
     url: slides/
   - label: Playground
     url: playground/
+

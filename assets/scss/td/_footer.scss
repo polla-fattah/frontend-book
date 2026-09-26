@@ -79,10 +79,14 @@
 
   &__tagline,
   &__slogan {
-    max-width: 30rem;
+    max-width: 32rem;
 
     p {
       margin: 0;
+    }
+
+    p + p {
+      margin-top: 0.5rem;
     }
   }
 
@@ -98,6 +102,12 @@
 
   &__slogan {
     color: var(--bs-tertiary-color);
+    line-height: 1.6;
+    font-size: 0.8125rem;
+
+    strong {
+      color: var(--bs-secondary-color);
+    }
   }
 
   &__column {
