@@ -3,7 +3,7 @@ title: "Browser Observation and Measured Virtualization"
 weight: 1
 ---
 
-# Practical 01 — Browser Observation and Measured Virtualization
+# Practical 01 - Browser Observation and Measured Virtualization
 
 Related: [Chapter 1]({{< relref "/book/Chapter_01_The_Modern_Web_Platform_and_Browser_Internals.md" >}}) · [Lecture slides]({{< relref "/slides/01-browser-runtime/index.md" >}})
 
@@ -32,7 +32,7 @@ Initially, `legacy.js` should only log whether the heading exists. In `app.js`, 
 
 Record the browser/version, viewport, cache setting, and network/CPU throttling. Disable the HTTP cache for the first discovery comparisons where the tool allows it, and keep DevTools open if that setting depends on it. Repeat important comparisons at least three times under the same conditions. Keep debugger pauses out of timing captures.
 
-## Stage 1 — Trace discovery
+## Stage 1 - Trace discovery
 
 Load the unmodified page and record the document, stylesheet, both scripts, and image in Network. Inspect the initiator and start time of each request. Do not assume that request order equals execution order.
 
@@ -40,7 +40,7 @@ Next, remove the image from the HTML and create it in a timer callback after a r
 
 **Verify:** the markup version can discover the image directly; the script version depends on the callback assigning `src`. Capture a waterfall or timing table for both runs. The delay is not an exact scheduling guarantee. If the result is obscured by caching or another reference, identify that cause and repeat the comparison.
 
-## Stage 2 — Separate script readiness from document readiness
+## Stage 2 - Separate script readiness from document readiness
 
 Temporarily remove the extra blocking script and use one external probe script in the head. Test it as classic, `defer`, `async`, and module, one declaration per run. Keep the probe free of imports and top-level `await` for this comparison.
 
@@ -50,7 +50,7 @@ Then restore the original stylesheet-plus-classic-script combination. If the bro
 
 **Verify:** the classic head script runs before the later heading is parsed; deferred and default-module probes can access it. Async timing may vary. An async script observed after parsing in every trial still has no general after-parsing guarantee. Explain the distinction between downloading, executing, finding a DOM node, and presenting pixels.
 
-## Stage 3 — Predict callback order and inspect a slow interaction
+## Stage 3 - Predict callback order and inspect a slow interaction
 
 First run this code as a single script:
 
@@ -68,7 +68,7 @@ Next use the chapter's bounded 200 ms slow click handler in `app.js`. Record a p
 
 **Verify:** identify the callback order and the approximate interval occupied by the slow handler. Explain why a DOM change need not be painted before the next statement, and why neither a Promise nor `async` automatically moves computation off the main thread. A trace need not expose every compositor event to support those observations.
 
-## Stage 4 — Compare rendering work
+## Stage 4 - Compare rendering work
 
 Create a few hundred noninteractive list items containing ordinary text. Record a width change, restore the initial state, and record a transform. These produce different visual effects; compare work categories rather than declaring one an equivalent faster implementation.
 
@@ -86,7 +86,7 @@ For each core comparison, include one row in this evidence table:
 
 Also include the setup conditions and a diagram connecting discovery, parsing, scripts, DOM, style/layout, presentation, and later input. Distinguish required dependencies from timing that may vary. Explain one observation that differed from your initial expectation.
 
-Completion means you can justify the explanation from your evidence—not that every trace matches the chapter's conceptual diagrams.
+Completion means you can justify the explanation from your evidence - not that every trace matches the chapter's conceptual diagrams.
 
 ## When an experiment gives an unexpected result
 
@@ -96,7 +96,7 @@ Completion means you can justify the explanation from your evidence—not that e
 - **No visible “Working…” state:** that is compatible with the handler preventing an intermediate presentation, not proof the assignment failed.
 - **No layout difference:** verify that the initial width differs from the target, rows exist, and setup was excluded. Keep a null result if the evidence does not justify a stronger claim.
 
-## Optional extension — A fixed-height virtual list
+## Optional extension - A fixed-height virtual list
 
 After completing the observation work, compare a full list with a version that renders a visible window plus a small buffer. Use fixed-height rows first. Document the dataset, viewport, row count in the DOM, and how scroll position maps to the rendered range.
 

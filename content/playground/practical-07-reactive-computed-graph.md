@@ -3,7 +3,7 @@ title: "Reactive Dependency Graph and State Derivation"
 weight: 7
 ---
 
-# Practical 07 — Reactive Dependency Graph and State Derivation
+# Practical 07 - Reactive Dependency Graph and State Derivation
 
 Related: [Chapter 7]({{< relref "/book/Chapter_07_Reactivity_and_Rendering_Mechanics.md" >}}) · [Lecture slides]({{< relref "/slides/07-reactivity-rendering-mechanics/index.md" >}})
 
@@ -55,7 +55,7 @@ Ensure your `tsconfig.json` enforces strict mode:
 
 ---
 
-## Stage 1 — The Signal Primitive and Subscriber Context
+## Stage 1 - The Signal Primitive and Subscriber Context
 
 Reactivity requires discovering which computations depend on which data. In `src/reactive.ts`, implement a global subscriber stack and the `createSignal` primitive:
 
@@ -120,7 +120,7 @@ export function createSignal<T>(initialValue: T) {
 
 ---
 
-## Stage 2 — Lazy Computed Values and Invalidation
+## Stage 2 - Lazy Computed Values and Invalidation
 
 A computed value represents derived data. It must never perform eager calculation if nobody is reading it, and it must never recompute if its upstream dependencies have not changed.
 
@@ -173,7 +173,7 @@ Verify that calling `get()` three times without modifying source signals invokes
 
 ---
 
-## Stage 3 — Effects and Resource Cleanup
+## Stage 3 - Effects and Resource Cleanup
 
 An effect bridges pure reactive state to imperative external systems (DOM rendering, network dispatch, storage persistence).
 
@@ -223,7 +223,7 @@ export function createEffect(fn: (onCleanup: (cb: () => void) => void) => void) 
 
 ---
 
-## Stage 4 — Verification Matrix and Cycle Analysis
+## Stage 4 - Verification Matrix and Cycle Analysis
 
 ### 1. Cycle Hazard Experiment
 

@@ -3,7 +3,7 @@ title: "Security Boundary Review: XSS, CORS, and Authentication Boundaries"
 weight: 13
 ---
 
-# Practical 13 — Security Boundary Review: XSS, CORS, and Authentication Boundaries
+# Practical 13 - Security Boundary Review: XSS, CORS, and Authentication Boundaries
 
 Related: [Chapter 13]({{< relref "/book/Chapter_13_Front_End_Security_Authentication_and_Browser_Isolation.md" >}}) · [Lecture slides]({{< relref "/slides/13-frontend-security/index.md" >}})
 

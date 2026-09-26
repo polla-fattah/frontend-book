@@ -51,7 +51,7 @@ flowchart TD
     end
 ```
 
-Reliable front-end architecture acknowledges this reality. External data—whether from an HTTP response, local storage, URL query parameters, user form input, or a third-party SDK—is **untrusted**.
+Reliable front-end architecture acknowledges this reality. External data - whether from an HTTP response, local storage, URL query parameters, user form input, or a third-party SDK - is **untrusted**.
 
 In this chapter, we explore how to use TypeScript effectively: not as a superficial labeling mechanism, but as an architectural tool to model domain states, enforce exhaustive handling, and construct **runtime-validated boundaries** that convert untrusted input into verified, trusted application state.
 
@@ -653,7 +653,7 @@ async function renderServiceView(serviceId: string, statusContainer: HTMLElement
 ## Practical Lab Brief {#end-of-chapter-practical-lab--build-a-runtime-validated-data-boundary}
 
 Apply the concepts of this chapter in the companion laboratory:
-[Practical 05 — Runtime-Validated Data Boundary]({{< relref "/playground/practical-05-runtime-validated-boundary.md" >}}).
+[Practical 05 - Runtime-Validated Data Boundary]({{< relref "/playground/practical-05-runtime-validated-boundary.md" >}}).
 
 You will construct an API trust boundary that ingests `unknown` responses, parses and validates them against domain schemas, tests malformed, partial, and unexpected payloads, and surfaces structured diagnostics to the UI. You will also extend the Chapter 4 event hub with compile-time TypeScript type maps.
 
@@ -678,4 +678,4 @@ You will construct an API trust boundary that ingests `unknown` responses, parse
 
 With runtime validation established at the perimeter, our application can safely rely on verified, predictable data models. The next architectural challenge is UI modularity: how can we structure components that consume this trusted data without creating tightly coupled, monolithic view hierarchies?
 
-[Chapter 6 — Component-Driven Architecture and Design Patterns]({{< relref "/book/Chapter_06_Component_Driven_Architecture_and_Design_Patterns.md" >}}) examines component responsibilities, state ownership, compound component patterns, and headless contracts that allow UI components to remain flexible, accessible, and resilient as products scale.
+[Chapter 6 - Component-Driven Architecture and Design Patterns]({{< relref "/book/Chapter_06_Component_Driven_Architecture_and_Design_Patterns.md" >}}) examines component responsibilities, state ownership, compound component patterns, and headless contracts that allow UI components to remain flexible, accessible, and resilient as products scale.

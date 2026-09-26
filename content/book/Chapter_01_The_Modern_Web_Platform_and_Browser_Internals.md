@@ -351,7 +351,7 @@ promise
 timeout
 ```
 
-The synchronous logs run first. The reaction to the already-fulfilled Promise runs at a microtask checkpoint before the later timer task. A zero-delay timer does not mean “execute now”; its callback becomes eligible for later scheduling, subject to timer rules and other work. This example does not imply that every Promise settles before every timer—real network and other asynchronous operations have their own completion times.
+The synchronous logs run first. The reaction to the already-fulfilled Promise runs at a microtask checkpoint before the later timer task. A zero-delay timer does not mean “execute now”; its callback becomes eligible for later scheduling, subject to timer rules and other work. This example does not imply that every Promise settles before every timer - real network and other asynchronous operations have their own completion times.
 
 ### Rendering is scheduled, not promised after every task {#a-practical-event-loop-model}
 
@@ -498,7 +498,7 @@ Use that model to choose an investigation. Look at the waterfall for discovery a
 ## Review questions {#review-questions}
 
 1. An image is small but starts loading two seconds after navigation. Which discovery paths would you investigate before compressing it further?
-2. A stylesheet is still downloading and a later classic script has already arrived. Why might that script—and therefore parsing—still wait?
+2. A stylesheet is still downloading and a later classic script has already arrived. Why might that script - and therefore parsing - still wait?
 3. Two deferred classic scripts download in reverse order. Which executes first? How would `async` change the reasoning?
 4. Why does a default module script not need `defer`? What assumption changes when `async` is added?
 5. A script finds a heading in the DOM. What does that establish, and what does it not establish about the screen?

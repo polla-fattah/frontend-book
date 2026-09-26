@@ -3,7 +3,7 @@ title: "Measure, Diagnose, and Optimize Core Web Vitals"
 weight: 15
 ---
 
-# Practical 15 — Measure, Diagnose, and Optimize Core Web Vitals
+# Practical 15 - Measure, Diagnose, and Optimize Core Web Vitals
 
 Related: [Chapter 15]({{< relref "/book/Chapter_15_Core_Web_Vitals_and_Performance_Engineering.md" >}}) · [Lecture slides]({{< relref "/slides/15-performance-engineering/index.md" >}})
 

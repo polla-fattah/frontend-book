@@ -74,7 +74,7 @@ A critical realization of modern front-end architecture is that **server data is
 When an application fetches a list of permits:
 * The client does not own the data; the database owns it.
 * Another user or an automated background job may update or delete those permits milliseconds after the fetch.
-* Managing server data requires background refetching, caching, deduplication, retry logic, and cache invalidation—concerns completely orthogonal to UI state like whether an accordion is open.
+* Managing server data requires background refetching, caching, deduplication, retry logic, and cache invalidation - concerns completely orthogonal to UI state like whether an accordion is open.
 
 Conflating server state with client state in a single global store is the primary cause of bloated codebases. Server data belongs in specialized caching layers (e.g., TanStack Query, SWR), while client UI state remains localized.
 
@@ -414,6 +414,6 @@ flowchart TD
 ## Practical Lab Brief
 
 Apply the principles learned in this chapter by completing:
-**[Practical 08 — URL-Driven State Architecture and Form Boundaries]({{< relref "/playground/practical-08-url-driven-catalogue.md" >}})**
+**[Practical 08 - URL-Driven State Architecture and Form Boundaries]({{< relref "/playground/practical-08-url-driven-catalogue.md" >}})**
 
 In this laboratory, you will build a URL-synchronized catalogue with resilient boundary parsing, history semantics, two-tier input debouncing, and a routed edit form with an unsaved changes navigation guard.

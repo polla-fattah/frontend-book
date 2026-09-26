@@ -3,7 +3,7 @@ title: "Offline Outbox and Resilient Synchronization"
 weight: 10
 ---
 
-# Practical 10 — Offline Outbox and Resilient Synchronization
+# Practical 10 - Offline Outbox and Resilient Synchronization
 
 Related: [Chapter 10]({{< relref "/book/Chapter_10_Real_Time_Communication_Offline_Systems_and_Client_Persistence.md" >}}) · [Lecture slides]({{< relref "/slides/10-realtime-offline-systems/index.md" >}})
 

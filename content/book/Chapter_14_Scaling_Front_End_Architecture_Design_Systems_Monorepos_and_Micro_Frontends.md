@@ -509,6 +509,6 @@ flowchart TD
 ## Practical Lab Brief
 
 Apply the principles learned in this chapter by completing:
-**[Practical 14 — Design-System Package Governance and Ownership Mapping]({{< relref "/playground/practical-14-design-system-ownership.md" >}})**
+**[Practical 14 - Design-System Package Governance and Ownership Mapping]({{< relref "/playground/practical-14-design-system-ownership.md" >}})**
 
 In this laboratory, you will construct a two-tier design token pipeline (`@municipal/ui`), build accessible domain-agnostic UI primitives, consume them within a product application, execute a backwards-compatible SemVer deprecation release, and establish a formal RACI team governance matrix.

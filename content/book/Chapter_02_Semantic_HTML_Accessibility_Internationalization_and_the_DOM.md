@@ -265,7 +265,7 @@ Use explicit `for` attributes matching control `id`s:
 
 #### Grouping Controls with `<fieldset>` and `<legend>`
 
-When multiple controls together answer a single question—such as radio buttons or checkbox groups—group them inside a `<fieldset>` with an explanatory `<legend>`:
+When multiple controls together answer a single question - such as radio buttons or checkbox groups - group them inside a `<fieldset>` with an explanatory `<legend>`:
 
 ```html
 <fieldset>
@@ -374,7 +374,7 @@ flowchart TD
 
 ### Accessible Name Computation {#7-the-accessible-name}
 
-Every interactive control must have an **accessible name**—the string announced by assistive technologies to describe the element's identity.
+Every interactive control must have an **accessible name** - the string announced by assistive technologies to describe the element's identity.
 
 The browser computes an accessible name using a standardized priority sequence:
 
@@ -934,7 +934,7 @@ When markup is semantically precise, the browser automatically coordinates acces
 ## Practical Lab Brief {#end-of-chapter-practical-lab--build-a-semantic-multilingual-service-interface}
 
 Apply the principles of this chapter in the companion laboratory:
-[Practical 02 — Accessible Composite Listbox and Semantic Interface]({{< relref "/playground/practical-02-accessible-composite-listbox.md" >}}).
+[Practical 02 - Accessible Composite Listbox and Semantic Interface]({{< relref "/playground/practical-02-accessible-composite-listbox.md" >}}).
 
 You will establish a native selection baseline, configure explicit labels and error associations, handle mixed English/Kurdish/Arabic directional text, and implement a composite multi-select widget with roving `tabindex`.
 
@@ -967,4 +967,4 @@ A resilient web application begins with a rigorous document. When HTML accuratel
 
 With structure, interaction, and meaning established, the next architectural challenge is visual presentation: how can this document adapt responsively across diverse screen geometries, container constraints, and user preferences without degrading its underlying semantics?
 
-[Chapter 3 — Modern CSS Architecture and Layout Systems]({{< relref "/book/Chapter_03_Modern_CSS_Architecture_and_Layout_Systems.md" >}}) answers that challenge by treating CSS not as cosmetic decoration, but as an architectural system built upon semantic foundations.
+[Chapter 3 - Modern CSS Architecture and Layout Systems]({{< relref "/book/Chapter_03_Modern_CSS_Architecture_and_Layout_Systems.md" >}}) answers that challenge by treating CSS not as cosmetic decoration, but as an architectural system built upon semantic foundations.

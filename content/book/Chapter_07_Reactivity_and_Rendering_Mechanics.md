@@ -125,7 +125,7 @@ When transpiled from JSX, this function returns a lightweight plain JavaScript o
 }
 ```
 
-Creating plain JavaScript objects is extraordinarily cheap—a modern V8 engine can instantiate millions of plain objects per second. Because the render phase does not touch the browser DOM, React can pause, abort, or recalculate component trees concurrently in memory without causing visual flickering.
+Creating plain JavaScript objects is extraordinarily cheap - a modern V8 engine can instantiate millions of plain objects per second. Because the render phase does not touch the browser DOM, React can pause, abort, or recalculate component trees concurrently in memory without causing visual flickering.
 
 > [!IMPORTANT]
 > **Purity Rule:** The Render Phase must be completely free of observable side effects. It must never initiate network requests, start timers, mutate global variables, or manipulate the DOM directly. Given the same props and state, a component's render execution must return the exact same element description.
@@ -579,6 +579,6 @@ useEffect(() => {
 ## Practical Lab Brief
 
 Apply the principles learned in this chapter by completing:
-**[Practical 07 — Reactive Dependency Graph and State Derivation]({{< relref "/playground/practical-07-reactive-computed-graph.md" >}})**
+**[Practical 07 - Reactive Dependency Graph and State Derivation]({{< relref "/playground/practical-07-reactive-computed-graph.md" >}})**
 
 In this laboratory, you will build a transparent reactive engine from scratch with signals, lazy computed values, and cleanup-aware effects, observing how dependency discovery and invalidation operate at runtime.

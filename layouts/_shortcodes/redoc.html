@@ -24,7 +24,7 @@
 {{- if in (slice "markdown" "rss") $format -}}
 [{{ partial "content/markdown-escape.html" (T "ui_openapi_spec") }}]({{ partial "content/markdown-url.html" $url }})
 {{- else if eq $format "print" -}}
-<p class="td-redoc-print">{{ T "ui_openapi_spec" }} — <a href="{{ $url }}">{{ $url }}</a></p>
+<p class="td-redoc-print">{{ T "ui_openapi_spec" }} - <a href="{{ $url }}">{{ $url }}</a></p>
 {{- else -}}
 {{- .Page.Store.Set "hasRedoc" true -}}
 {{- $id := printf "td-redoc-%s-%d" (md5 .Page.RelPermalink | truncate 8 "") .Ordinal -}}

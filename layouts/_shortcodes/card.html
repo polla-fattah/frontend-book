@@ -80,7 +80,7 @@
 {{- if eq $format "markdown" -}}
   {{- $line := cond (ne $href "") (printf "[%s](%s)" (partial "content/markdown-escape.html" $title) (partial "content/markdown-url.html" $href)) (printf "**%s**" (partial "content/markdown-escape.html" $title)) -}}
   {{- with $badge }}{{ $line = printf "%s (%s)" $line (partial "content/markdown-escape.html" .) }}{{ end -}}
-  {{- with $body }}{{ $line = printf "%s — %s" $line (replaceRE `\s*\n\s*` " " .) }}{{ end -}}
+  {{- with $body }}{{ $line = printf "%s - %s" $line (replaceRE `\s*\n\s*` " " .) }}{{ end -}}
 - {{ $line | safeHTML }}
 {{- else -}}
 {{- $scope := printf "%s-%d" (.Parent.Name | anchorize) .Parent.Ordinal -}}

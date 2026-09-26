@@ -265,7 +265,7 @@ The module graph begins only after resolution succeeds.
 
 ---
 
-## Aliases can improve architecture—or hide it
+## Aliases can improve architecture - or hide it
 
 ```ts
 import { Button } from "@shared/ui/Button";

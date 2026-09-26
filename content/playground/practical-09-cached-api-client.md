@@ -3,7 +3,7 @@ title: "Cached Server-State Client with Optimistic Mutations"
 weight: 9
 ---
 
-# Practical 09 — Cached Server-State Client with Optimistic Mutations
+# Practical 09 - Cached Server-State Client with Optimistic Mutations
 
 Related: [Chapter 9]({{< relref "/book/Chapter_09_Client_Server_Communication_APIs_and_Cache_Management.md" >}}) · [Lecture slides]({{< relref "/slides/09-client-server-apis-cache/index.md" >}})
 
@@ -43,7 +43,7 @@ chapter-09-cache-client/
 
 ---
 
-## Stage 1 — Deterministic Query Key Serialization
+## Stage 1 - Deterministic Query Key Serialization
 
 Query keys represent the semantic identity of a server request. Keys often contain nested objects (such as `{ sort: 'date', page: 2 }`), which cannot be compared with standard referential equality (`===`).
 
@@ -71,7 +71,7 @@ Verify that `['permits', { page: 1, sort: 'name' }]` and `['permits', { sort: 'n
 
 ---
 
-## Stage 2 — Stale-While-Revalidate and Request Deduplication
+## Stage 2 - Stale-While-Revalidate and Request Deduplication
 
 In `src/query-cache.ts`, implement the core SWR cache engine:
 
@@ -169,7 +169,7 @@ export class QueryClient {
 
 ---
 
-## Stage 3 — Abortable Fetch with Exponential Backoff
+## Stage 3 - Abortable Fetch with Exponential Backoff
 
 In `src/fetch-retry.ts`, implement a transport wrapper that handles network dropouts and 5xx server errors with randomized exponential jitter:
 
@@ -220,7 +220,7 @@ export async function fetchWithRetry<T>(
 
 ---
 
-## Stage 4 — Optimistic Mutations and Verification Matrix
+## Stage 4 - Optimistic Mutations and Verification Matrix
 
 ### 1. The Optimistic Mutation Contract
 

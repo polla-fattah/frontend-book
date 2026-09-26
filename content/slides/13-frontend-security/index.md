@@ -1513,7 +1513,7 @@ Embedding is an architecture decision, not only a layout choice.
 
 ---
 
-## Framework escaping is good—but not sufficient
+## Framework escaping is good - but not sufficient
 
 React, Vue, and other frameworks make common text rendering safer by default.
 
@@ -1760,7 +1760,7 @@ Mark where validation, encoding, authentication, authorization, and logging occu
 
 ## The chapter in one sentence
 
-> **Secure the browser application by tracing trust across origins, content, requests, identity, dependencies, and embedded contexts—and enforce each decision at the authoritative boundary.**
+> **Secure the browser application by tracing trust across origins, content, requests, identity, dependencies, and embedded contexts - and enforce each decision at the authoritative boundary.**
 
 ---
 

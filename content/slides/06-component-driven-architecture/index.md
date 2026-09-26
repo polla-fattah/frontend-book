@@ -49,7 +49,7 @@ We will connect:
 
 ## The central principle
 
-> **A component should exist because it owns a coherent responsibility—not merely because some markup can be extracted into another file.**
+> **A component should exist because it owns a coherent responsibility - not merely because some markup can be extracted into another file.**
 
 The file boundary is an implementation detail.
 
@@ -161,7 +161,7 @@ A date picker can be tested for:
 
 The surrounding page should not have to reproduce every internal interaction to test the date picker.
 
-Test where behavior and risk are concentrated—not merely where files happen to exist.
+Test where behavior and risk are concentrated - not merely where files happen to exist.
 
 ---
 
@@ -622,7 +622,7 @@ They also add:
 - more invalid combinations to prevent;
 - debugging work when pieces are used incorrectly.
 
-Use the pattern when the relationship is real and repeated—not because the API looks advanced.
+Use the pattern when the relationship is real and repeated - not because the API looks advanced.
 
 ---
 
@@ -815,7 +815,7 @@ Two similar components may differ in:
 
 Temporary duplication preserves independent evolution.
 
-Remove duplication when the shared concept—not only the current markup—is real.
+Remove duplication when the shared concept - not only the current markup - is real.
 
 ---
 

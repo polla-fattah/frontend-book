@@ -141,8 +141,8 @@
 {{- $wrapperClasses := slice "td-table-scroll" -}}
 {{- if $isFull }}{{ $wrapperClasses = $wrapperClasses | append "td-table-scroll--full" }}{{ end -}}
 {{- if $isMatrix }}{{ $wrapperClasses = $wrapperClasses | append "td-table-scroll--matrix" }}{{ end -}}
-{{- /* Print and RSS keep the wrapper — the caption, matrix, and Book figure
-       selectors hang off it — but it is a plain box there, never a viewport.
+{{- /* Print and RSS keep the wrapper - the caption, matrix, and Book figure
+       selectors hang off it - but it is a plain box there, never a viewport.
        The modifier says so in the markup instead of leaving it to a media
        query, the way FileTree marks its static rendering. */ -}}
 {{- if ne $format "html" }}{{ $wrapperClasses = $wrapperClasses | append "td-table-scroll--static" }}{{ end -}}

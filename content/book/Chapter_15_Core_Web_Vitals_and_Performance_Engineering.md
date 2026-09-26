@@ -37,7 +37,7 @@ flowchart TD
 
 Performance is not a single vanity score. Performance is the study of how quickly, smoothly, and reliably users can see content, interact with controls, and complete their digital journeys.
 
-In this chapter, we bridge high-level performance metrics with low-level browser mechanics. We deconstruct Google's **Core Web Vitals**—Largest Contentful Paint (LCP), Interaction to Next Paint (INP), and Cumulative Layout Shift (CLS); analyze the browser's rendering engine and layout thrashing; tame long main-thread tasks; implement DOM virtualization; and establish continuous real-user monitoring (RUM) pipelines.
+In this chapter, we bridge high-level performance metrics with low-level browser mechanics. We deconstruct Google's **Core Web Vitals** - Largest Contentful Paint (LCP), Interaction to Next Paint (INP), and Cumulative Layout Shift (CLS); analyze the browser's rendering engine and layout thrashing; tame long main-thread tasks; implement DOM virtualization; and establish continuous real-user monitoring (RUM) pipelines.
 
 ---
 
@@ -66,7 +66,7 @@ flowchart TD
 Never evaluate front-end performance using arithmetic averages. If ten citizens visit the portal:
 - Nine citizens on fiber connections experience a fast 1.0s load.
 - One citizen on a rural 3G connection experiences an agonizing 11.0s load.
-- The arithmetic average is $2.0\text{s}$, which sounds acceptable—while masking the fact that 10% of your citizens suffered a completely broken experience.
+- The arithmetic average is $2.0\text{s}$, which sounds acceptable - while masking the fact that 10% of your citizens suffered a completely broken experience.
 
 To ensure applications remain accessible to the entire population, the industry and the World Wide Web Consortium evaluate the **75th Percentile (p75)**: 75% of all page visits must meet the "Good" threshold under real-world conditions.
 
@@ -89,7 +89,7 @@ flowchart LR
 
 ## 3. Largest Contentful Paint (LCP): Anatomy of Loading
 
-**Largest Contentful Paint (LCP)** measures perceived loading speed. It marks the point on the page load timeline when the primary content element in the viewport—typically a large hero image, a video poster frame, or a large block of heading typography—has rendered on screen.
+**Largest Contentful Paint (LCP)** measures perceived loading speed. It marks the point on the page load timeline when the primary content element in the viewport - typically a large hero image, a video poster frame, or a large block of heading typography - has rendered on screen.
 
 ### The Four Sub-Parts of LCP
 
@@ -442,6 +442,6 @@ When optimizing a slow interface, teams must formulate formal engineering hypoth
 ## Practical Lab Brief
 
 Apply the principles learned in this chapter by completing:
-**[Practical 15 — Measure, Diagnose, and Optimize Core Web Vitals]({{< relref "/playground/practical-15-measured-virtualized-performance.md" >}})**
+**[Practical 15 - Measure, Diagnose, and Optimize Core Web Vitals]({{< relref "/playground/practical-15-measured-virtualized-performance.md" >}})**
 
 In this laboratory, you will diagnose and remediate a degraded municipal portal under 4x CPU throttling. You will instrument native `PerformanceObserver` metrics, optimize LCP through responsive preloaded images, eliminate CLS with aspect-ratio reservations, tame INP using `scheduler.yield()`, and implement a windowed virtual scroller.

@@ -20,7 +20,7 @@ The consequences are catastrophic:
 - Search engine crawlers fail to reliably execute the complex client JavaScript bundles, causing commercial permits to disappear from public search results.
 - Mobile device batteries drain rapidly as the browser's JavaScript engine parses, compiles, and executes hundreds of thousands of lines of client-side component code.
 
-Panicking, a second developer suggests rewriting the entire application in traditional request-time Server-Side Rendering (SSR). Now, every visit to the public zoning guide hits the origin application server, executing database queries and template rendering on every page view. On annual municipal property tax deadline day, traffic spikes tenfold: the origin database CPUs max out at 100%, and the entire portal collapses—taking down the static public guides alongside the payment gateways.
+Panicking, a second developer suggests rewriting the entire application in traditional request-time Server-Side Rendering (SSR). Now, every visit to the public zoning guide hits the origin application server, executing database queries and template rendering on every page view. On annual municipal property tax deadline day, traffic spikes tenfold: the origin database CPUs max out at 100%, and the entire portal collapses - taking down the static public guides alongside the payment gateways.
 
 Both failures stem from the same architectural fallacy: **treating rendering topology as an application-wide dogma rather than a route-specific placement of work**.
 
@@ -482,6 +482,6 @@ By applying this decision matrix, the Erbil Municipal engineering team delivers 
 ## Practical Lab Brief
 
 Apply the principles learned in this chapter by completing:
-**[Practical 11 — Rendering Topology Comparison: CSR, SSR, and Static Delivery]({{< relref "/playground/practical-11-rendering-topology-comparison.md" >}})**
+**[Practical 11 - Rendering Topology Comparison: CSR, SSR, and Static Delivery]({{< relref "/playground/practical-11-rendering-topology-comparison.md" >}})**
 
 In this laboratory, you will implement the Municipal Permit Catalogue across three distinct topologies (CSR, SSG, and SSR). You will instrument local performance metrics (TTFB, FCP, TTI), construct safe state handoff payloads that prevent XSS vulnerabilities, and audit client hydration costs.

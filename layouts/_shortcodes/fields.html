@@ -60,7 +60,7 @@
     {{- end -}}
     {{- $heading := printf "- %s" $fieldName -}}
     {{- if gt (len $metadata) 0 -}}
-      {{- $heading = printf "%s — %s" $heading (delimit $metadata "; ") -}}
+      {{- $heading = printf "%s - %s" $heading (delimit $metadata "; ") -}}
     {{- end -}}
     {{- $description := partial "content/markdown-indent.html" .description -}}
     {{- $chunks = $chunks | append (printf "%s\n\n%s" $heading $description) -}}

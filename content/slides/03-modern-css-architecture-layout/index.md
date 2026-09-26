@@ -998,7 +998,7 @@ CSS-in-JS can mean different things:
 - atomic style generation.
 
 Compare the actual tool's runtime cost, debugging model, SSR behaviour,
-accessibility support, and ownership boundaries—not the category label.
+accessibility support, and ownership boundaries - not the category label.
 
 ---
 

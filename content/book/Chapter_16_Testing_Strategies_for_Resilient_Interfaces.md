@@ -10,11 +10,11 @@ book_kind: book
 
 A regional utility company in Erbil launched an overhauled online billing and customer portal to high internal acclaim. During pre-release automated testing, the engineering dashboard glowed emerald green: continuous integration reported 1,420 passing unit tests and an enviable 96% line coverage metric. The codebase appeared mathematically bulletproof.
 
-Within two hours of production deployment, the customer service call center was overwhelmed. Citizens attempting to renew municipal permits reported that double-clicking the payment button charged their accounts twice. Search queries for public service offices yielded erratic results—typing quickly caused older, slower search queries to overwrite newer ones on the screen. Users navigating with screen readers became trapped inside an unclosable document verification modal. Mobile users on WebKit browsers found the checkout submission button pushed completely off-screen by a hidden CSS layout collision.
+Within two hours of production deployment, the customer service call center was overwhelmed. Citizens attempting to renew municipal permits reported that double-clicking the payment button charged their accounts twice. Search queries for public service offices yielded erratic results - typing quickly caused older, slower search queries to overwrite newer ones on the screen. Users navigating with screen readers became trapped inside an unclosable document verification modal. Mobile users on WebKit browsers found the checkout submission button pushed completely off-screen by a hidden CSS layout collision.
 
 None of these catastrophic failures were detected by the 1,420 unit tests. When engineers audited the test suite, the root cause became glaringly apparent: the tests had been written to inspect internal framework variables (`expect(component.state.isLoading).toBe(true)`), mocked out the global `window.fetch` with simplistic immediate promises, and simulated user typing by invoking private component handler functions directly. The tests did not evaluate real user behavior, did not interrogate the browser's accessibility tree, did not test network transport boundaries, and did not execute inside a real layout engine.
 
-This chapter establishes an architectural discipline for testing front-end web applications. You will learn to treat testing not as a bureaucratic compliance exercise measured in raw lines of code covered, but as **risk management**. You will learn how to design a multi-layered confidence strategy—spanning static analysis, isolated domain unit tests, accessible component tests, network boundary mocks, and real-browser end-to-end journeys—that catches defects early, survives code refactoring, and guarantees resilient user experiences.
+This chapter establishes an architectural discipline for testing front-end web applications. You will learn to treat testing not as a bureaucratic compliance exercise measured in raw lines of code covered, but as **risk management**. You will learn how to design a multi-layered confidence strategy - spanning static analysis, isolated domain unit tests, accessible component tests, network boundary mocks, and real-browser end-to-end journeys - that catches defects early, survives code refactoring, and guarantees resilient user experiences.
 
 ---
 
@@ -54,7 +54,7 @@ In modern front-end engineering, prescriptive geometric shapes are less useful t
 
 > **Catch each specific risk at the lowest, fastest, and most deterministic boundary capable of observing it.**
 
-If a risk involves a pure calculation—such as currency rounding—verifying it in an end-to-end browser test is wasteful and slow; it belongs in an isolated unit test. If a risk involves an asynchronous modal dialog trapping focus upon activation and returning focus to the trigger button upon pressing `Escape`, a unit test cannot observe it; it requires a component test querying the accessibility tree. If a risk involves a cookie being dropped across cross-site navigations on Safari, neither a unit test nor a simulated DOM can observe it; it demands a real browser runner.
+If a risk involves a pure calculation - such as currency rounding - verifying it in an end-to-end browser test is wasteful and slow; it belongs in an isolated unit test. If a risk involves an asynchronous modal dialog trapping focus upon activation and returning focus to the trigger button upon pressing `Escape`, a unit test cannot observe it; it requires a component test querying the accessibility tree. If a risk involves a cookie being dropped across cross-site navigations on Safari, neither a unit test nor a simulated DOM can observe it; it demands a real browser runner.
 
 | Testing Boundary | Primary Question Answered | Execution Speed | Execution Environment | Observes Rendering? |
 | :--- | :--- | :--- | :--- | :---: |
@@ -621,7 +621,7 @@ To prevent visual regression tests from creating developer fatigue:
 
 ### Consumer-Driven Contract Testing
 
-In large distributed organizations, front-end teams depend on backend APIs managed by separate engineering groups. When a backend team updates an endpoint—for example, renaming `taxRate` to `vatMultiplier`—the front-end application can silently crash.
+In large distributed organizations, front-end teams depend on backend APIs managed by separate engineering groups. When a backend team updates an endpoint - for example, renaming `taxRate` to `vatMultiplier` - the front-end application can silently crash.
 
 **Consumer-Driven Contract Testing** (using tools like Pact or OpenAPI schema validators) enables the front-end team to define a machine-readable contract declaring the exact endpoints, request formats, and response bodies it requires. The backend CI pipeline validates every pull request against this contract, guaranteeing that breaking API changes are caught before backend code reaches staging.
 

@@ -216,7 +216,7 @@ URL state can survive:
 - back and forward navigation;
 - opening the view in another tab.
 
-That makes it valuable—but also part of the public contract.
+That makes it valuable - but also part of the public contract.
 
 ---
 

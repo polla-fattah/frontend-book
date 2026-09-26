@@ -23,7 +23,7 @@
   <div class="td-site-container">
     <nav class="td-site-nav" aria-label="{{ T "ui_main_nav" }}">
       <a href="{{ .Site.Home.RelPermalink }}" class="td-nav-brand" data-td-navbar-route
-         aria-label="{{ $config.brandName }} — {{ T "ui_home" }}"{{ if .IsHome }} aria-current="page"{{ end }}>
+         aria-label="{{ $config.brandName }} - {{ T "ui_home" }}"{{ if .IsHome }} aria-current="page"{{ end }}>
         <img src="{{ $config.logoURL }}" alt="" class="td-nav-logo" width="22" height="22">
         {{- /* The mark above is the constant half of the lockup. The text half
              is the site's wordmark when it has one, else its title, and it is
@@ -46,7 +46,7 @@
       </div>
 
       {{- /* Right zone: the search box leads as the elastic boundary before
-           the fixed controls — version, language, theme, GitHub. */ -}}
+           the fixed controls - version, language, theme, GitHub. */ -}}
       <div class="td-nav-links td-nav-util-zone">
         {{- if $localSearch }}
         <button type="button" class="td-nav-search-box" data-td-shell-search-open
@@ -120,7 +120,7 @@
         {{- end }}
         {{- if $drawerMode }}
         {{- /* The one width-gated control: below md the sidebar becomes a
-             drawer, and this opens it. Non-shell pages need no equivalent —
+             drawer, and this opens it. Non-shell pages need no equivalent -
              the compact navbar keeps every item visible as an icon. */ -}}
         <button class="td-nav-util td-site-nav__menu-toggle" type="button" data-td-shell-drawer-open
           title="{{ T "ui_drawer_open" }}" aria-label="{{ T "ui_drawer_open" }}"

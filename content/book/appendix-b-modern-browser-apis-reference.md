@@ -4,7 +4,7 @@ type: book
 book_kind: book
 ---
 
-# Appendix B — Modern Browser APIs Reference
+# Appendix B - Modern Browser APIs Reference
 
 ## A Capability-Oriented Guide to the Web Platform
 
@@ -162,7 +162,7 @@ Frameworks are application abstractions inside it.
 
 ---
 
-# Part I — Document, DOM & Events
+# Part I - Document, DOM & Events
 
 # 4. DOM API
 
@@ -615,7 +615,7 @@ If your own code caused the change, you should usually already know about it.
 
 ---
 
-# Part II — Layout, Visibility & Observation
+# Part II - Layout, Visibility & Observation
 
 # 14. ResizeObserver
 
@@ -760,7 +760,7 @@ This is usually complementary observability, not the primary error-monitoring me
 
 ---
 
-# Part III — Navigation & URL
+# Part III - Navigation & URL
 
 # 18. URL API
 
@@ -1008,7 +1008,7 @@ Do not depend on view transitions for functional correctness.
 
 ---
 
-# Part IV — Networking & Streams
+# Part IV - Networking & Streams
 
 # 25. Fetch API
 
@@ -1495,7 +1495,7 @@ Chapter 17
 
 ---
 
-# Part V — Storage & Persistence
+# Part V - Storage & Persistence
 
 # 37. Web Storage
 
@@ -1726,7 +1726,7 @@ This storage belongs to the origin and is not the same as letting the user edit 
 
 ---
 
-# Part VI — Service Workers & Background Capabilities
+# Part VI - Service Workers & Background Capabilities
 
 # 43. Service Worker API
 
@@ -1912,7 +1912,7 @@ Use only when user value justifies interruption.
 
 ---
 
-# Part VII — Cross-Context Communication & Coordination
+# Part VII - Cross-Context Communication & Coordination
 
 # 49. `window.postMessage()`
 
@@ -2091,7 +2091,7 @@ BroadcastChannel plus dedicated workers may sometimes be simpler.
 
 ---
 
-# Part VIII — Scheduling & Main-Thread Work
+# Part VIII - Scheduling & Main-Thread Work
 
 # 54. `setTimeout()` / `setInterval()`
 
@@ -2275,7 +2275,7 @@ rather than repeatedly yielding.
 
 ---
 
-# Part IX — Workers & Parallel Computation
+# Part IX - Workers & Parallel Computation
 
 # 60. Dedicated Web Worker
 
@@ -2447,7 +2447,7 @@ Most applications should use message-passing instead.
 
 ---
 
-# Part X — Files, Clipboard & Sharing
+# Part X - Files, Clipboard & Sharing
 
 # 65. File API
 
@@ -2695,7 +2695,7 @@ Ensure non-drag alternatives for:
 
 ---
 
-# Part XI — Media, Camera & Audio
+# Part XI - Media, Camera & Audio
 
 # 72. MediaDevices
 
@@ -2999,7 +2999,7 @@ Use the highest-level API that satisfies the product.
 
 ---
 
-# Part XII — Graphics & Visual Computation
+# Part XII - Graphics & Visual Computation
 
 # 82. Canvas 2D
 
@@ -3134,7 +3134,7 @@ Respect reduced-motion preferences.
 
 ---
 
-# Part XIII — Device & User Capabilities
+# Part XIII - Device & User Capabilities
 
 # 87. Geolocation API
 
@@ -3380,7 +3380,7 @@ Provide a normal color-picker fallback.
 
 ---
 
-# Part XIV — Internationalization & Localization
+# Part XIV - Internationalization & Localization
 
 # 97. `Intl`
 
@@ -3533,7 +3533,7 @@ Segmentation matters for multilingual correctness.
 
 ---
 
-# Part XV — Performance & Timing
+# Part XV - Performance & Timing
 
 # 102. Performance API
 
@@ -3654,7 +3654,7 @@ Use actual interaction metrics such as INP for user-centered responsiveness rath
 
 ---
 
-# Part XVI — Security, Credentials & Identity
+# Part XVI - Security, Credentials & Identity
 
 # 107. Web Crypto API
 
@@ -3883,7 +3883,7 @@ Chapter 13
 
 ---
 
-# Part XVII — Sharing, Tabs & Window Management
+# Part XVII - Sharing, Tabs & Window Management
 
 # 115. Window API
 
@@ -3980,7 +3980,7 @@ Do not infer more device identity than the product needs.
 
 ---
 
-# Part XVIII — Emerging / Specialized APIs Worth Knowing
+# Part XVIII - Emerging / Specialized APIs Worth Knowing
 
 This section is intentionally awareness-level.
 
@@ -4237,7 +4237,7 @@ Support policy is part of architecture.
 
 ---
 
-# Part XIX — Choosing the Right API
+# Part XIX - Choosing the Right API
 
 # 131. Requirement: “I Need to Store Something”
 
@@ -4479,7 +4479,7 @@ complete offline business workflow
 
 ---
 
-# Part XX — Browser API Design Principles
+# Part XX - Browser API Design Principles
 
 # 141. Prefer Native Semantics Before JavaScript APIs
 
@@ -4856,9 +4856,9 @@ Abstraction should improve understanding.
 
 ---
 
-# Part XXI — Cross-Reference by Book Chapter
+# Part XXI - Cross-Reference by Book Chapter
 
-# 155. Chapter 1 — Browser Runtime
+# 155. Chapter 1 - Browser Runtime
 
 Most relevant APIs:
 
@@ -4872,7 +4872,7 @@ Workers
 
 ---
 
-# 156. Chapter 2 — HTML, Accessibility & DOM
+# 156. Chapter 2 - HTML, Accessibility & DOM
 
 Most relevant:
 
@@ -4887,7 +4887,7 @@ Custom Elements
 
 ---
 
-# 157. Chapter 3 — CSS Architecture
+# 157. Chapter 3 - CSS Architecture
 
 Related browser/platform capabilities:
 
@@ -4902,7 +4902,7 @@ Use CSS itself before JavaScript measurement wherever possible.
 
 ---
 
-# 158. Chapter 4 — JavaScript & Async
+# 158. Chapter 4 - JavaScript & Async
 
 Relevant:
 
@@ -4917,7 +4917,7 @@ scheduler APIs
 
 ---
 
-# 159. Chapter 5 — TypeScript & Boundaries
+# 159. Chapter 5 - TypeScript & Boundaries
 
 Relevant:
 
@@ -4933,7 +4933,7 @@ All remain runtime data requiring validation where trust matters.
 
 ---
 
-# 160. Chapter 6 — Components
+# 160. Chapter 6 - Components
 
 Relevant:
 
@@ -4947,7 +4947,7 @@ EventTarget
 
 ---
 
-# 161. Chapter 7 — Reactivity & Rendering
+# 161. Chapter 7 - Reactivity & Rendering
 
 Relevant:
 
@@ -4962,7 +4962,7 @@ Framework reactivity is above these platform layers.
 
 ---
 
-# 162. Chapter 8 — State, Routing & Forms
+# 162. Chapter 8 - State, Routing & Forms
 
 Relevant:
 
@@ -4977,7 +4977,7 @@ localStorage
 
 ---
 
-# 163. Chapter 9 — APIs & Cache
+# 163. Chapter 9 - APIs & Cache
 
 Relevant:
 
@@ -4992,7 +4992,7 @@ Streams
 
 ---
 
-# 164. Chapter 10 — Real-Time & Offline
+# 164. Chapter 10 - Real-Time & Offline
 
 Relevant:
 
@@ -5011,7 +5011,7 @@ Web Locks
 
 ---
 
-# 165. Chapter 11 — Rendering Topologies
+# 165. Chapter 11 - Rendering Topologies
 
 Relevant:
 
@@ -5027,7 +5027,7 @@ Rendering topology is broader than browser API selection.
 
 ---
 
-# 166. Chapter 12 — Tooling
+# 166. Chapter 12 - Tooling
 
 Relevant underlying standards:
 
@@ -5042,7 +5042,7 @@ Build tools transform/package these platform concepts.
 
 ---
 
-# 167. Chapter 13 — Security
+# 167. Chapter 13 - Security
 
 Relevant:
 
@@ -5058,7 +5058,7 @@ cross-origin isolation
 
 ---
 
-# 168. Chapter 14 — Scale
+# 168. Chapter 14 - Scale
 
 Relevant browser interoperability tools:
 
@@ -5073,7 +5073,7 @@ But organizational architecture is larger than browser APIs.
 
 ---
 
-# 169. Chapter 15 — Performance
+# 169. Chapter 15 - Performance
 
 Relevant:
 
@@ -5090,7 +5090,7 @@ ResizeObserver
 
 ---
 
-# 170. Chapter 16 — Testing
+# 170. Chapter 16 - Testing
 
 Browser tests should exercise real platform behavior around:
 
@@ -5108,7 +5108,7 @@ when these capabilities are part of the product contract.
 
 ---
 
-# 171. Chapter 17 — Production Engineering
+# 171. Chapter 17 - Production Engineering
 
 Relevant:
 
@@ -5122,7 +5122,7 @@ storage migration
 
 ---
 
-# 172. Chapter 18 — Architecture
+# 172. Chapter 18 - Architecture
 
 Use this appendix to ask:
 
@@ -5134,7 +5134,7 @@ It means knowing the lowest-level capability first.
 
 ---
 
-# Part XXII — Compact API Index by Problem
+# Part XXII - Compact API Index by Problem
 
 # 173. “I need to…”
 

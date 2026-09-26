@@ -3,7 +3,7 @@ title: "Make and Defend an Architecture Decision"
 weight: 18
 ---
 
-# Practical 18 — Make and Defend an Architecture Decision
+# Practical 18 - Make and Defend an Architecture Decision
 
 Related: [Chapter 18]({{< relref "/book/Chapter_18_Front_End_Architecture_and_Technical_Decision_Making.md" >}}) · [Lecture slides]({{< relref "/slides/18-architecture-decision-making/index.md" >}}) · [Appendix A: Rosetta Stone]({{< relref "/book/appendix-a-architectural-rosetta-stone.md" >}}) · [Appendix C: Deployment Checklist]({{< relref "/book/appendix-c-production-deployment-checklist.md" >}})
 
@@ -11,7 +11,7 @@ Related: [Chapter 18]({{< relref "/book/Chapter_18_Front_End_Architecture_and_Te
 
 Formulate, evaluate, benchmark, and document a major front-end architectural decision for an enterprise-scale public service platform. You will evaluate competing technical options against explicit organizational constraints and quality attributes, conduct a focused technical spike to resolve an empirical unknown, write a formal **Architectural Decision Record (ADR)**, and define automated fitness functions and quantitative review triggers.
 
-You will be evaluated on the **rigor of your reasoning**, the **fidelity of your trade-off analysis**, and your **empirical evidence**—not on whether you choose a trendy framework or adopt complex distributed patterns by default.
+You will be evaluated on the **rigor of your reasoning**, the **fidelity of your trade-off analysis**, and your **empirical evidence** - not on whether you choose a trendy framework or adopt complex distributed patterns by default.
 
 ```mermaid
 flowchart TD
@@ -155,7 +155,7 @@ This architecture will remain in force until one of the following quantitative t
 3. **Compute Budget Trigger:** Edge serverless compute costs exceed $10,000/month, at which point the team will evaluate migrating static catalog routes to Static Site Generation (SSG).
 
 ### Safe Reversal Path
-Because packages in the `pnpm` monorepo strictly enforce the `"exports"` field and communicate solely via URL state and REST APIs, extracting any squad module (e.g. `@civic/transport`) into an autonomous micro-frontend or standalone repository requires zero code refactoring—only a pipeline configuration change.
+Because packages in the `pnpm` monorepo strictly enforce the `"exports"` field and communicate solely via URL state and REST APIs, extracting any squad module (e.g. `@civic/transport`) into an autonomous micro-frontend or standalone repository requires zero code refactoring - only a pipeline configuration change.
 ```
 
 ---

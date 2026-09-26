@@ -50,7 +50,7 @@ We will connect:
 
 > **Rendering architecture is the deliberate placement of work across build time, request time, and browser time according to freshness, personalization, interaction, cacheability, and device cost.**
 
-CSR, SSR, and SSG are tools in a continuum—not application-wide identities.
+CSR, SSR, and SSG are tools in a continuum - not application-wide identities.
 
 ---
 

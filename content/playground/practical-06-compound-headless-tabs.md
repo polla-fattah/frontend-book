@@ -3,7 +3,7 @@ title: "Compound Headless Tabs and Component State Boundaries"
 weight: 6
 ---
 
-# Practical 06 — Compound Headless Tabs and Component State Boundaries
+# Practical 06 - Compound Headless Tabs and Component State Boundaries
 
 Related: [Chapter 6]({{< relref "/book/Chapter_06_Component_Driven_Architecture_and_Design_Patterns.md" >}}) · [Lecture slides]({{< relref "/slides/06-component-driven-architecture/index.md" >}})
 
@@ -47,7 +47,7 @@ Ensure your TypeScript configuration enforces strict type checks (`"strict": tru
 
 ---
 
-## Stage 1 — Decompose Compound Responsibilities
+## Stage 1 - Decompose Compound Responsibilities
 
 Deconstruct the tabs widget into four distinct component boundaries. Each component must own a single, cohesive responsibility:
 
@@ -97,7 +97,7 @@ export interface TabsContextValue {
 
 ---
 
-## Stage 2 — Controlled vs. Uncontrolled State Machine
+## Stage 2 - Controlled vs. Uncontrolled State Machine
 
 A component must never exist in an ambiguous half-controlled state. Implement a unified state hook `useTabsState` that honors the state ownership contract:
 
@@ -133,7 +133,7 @@ Verify that passing both `value` and `defaultValue` does not trigger uncontrolle
 
 ---
 
-## Stage 3 — Implement the WAI-ARIA and Keyboard Contract
+## Stage 3 - Implement the WAI-ARIA and Keyboard Contract
 
 The WAI-ARIA Tabs pattern requires strict accessibility attributes and precise keyboard behavior.
 
@@ -212,7 +212,7 @@ function handleKeyDown(event: React.KeyboardEvent) {
 
 ---
 
-## Stage 4 — Verification Matrix and Optional Extensions
+## Stage 4 - Verification Matrix and Optional Extensions
 
 ### Verification Matrix
 

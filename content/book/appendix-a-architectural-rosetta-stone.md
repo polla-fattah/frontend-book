@@ -4,7 +4,7 @@ type: book
 book_kind: book
 ---
 
-# Appendix A — Front-End Architectural Rosetta Stone
+# Appendix A - Front-End Architectural Rosetta Stone
 
 ## Vanilla JavaScript, React, and Vue Compared by Architectural Concept
 
@@ -1775,7 +1775,7 @@ The terms are common in React but the architectural idea is universal.
 
 ---
 
-# 43. Controlled Toggle — Vanilla
+# 43. Controlled Toggle - Vanilla
 
 ```js
 function updateToggle(
@@ -1801,7 +1801,7 @@ and tells the view what to display.
 
 ---
 
-# 44. Controlled Toggle — React
+# 44. Controlled Toggle - React
 
 ```jsx
 function Toggle({
@@ -1831,7 +1831,7 @@ State lives in the parent.
 
 ---
 
-# 45. Controlled Toggle — Vue
+# 45. Controlled Toggle - Vue
 
 ```vue
 <script setup>
@@ -4408,7 +4408,7 @@ This table is especially important because misuse of effect mechanisms is a comm
 
 # 136. Framework Translation Anti-Patterns
 
-## Anti-pattern 1 — Translating API names instead of responsibilities
+## Anti-pattern 1 - Translating API names instead of responsibilities
 
 Bad question:
 
@@ -4424,7 +4424,7 @@ I need to synchronize a component with a WebSocket. What is the natural Vue life
 
 ---
 
-## Anti-pattern 2 — Rebuilding one framework inside another
+## Anti-pattern 2 - Rebuilding one framework inside another
 
 A React developer moving to Vue may try to:
 
@@ -4444,7 +4444,7 @@ Preserve architecture, not implementation habits.
 
 ---
 
-## Anti-pattern 3 — Treating Vanilla as “no architecture”
+## Anti-pattern 3 - Treating Vanilla as “no architecture”
 
 Vanilla code still needs:
 
@@ -4460,7 +4460,7 @@ Without a framework, you must supply them deliberately.
 
 ---
 
-## Anti-pattern 4 — Treating framework convenience as browser capability
+## Anti-pattern 4 - Treating framework convenience as browser capability
 
 Examples:
 
@@ -4487,7 +4487,7 @@ Know which layer owns the concept.
 
 ---
 
-# 137. Comparative Example — Search Panel
+# 137. Comparative Example - Search Panel
 
 Let us implement the same responsibility three ways.
 
@@ -4781,7 +4781,7 @@ Those concepts survive framework migration.
 
 ---
 
-# 142. Comparative Example — Derived Filtered List
+# 142. Comparative Example - Derived Filtered List
 
 Requirements:
 
@@ -4881,7 +4881,7 @@ synchronize duplicated state
 
 ---
 
-# 143. Comparative Example — External Subscription
+# 143. Comparative Example - External Subscription
 
 Requirement:
 
@@ -4971,7 +4971,7 @@ Again, the architecture translates.
 
 ---
 
-# 144. Comparative Example — Deep Locale Dependency
+# 144. Comparative Example - Deep Locale Dependency
 
 Requirement:
 
@@ -5016,7 +5016,7 @@ is still clearer.
 
 ---
 
-# 145. Comparative Example — Dialog
+# 145. Comparative Example - Dialog
 
 Architectural responsibilities:
 
@@ -5034,7 +5034,7 @@ A design-system Dialog should provide the same behavioral contract whichever imp
 
 ---
 
-# 146. Comparative Example — Shared Product Query
+# 146. Comparative Example - Shared Product Query
 
 Requirement:
 
@@ -5201,7 +5201,7 @@ This prevents framework abstractions from becoming magic.
 
 ---
 
-# 152. Migration Thinking — React to Vue
+# 152. Migration Thinking - React to Vue
 
 Preserve:
 
@@ -5242,7 +5242,7 @@ Do not try to reproduce React's render/effect semantics exactly.
 
 ---
 
-# 153. Migration Thinking — Vue to React
+# 153. Migration Thinking - Vue to React
 
 Preserve:
 
@@ -5283,7 +5283,7 @@ Do not expect automatic dependency tracking in ordinary React code.
 
 ---
 
-# 154. Migration Thinking — Framework to Vanilla
+# 154. Migration Thinking - Framework to Vanilla
 
 Do not simply delete framework APIs one by one.
 
@@ -5312,7 +5312,7 @@ A framework replacement requires recreating the necessary runtime conventions.
 
 ---
 
-# 155. Migration Thinking — Vanilla to Framework
+# 155. Migration Thinking - Vanilla to Framework
 
 Do not wrap every existing function as a component.
 

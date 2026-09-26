@@ -3,7 +3,7 @@ title: "Intrinsic, Container-Aware Dashboard"
 weight: 3
 ---
 
-# Practical 03 — Intrinsic, Container-Aware Dashboard
+# Practical 03 - Intrinsic, Container-Aware Dashboard
 
 Related: [Chapter 3]({{< relref "/book/Chapter_03_Modern_CSS_Architecture_and_Layout_Systems.md" >}}) · [Lecture slides]({{< relref "/slides/03-modern-css-architecture-layout/index.md" >}})
 
@@ -27,7 +27,7 @@ chapter-03-dashboard/
 
 Do not install CSS frameworks (such as Tailwind or Bootstrap) or JavaScript layout libraries. All layout, adaptation, and layer boundaries must be constructed using native CSS.
 
-## Stage 1 — Architectural cascade layers and 3-tier design tokens
+## Stage 1 - Architectural cascade layers and 3-tier design tokens
 
 Establish a predictable precedence hierarchy and design token system in `styles.css`:
 
@@ -44,7 +44,7 @@ Establish a predictable precedence hierarchy and design token system in `styles.
 
 **Verify:** Inspect the styles in browser DevTools. Confirm that layers are recognized in the Styles pane and that modifying a single semantic token (such as `--color-primary`) updates all consuming components across the interface.
 
-## Stage 2 — 2D Grid layout and card alignment with Subgrid
+## Stage 2 - 2D Grid layout and card alignment with Subgrid
 
 Build the page architecture and product catalog in `index.html`:
 
@@ -70,7 +70,7 @@ Build the page architecture and product catalog in `index.html`:
 
 **Verify:** Inspect the cards visually and with DevTools Grid overlay. Confirm that despite varying description lengths, all card action buttons remain strictly aligned across each grid row without hardcoded element heights.
 
-## Stage 3 — Container queries and fluid sizing
+## Stage 3 - Container queries and fluid sizing
 
 Make components context-aware rather than screen-aware:
 
@@ -94,7 +94,7 @@ Make components context-aware rather than screen-aware:
 
 **Verify:** Resize the browser window and drag the sidebar boundary. Confirm that the card in the sidebar switches layout based on the sidebar's width, while the card in the main area remains in its expanded layout.
 
-## Stage 4 — Logical properties, bidirectional layout, and stress testing
+## Stage 4 - Logical properties, bidirectional layout, and stress testing
 
 Ensure internationalization resilience and edge-case durability:
 

@@ -19,13 +19,13 @@
     {{- $label := partial "book/label.html" . -}}
     {{- $caption := partial "content/markdown-escape.html" .caption -}}
     {{- $href := printf "%s#%s" .page.RelPermalink .id | partial "content/markdown-url.html" -}}
-    {{- $rows = $rows | append (printf "- [%s](%s)%s" $label $href (cond (ne $caption "") (printf " — %s" $caption) "")) -}}
+    {{- $rows = $rows | append (printf "- [%s](%s)%s" $label $href (cond (ne $caption "") (printf " - %s" $caption) "")) -}}
   {{- end -}}
   {{- delimit $rows "\n" | safeHTML -}}
   {{- else -}}
 <ol class="td-book-figures td-book-figures--{{ $kind }}">
   {{- range $entries }}
-  <li><a href="{{ if $aggregate }}#{{ .id }}{{ else }}{{ .page.RelPermalink }}#{{ .id }}{{ end }}"><span class="td-book-label">{{ partial "book/label.html" . }}</span>{{ with .caption }} <span class="td-book-figures__caption">— {{ . }}</span>{{ end }}</a></li>
+  <li><a href="{{ if $aggregate }}#{{ .id }}{{ else }}{{ .page.RelPermalink }}#{{ .id }}{{ end }}"><span class="td-book-label">{{ partial "book/label.html" . }}</span>{{ with .caption }} <span class="td-book-figures__caption">- {{ . }}</span>{{ end }}</a></li>
   {{- end }}
 </ol>
   {{- end -}}

@@ -3,7 +3,7 @@ title: "Rendering Topology Comparison: CSR, SSR, and Static Delivery"
 weight: 11
 ---
 
-# Practical 11 — Rendering Topology Comparison: CSR, SSR, and Static Delivery
+# Practical 11 - Rendering Topology Comparison: CSR, SSR, and Static Delivery
 
 Related: [Chapter 11]({{< relref "/book/Chapter_11_Rendering_Topologies_CSR_SSR_SSG_and_Beyond.md" >}}) · [Lecture slides]({{< relref "/slides/11-rendering-topologies/index.md" >}})
 
@@ -12,7 +12,7 @@ Related: [Chapter 11]({{< relref "/book/Chapter_11_Rendering_Topologies_CSR_SSR_
 Evaluate and measure the concrete performance, architectural, and data-flow trade-offs between **Client-Side Rendering (CSR)**, **Server-Side Rendering (SSR)**, and **Static Site Generation (SSG)** across identical route requirements: the Municipal Public Permit Catalogue.
 
 By completing this laboratory, you will:
-1. **Instrument the Performance Triangle:** Measure runnable metrics—Time to First Byte (TTFB), First Contentful Paint (FCP), total transferred JavaScript bytes, and Time to Interactive (TTI)—across different topologies.
+1. **Instrument the Performance Triangle:** Measure runnable metrics - Time to First Byte (TTFB), First Contentful Paint (FCP), total transferred JavaScript bytes, and Time to Interactive (TTI) - across different topologies.
 2. **Audit the State Handoff Boundary:** Inspect the serialized data payload transferred from server to client to prevent secret leakage and double-fetch overhead.
 3. **Analyze Hydration Costs:** Observe the "uncanny valley" where server-rendered HTML is visible on screen but unclickable until client hydration finishes walking the DOM.
 4. **Distinguish Runnable Measurements from Conceptual Topologies:** Conduct hands-on measurements for the core three topologies (CSR, SSR, SSG), while evaluating advanced topologies (Streaming and Islands) through structured architectural analysis.

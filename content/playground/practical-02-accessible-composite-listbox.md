@@ -3,7 +3,7 @@ title: "Accessible Multilingual Interface and Composite Controls"
 weight: 2
 ---
 
-# Practical 02 — Accessible Multilingual Interface and Composite Controls
+# Practical 02 - Accessible Multilingual Interface and Composite Controls
 
 Related: [Chapter 2]({{< relref "/book/Chapter_02_Semantic_HTML_Accessibility_Internationalization_and_the_DOM.md" >}}) · [Lecture slides]({{< relref "/slides/02-semantic-html-accessibility-dom/index.md" >}})
 
@@ -28,7 +28,7 @@ chapter-02-semantics/
 
 Ensure your stylesheet includes a distinct, high-contrast `:focus-visible` outline. Keep third-party UI libraries or CSS frameworks out of the project; all behaviors and styles must be native.
 
-## Stage 1 — Establish semantic landmarks and native selection baseline
+## Stage 1 - Establish semantic landmarks and native selection baseline
 
 Construct the core portal page containing:
 * A `<header>` with site title and a `<nav aria-label="Primary">` containing navigation links.
@@ -42,7 +42,7 @@ Construct the core portal page containing:
 
 **Verify:** Disable CSS in your browser. Verify that the document outline, landmarks, form controls, and table data remain immediately understandable and navigable.
 
-## Stage 2 — Programmatic labeling, keyboard operability, and error association
+## Stage 2 - Programmatic labeling, keyboard operability, and error association
 
 Enhance the form with comprehensive accessibility associations:
 * Ensure every control has an explicit `<label for="...">` matching the input's `id`.
@@ -56,7 +56,7 @@ Enhance the form with comprehensive accessibility associations:
 2. No interactive element requires a mouse to activate.
 3. Form validation errors are programmatically announced by screen-reader tools when triggered.
 
-## Stage 3 — Multilingual content, directionality, and event delegation
+## Stage 3 - Multilingual content, directionality, and event delegation
 
 Introduce internationalization and live DOM manipulation:
 * Declare the primary document language on `<html>` (`lang="en" dir="ltr"`).
@@ -68,7 +68,7 @@ Introduce internationalization and live DOM manipulation:
 
 **Verify:** Add an entry containing Arabic or Kurdish text alongside English IDs. Confirm that text direction is properly isolated and that clicking dynamic buttons triggers the delegated handler correctly.
 
-## Stage 4 (Optional Extension) — Composite multi-select listbox
+## Stage 4 (Optional Extension) - Composite multi-select listbox
 
 Only after completing Stages 1–3, evaluate whether a custom widget is justified. Build an enhanced multi-select listbox:
 1. Create a container with `role="listbox"`, `aria-multiselectable="true"`, and `aria-label="Available services"`.

@@ -15,11 +15,11 @@ Then requirements evolve:
 2. An accessibility audit discovers that keyboard focus inside the detail modal leaks into the background pagination buttons.
 3. A pricing change introduces volume discounts, and updating the calculation inadvertently breaks the category filter reset button.
 
-In response, the team attempts a rapid refactor. Working under pressure, they extract every repeating `<div>` and HTML snippet into its own file. Two weeks later, the codebase suffers from the opposite pathology: **component explosion**. The project now has 38 miniature components—`HeaderWrapper`, `HeaderTitleContainer`, `CardRowLayout`, `PriceTypography`—where passing a single click callback requires drilling through six layers of inert wrappers. A developer attempting to trace what happens when a citizen clicks "Apply Now" must navigate across ten open files.
+In response, the team attempts a rapid refactor. Working under pressure, they extract every repeating `<div>` and HTML snippet into its own file. Two weeks later, the codebase suffers from the opposite pathology: **component explosion**. The project now has 38 miniature components - `HeaderWrapper`, `HeaderTitleContainer`, `CardRowLayout`, `PriceTypography` - where passing a single click callback requires drilling through six layers of inert wrappers. A developer attempting to trace what happens when a citizen clicks "Apply Now" must navigate across ten open files.
 
 Both extremes stem from the same root misunderstanding: treating components as visual snippets or file-splitting conveniences rather than **architectural boundaries of responsibility**.
 
-The difficult question in front-end architecture is never *how* to create a component—framework documentation answers that in minutes. The difficult question is:
+The difficult question in front-end architecture is never *how* to create a component - framework documentation answers that in minutes. The difficult question is:
 
 > **Where should one component end and another begin?**
 
@@ -40,7 +40,7 @@ flowchart TD
 
 ## 1. Why Components Exist Beyond Simple Reuse
 
-In software engineering discussions, components are frequently introduced with a single justification: *code reuse*. While reuse is valuable, elevating it to the primary criterion for component extraction leads to severe design errors. Many of the most critical components in a production application—such as an `AnnualBudgetApprovalPanel`, a `CheckoutFlowCoordinator`, or an `InteractiveMapCanvas`—will only ever be instantiated once.
+In software engineering discussions, components are frequently introduced with a single justification: *code reuse*. While reuse is valuable, elevating it to the primary criterion for component extraction leads to severe design errors. Many of the most critical components in a production application - such as an `AnnualBudgetApprovalPanel`, a `CheckoutFlowCoordinator`, or an `InteractiveMapCanvas` - will only ever be instantiated once.
 
 Components exist primarily to establish **boundaries of human reasoning**:
 
@@ -712,6 +712,6 @@ The syntax differs; the responsibility allocation, state contracts, and coupling
 ## Practical Lab Brief
 
 Apply the principles learned in this chapter by completing:
-**[Practical 06 — Compound Headless Tabs and Component State Boundaries]({{< relref "/playground/practical-06-compound-headless-tabs.md" >}})**
+**[Practical 06 - Compound Headless Tabs and Component State Boundaries]({{< relref "/playground/practical-06-compound-headless-tabs.md" >}})**
 
 In this laboratory, you will build a compound headless tabs widget that completely isolates WAI-ARIA keyboard navigation and state machine contracts from presentation and styling.

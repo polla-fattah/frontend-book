@@ -125,7 +125,7 @@ A production release moves through an explicit hierarchy of environments, each s
 
 ### Embedding Immutable Release Identity
 
-When an unhandled exception occurs in a user's browser, the engineering team must know with absolute certainty which release generated the error. Without embedded release identity, debugging becomes guesswork—especially during rolling deployments when some users run the new release while others still have the previous release cached.
+When an unhandled exception occurs in a user's browser, the engineering team must know with absolute certainty which release generated the error. Without embedded release identity, debugging becomes guesswork - especially during rolling deployments when some users run the new release while others still have the previous release cached.
 
 Inject release metadata at build time and expose it as a frozen global object:
 
@@ -265,7 +265,7 @@ flowchart TD
 
 ## 17.5 Front-End Observability & Telemetry
 
-Traditional server-side monitoring tracks CPU utilization, memory pressure, and HTTP status codes. However, a server dashboard can be completely green while 100% of client users experience a broken interface—for example, if a client JavaScript syntax error halts execution before any network request is dispatched.
+Traditional server-side monitoring tracks CPU utilization, memory pressure, and HTTP status codes. However, a server dashboard can be completely green while 100% of client users experience a broken interface - for example, if a client JavaScript syntax error halts execution before any network request is dispatched.
 
 **Front-End Observability** is the capability to understand the real state of client applications running across millions of uncontrolled, heterogeneous user devices, operating systems, and network connections.
 

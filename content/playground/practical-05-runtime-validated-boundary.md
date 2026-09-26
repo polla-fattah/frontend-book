@@ -3,7 +3,7 @@ title: "Runtime-Validated Data Boundary and Typed Event Hub"
 weight: 5
 ---
 
-# Practical 05 — Runtime-Validated Data Boundary and Typed Event Hub
+# Practical 05 - Runtime-Validated Data Boundary and Typed Event Hub
 
 Related: [Chapter 5]({{< relref "/book/Chapter_05_TypeScript_Runtime_Contracts_and_Safe_Data_Boundaries.md" >}}) · [Lecture slides]({{< relref "/slides/05-typescript-runtime-contracts/index.md" >}})
 
@@ -51,7 +51,7 @@ Ensure your `tsconfig.json` enforces full strictness:
 
 Do not use `as SomeType` type assertions to bypass validation. Every domain record must be proven at runtime before it can enter application state.
 
-## Stage 1 — Model domain records and discriminated results
+## Stage 1 - Model domain records and discriminated results
 
 In `src/types.ts`, define your domain models using discriminated unions:
 
@@ -80,7 +80,7 @@ export class BoundaryError extends Error {
 }
 ```
 
-## Stage 2 — Implement the runtime parser and test matrix
+## Stage 2 - Implement the runtime parser and test matrix
 
 In `src/boundary.ts`, implement a validation parser `parseServiceRecord(raw: unknown): Result<ServiceRecord, BoundaryError>`. You may implement this with explicit property checks or with a schema parsing library (such as Zod).
 
@@ -109,7 +109,7 @@ Execute the parser against a four-case test matrix:
 
 **Verify:** Run `tsc --noEmit`. Verify that `result.data` is completely inaccessible on `{ ok: false }` branches, and that narrowing on `result.ok` permits safe access to all domain fields.
 
-## Stage 3 — Distinguish transport failures from schema failures and surface to UI
+## Stage 3 - Distinguish transport failures from schema failures and surface to UI
 
 In `src/app.ts`, coordinate network fetching, validation, and DOM updates:
 
@@ -120,7 +120,7 @@ In `src/app.ts`, coordinate network fetching, validation, and DOM updates:
 
 **Verify:** Trigger each error condition in the browser UI. Verify that error messages are rendered inside an accessible container (`role="alert"` or `aria-live="polite"`).
 
-## Stage 4 (Chapter 4 Extension) — Strongly typed event hub
+## Stage 4 (Chapter 4 Extension) - Strongly typed event hub
 
 Extend the publish-subscribe event hub from Practical 04 with a compile-time generic contract:
 

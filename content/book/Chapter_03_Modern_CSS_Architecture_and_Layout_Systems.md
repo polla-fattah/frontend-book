@@ -218,7 +218,7 @@ Components simply consume `var(--color-surface)` and `var(--color-text)` without
 
 ## 4. Intrinsic Sizing and Box Model Foundations {#19-intrinsic-sizing}
 
-Traditional web development often forced explicit dimensions (`width: 300px; height: 450px;`) onto containers, resulting in clipped text, overflow bugs, and broken translations. Modern CSS designs around **intrinsic sizing**—allowing content volume to dictate space requirements.
+Traditional web development often forced explicit dimensions (`width: 300px; height: 450px;`) onto containers, resulting in clipped text, overflow bugs, and broken translations. Modern CSS designs around **intrinsic sizing** - allowing content volume to dictate space requirements.
 
 ```mermaid
 flowchart TD
@@ -441,7 +441,7 @@ Using logical properties allows a single stylesheet to render flawlessly across 
 
 Modern CSS includes powerful relational and functional selectors that eliminate the need for bloated utility scripts:
 
-### `:has()` — The Relational Selector
+### `:has()` - The Relational Selector
 
 `:has()` allows an element to style itself based on its descendants or following siblings:
 
@@ -801,7 +801,7 @@ We assemble these systems into an adaptive, production-grade dashboard implement
 ## Practical Lab Brief {#end-of-chapter-practical-lab--build-an-intrinsic-container-aware-dashboard}
 
 Apply the concepts of this chapter in the companion laboratory:
-[Practical 03 — Intrinsic, Container-Aware Dashboard]({{< relref "/playground/practical-03-intrinsic-dashboard.md" >}}).
+[Practical 03 - Intrinsic, Container-Aware Dashboard]({{< relref "/playground/practical-03-intrinsic-dashboard.md" >}}).
 
 You will construct an adaptive executive dashboard using CSS Grid with Subgrid, build an architectural cascade layer stack (`reset`, `base`, `components`, `utilities`), establish a 3-tier design token hierarchy, configure container queries for sidebar and main catalog cards, and verify seamless RTL layout transitions.
 
@@ -830,4 +830,4 @@ CSS creates a resilient, adaptive visual hierarchy that respects content, contai
 
 Yet modern web applications do more than adapt visually: they handle user interaction, request server resources, manage concurrency, and recover from failures. 
 
-[Chapter 4 — Modern JavaScript and Asynchronous Programming]({{< relref "/book/Chapter_04_Modern_JavaScript_and_Asynchronous_Programming.md" >}}) examines how modern JavaScript coordinates runtime execution, manages async streams and cancellation, and prevents long tasks from freezing the very interfaces we have designed.
+[Chapter 4 - Modern JavaScript and Asynchronous Programming]({{< relref "/book/Chapter_04_Modern_JavaScript_and_Asynchronous_Programming.md" >}}) examines how modern JavaScript coordinates runtime execution, manages async streams and cancellation, and prevents long tasks from freezing the very interfaces we have designed.

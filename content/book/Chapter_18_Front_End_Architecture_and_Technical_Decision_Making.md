@@ -24,7 +24,7 @@ This conference room debate represents the fundamental challenge of software arc
 
 The final question of front-end engineering is not what tools exist. The final question is:
 
-> **How do we make disciplined, defensible architectural decisions under competing constraints—and how do we ensure our systems remain resilient as requirements, organizations, and technologies inevitably change?**
+> **How do we make disciplined, defensible architectural decisions under competing constraints - and how do we ensure our systems remain resilient as requirements, organizations, and technologies inevitably change?**
 
 This chapter establishes an architectural framework for front-end engineering. You will learn how to analyze trade-offs, formulate measurable quality attribute scenarios, conduct focused empirical spikes, document choices using Architectural Decision Records (ADRs), enforce architectural properties with automated fitness functions, and design systems with clear, reversible boundaries.
 
@@ -176,7 +176,7 @@ flowchart TD
     end
 ```
 
-- **Cohesion** measures how strongly related the internal elements of a single module are. In front-end architecture, **high cohesion** means that everything required to understand, render, and test a specific user feature (its UI components, local state reducers, validation schemas, and unit tests) lives together. Splitting a feature by technical type—putting all components in `/components`, all reducers in `/reducers`, and all schemas in `/schemas` across the entire project—creates low cohesion and high maintenance friction.
+- **Cohesion** measures how strongly related the internal elements of a single module are. In front-end architecture, **high cohesion** means that everything required to understand, render, and test a specific user feature (its UI components, local state reducers, validation schemas, and unit tests) lives together. Splitting a feature by technical type - putting all components in `/components`, all reducers in `/reducers`, and all schemas in `/schemas` across the entire project - creates low cohesion and high maintenance friction.
 - **Coupling** measures the degree of direct dependency between separate modules. **Tight coupling** occurs when Module A reaches into Module B's internal implementation details (e.g., inspecting private component state, importing deeply nested un-exported files, or relying on shared mutable global variables). When modules are tightly coupled, modifying Module A causes unexpected regressions in Module B.
 
 ### The Dependency Inversion Principle in Front-End Code
@@ -342,7 +342,7 @@ Under what exact observable conditions or metrics will this decision be reopened
 
 ### Automated Architecture Fitness Functions
 
-Documenting a decision in an ADR is necessary, but human vigilance alone cannot protect an architecture over years of development. Developers under deadline pressure will inevitably take shortcuts—importing internal code across package boundaries or adding heavy dependencies that violate bundle budgets.
+Documenting a decision in an ADR is necessary, but human vigilance alone cannot protect an architecture over years of development. Developers under deadline pressure will inevitably take shortcuts - importing internal code across package boundaries or adding heavy dependencies that violate bundle budgets.
 
 An **Architectural Fitness Function** is an automated check in the CI pipeline that continuously verifies that code conforms to architectural constraints:
 

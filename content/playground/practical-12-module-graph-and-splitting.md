@@ -3,7 +3,7 @@ title: "Inspect a Modern Front-End Toolchain and Module Graph"
 weight: 12
 ---
 
-# Practical 12 — Inspect a Modern Front-End Toolchain and Module Graph
+# Practical 12 - Inspect a Modern Front-End Toolchain and Module Graph
 
 Related: [Chapter 12]({{< relref "/book/Chapter_12_Modern_Build_Systems_Development_Tooling_and_Team_Workflows.md" >}}) · [Lecture slides]({{< relref "/slides/12-modern-build-toolchain/index.md" >}})
 

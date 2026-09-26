@@ -296,7 +296,7 @@ flowchart TD
 
 Identity determines whether a component is treated as the same logical instance.
 
-This affects focus, input values, animations, and user experience—not only performance.
+This affects focus, input values, animations, and user experience - not only performance.
 
 ---
 
@@ -915,7 +915,7 @@ Property-level tracking can avoid broad updates.
 
 But deep reactive objects, unstable identities, and unnecessary watchers can still make an application difficult to reason about.
 
-Selectivity is a mechanism—not a substitute for a clear dependency graph.
+Selectivity is a mechanism - not a substitute for a clear dependency graph.
 
 ---
 
@@ -1163,7 +1163,7 @@ State placed high in the tree can coordinate many consumers but broaden update s
 
 State placed close to one interaction can reduce unrelated work but may require a deliberate communication path.
 
-Choose location based on ownership and synchronization—not on a universal rule to lift or localize state.
+Choose location based on ownership and synchronization - not on a universal rule to lift or localize state.
 
 ---
 

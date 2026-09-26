@@ -3,7 +3,7 @@ title: "Abortable Event Hub and Asynchronous Control"
 weight: 4
 ---
 
-# Practical 04 — Abortable Event Hub and Asynchronous Control
+# Practical 04 - Abortable Event Hub and Asynchronous Control
 
 Related: [Chapter 4]({{< relref "/book/Chapter_04_Modern_JavaScript_and_Asynchronous_Programming.md" >}}) · [Lecture slides]({{< relref "/slides/04-modern-javascript-async/index.md" >}})
 
@@ -31,7 +31,7 @@ chapter-04-event-hub/
 
 Do not import third-party event libraries (such as EventEmitter or RxJS). All subscription mechanics, signal handling, and scheduling must be constructed from platform primitives.
 
-## Stage 1 — Core publish-subscribe engine with closure encapsulation
+## Stage 1 - Core publish-subscribe engine with closure encapsulation
 
 In `event-hub.js`, implement a factory function `createEventHub()` that uses closures to maintain private subscriber state:
 
@@ -44,7 +44,7 @@ In `event-hub.js`, implement a factory function `createEventHub()` that uses clo
 
 **Verify:** Write a test script in `app.js` subscribing three distinct listeners to a `service:selected` event. Emit the event with an ID payload, verify all three receive the payload, unsubscribe the second listener, emit again, and confirm only the remaining two listeners execute.
 
-## Stage 2 — Cooperative cancellation and teardown with `AbortSignal`
+## Stage 2 - Cooperative cancellation and teardown with `AbortSignal`
 
 Extend `on()` to support standard web platform cancellation options:
 
@@ -60,7 +60,7 @@ hub.on('service:updated', onUpdate, { signal: controller.signal, once: true });
 
 **Verify:** Create an `AbortController`. Register three different subscriptions (e.g. for window resize, modal status, and data sync) passing `{ signal: controller.signal }`. Call `controller.abort()`. Emit events on all channels and confirm that none of the aborted listeners execute.
 
-## Stage 3 — Listener error isolation and microtask dispatch
+## Stage 3 - Listener error isolation and microtask dispatch
 
 In standard synchronous event dispatching, if listener 1 throws an unhandled error, execution halts immediately, and listeners 2 and 3 never receive the event.
 
@@ -85,7 +85,7 @@ Harden `emit()` against subscriber exceptions:
 
 **Verify:** Register three listeners for `data:mutation`. Configure the second listener to deliberately throw `new Error("Database write failed")`. Emit the event. Verify that Listener 1 and Listener 3 execute successfully and that the error from Listener 2 is logged to the diagnostic console.
 
-## Stage 4 — Live search integration and race-condition elimination
+## Stage 4 - Live search integration and race-condition elimination
 
 In `search-service.js` and `app.js`, build a live citizen service search component using your event hub:
 

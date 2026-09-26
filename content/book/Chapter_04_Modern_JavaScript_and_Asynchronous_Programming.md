@@ -620,7 +620,7 @@ export function createLiveSearch({ inputElement, resultsElement, statusElement, 
 ## Practical Lab Brief {#end-of-chapter-practical-lab--build-a-typed-abortable-event-hub}
 
 Apply the concepts of this chapter in the companion laboratory:
-[Practical 04 — Abortable Event Hub]({{< relref "/playground/practical-04-abortable-event-hub.md" >}}).
+[Practical 04 - Abortable Event Hub]({{< relref "/playground/practical-04-abortable-event-hub.md" >}}).
 
 You will construct a resilient, framework-agnostic event hub in modern JavaScript that supports multi-channel event publishing, listener error isolation, single-operation teardown via `AbortSignal`, and ordered dispatch. In Chapter 5, you will extend this foundation with compile-time TypeScript contracts.
 
@@ -647,4 +647,4 @@ You will construct a resilient, framework-agnostic event hub in modern JavaScrip
 
 JavaScript provides flexible execution, dynamic data structures, and asynchronous primitives. But as codebases scale across teams and services, dynamic flexibility can introduce runtime vulnerabilities: unexpected `undefined` properties, shape mismatches, and unvalidated network payloads.
 
-[Chapter 5 — TypeScript and Runtime Contracts]({{< relref "/book/Chapter_05_TypeScript_Runtime_Contracts_and_Safe_Data_Boundaries.md" >}}) addresses this boundary. It explores how TypeScript provides compile-time verification, why type assertions alone cannot secure an application against external data, and how to build resilient runtime validation boundaries at the edge of your system.
+[Chapter 5 - TypeScript and Runtime Contracts]({{< relref "/book/Chapter_05_TypeScript_Runtime_Contracts_and_Safe_Data_Boundaries.md" >}}) addresses this boundary. It explores how TypeScript provides compile-time verification, why type assertions alone cannot secure an application against external data, and how to build resilient runtime validation boundaries at the edge of your system.

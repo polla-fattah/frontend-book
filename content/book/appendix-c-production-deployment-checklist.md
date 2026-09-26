@@ -4,7 +4,7 @@ type: book
 book_kind: book
 ---
 
-# Appendix C — Front-End Production Deployment Checklist
+# Appendix C - Front-End Production Deployment Checklist
 
 This checklist adapts the strongest operational ideas from the earlier manuscript. It is a review aid, not a substitute for system-specific threat modeling, performance measurement, accessibility review, or operational ownership.
 

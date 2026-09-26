@@ -20,7 +20,7 @@
       {{- else }}
       <details class="td-landing-faq"{{ if .open }} open{{ end }}>
         {{- /* The summary is a flex row (question, toggle glyph). The question is
-             wrapped so inline Markdown — `code`, links, emphasis — stays one
+             wrapped so inline Markdown - `code`, links, emphasis - stays one
              flex item instead of each fragment spreading across the row. */}}
         <summary><span>{{ partial "landing/markdown.html" (dict "page" $page "value" (.question | default .title)) }}</span><i class="fa-solid fa-plus" aria-hidden="true"></i></summary>
         <div class="td-landing-faq__answer">

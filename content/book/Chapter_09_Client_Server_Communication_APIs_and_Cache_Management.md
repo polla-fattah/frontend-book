@@ -44,7 +44,7 @@ In this chapter, we engineer front-end communication boundaries that withstand n
 
 ## 1. HTTP Foundations for Front-End Architecture
 
-Modern front-end applications are distributed systems. Every time an application reads or mutates data, it participates in the HTTP protocol. Understanding HTTP semantics—specifically method safety, idempotency, header negotiation, and status code categories—is the prerequisite for solid data synchronization.
+Modern front-end applications are distributed systems. Every time an application reads or mutates data, it participates in the HTTP protocol. Understanding HTTP semantics - specifically method safety, idempotency, header negotiation, and status code categories - is the prerequisite for solid data synchronization.
 
 ### Method Semantics: Safety and Idempotency
 
@@ -776,6 +776,6 @@ To observe these architectural layers functioning together, examine the complete
 ## Practical Lab Brief
 
 Apply the principles learned in this chapter by completing:
-**[Practical 09 — Cached Server-State Client with Optimistic Mutations]({{< relref "/playground/practical-09-cached-api-client.md" >}})**
+**[Practical 09 - Cached Server-State Client with Optimistic Mutations]({{< relref "/playground/practical-09-cached-api-client.md" >}})**
 
 In this laboratory, you will build a framework-agnostic asynchronous cache manager in TypeScript featuring deterministic query key hashing, in-flight request deduplication, Stale-While-Revalidate background polling, exponential backoff retries, and optimistic mutations with rollback snapshots.

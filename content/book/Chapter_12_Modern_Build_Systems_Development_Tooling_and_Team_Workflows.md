@@ -65,7 +65,7 @@ flowchart TD
 ```
 
 1. **Resolution:** The toolchain encounters `import { formatCurrency } from '../utils/math'`. It resolves the relative path to an absolute disk location, checking file extensions (`.ts`, `.tsx`, `.js`, `.json`) according to configured resolution algorithms.
-2. **Parsing:** The parser reads the raw text characters and transforms them into an **Abstract Syntax Tree (AST)**—a structured tree representation of the code syntax in memory.
+2. **Parsing:** The parser reads the raw text characters and transforms them into an **Abstract Syntax Tree (AST)** - a structured tree representation of the code syntax in memory.
 3. **Transformation:** Specialized compilers (such as esbuild, SWC, or Babel) walk the AST, stripping away TypeScript type definitions and converting modern JSX tags into executable JavaScript function calls.
 4. **Module Graph Traversal:** The bundler links the module into a comprehensive **Directed Acyclic Graph (DAG)** representing every file in the project and their explicit relationships.
 5. **Optimization (Tree Shaking & Minification):** Unreferenced export functions are pruned from the graph. Variable names are shortened (`formatCurrency` $\rightarrow$ `a`), whitespace is removed, and dead code branches are eliminated.
@@ -445,7 +445,7 @@ flowchart TD
 * **Cache permanently with content hashing.** Deploy fingerprinted assets (`app.[hash].js`) with 1-year immutable cache headers, while serving `index.html` with `no-cache` to enable instant cache busting.
 * **Never commit secrets to front-end environment files.** Build-time variables (`VITE_*`) are string literals baked directly into public client JavaScript bundles. Keep private database keys on the server.
 * **Enforce the five quality gates.** Automate linting, formatting, typechecking, behavioral testing, and production build checks across layered feedback loops.
-* **Maintain strict monorepo dependency hierarchy.** Structure workspaces so applications depend on features, features depend on domain models, and domain models depend on shared primitives—eliminating circular references.
+* **Maintain strict monorepo dependency hierarchy.** Structure workspaces so applications depend on features, features depend on domain models, and domain models depend on shared primitives - eliminating circular references.
 
 ---
 
@@ -467,6 +467,6 @@ flowchart TD
 ## Practical Lab Brief
 
 Apply the principles learned in this chapter by completing:
-**[Practical 12 — Inspect a Modern Front-End Toolchain and Module Graph]({{< relref "/playground/practical-12-module-graph-and-splitting.md" >}})**
+**[Practical 12 - Inspect a Modern Front-End Toolchain and Module Graph]({{< relref "/playground/practical-12-module-graph-and-splitting.md" >}})**
 
 In this laboratory, you will trace a TypeScript application through the entire delivery lifecycle. You will inspect unbundled native ESM network requests in development, implement dynamic route code splitting with `import()`, verify chunk isolation in production bundles, audit source map reverse-mappings, and verify environment variable security boundaries.

@@ -3,7 +3,7 @@ title: "Design-System Package Governance and Ownership Mapping"
 weight: 14
 ---
 
-# Practical 14 — Design-System Package Governance and Ownership Mapping
+# Practical 14 - Design-System Package Governance and Ownership Mapping
 
 Related: [Chapter 14]({{< relref "/book/Chapter_14_Scaling_Front_End_Architecture_Design_Systems_Monorepos_and_Micro_Frontends.md" >}}) · [Lecture slides]({{< relref "/slides/14-scaling-front-end-architecture/index.md" >}})
 

@@ -13,7 +13,7 @@ At 10:30 AM, the inspector enters the second underground sub-basement of a comme
 In a naively built web application, the system immediately ceases functioning:
 - Navigating to the next checklist tab triggers an unhandled network error, blanking the view into a browser default dinosaur offline screen.
 - Form inputs disable themselves or silently fail when the inspector attempts to check off regulatory violations.
-- If the inspector attempts to tap "Submit Inspection Report," the client executes a raw `fetch()` call that throws an uncaught error. The inspection draft—representing forty-five minutes of meticulous notes, temperature readings, and photographic references—is vaporized from memory.
+- If the inspector attempts to tap "Submit Inspection Report," the client executes a raw `fetch()` call that throws an uncaught error. The inspection draft - representing forty-five minutes of meticulous notes, temperature readings, and photographic references - is vaporized from memory.
 - When the inspector returns to street level and network connectivity is restored, the application reloads to a blank initial screen. The inspector must re-enter the basement and perform the entire inspection a second time.
 
 Every one of these failures stems from the same fragile architectural assumption: **designing web applications under the illusion of permanent, high-bandwidth connectivity**.
@@ -45,7 +45,7 @@ In this chapter, we engineer front-end systems capable of surviving hostile netw
 
 ## 1. Real-Time Communication: Choosing Push Over Poll
 
-Traditional HTTP communication is client-driven: the browser issues a request, the server responds, and the connection terminates. However, many modern features—such as live dispatch updates, multi-user document collaboration, and instant emergency notifications—require the server to push data to the client the moment an event occurs.
+Traditional HTTP communication is client-driven: the browser issues a request, the server responds, and the connection terminates. However, many modern features - such as live dispatch updates, multi-user document collaboration, and instant emergency notifications - require the server to push data to the client the moment an event occurs.
 
 ### The Real-Time Transport Spectrum
 
@@ -623,7 +623,7 @@ flowchart TD
    - The application fetches today's twenty assignments, storing them into the IndexedDB `inspections` store.
    - An SSE stream connects to `GET /api/stream/inspector-88`.
 2. **Entering the Sub-Basement (Complete Radio Blackout):**
-   - The tablet loses connectivity. The SSE connection closes cleanly; the UI updates its live badge to *"Offline Mode — Local Persistence Active"*.
+   - The tablet loses connectivity. The SSE connection closes cleanly; the UI updates its live badge to *"Offline Mode - Local Persistence Active"*.
    - The inspector opens Inspection #104. The Service Worker intercepts the navigation and serves the cached App Shell from `CacheStorage`.
    - The application reads the checklist for Inspection #104 directly from IndexedDB.
    - The inspector fills out thirty inspection items and clicks "Submit Final Report."
@@ -673,6 +673,6 @@ flowchart TD
 ## Practical Lab Brief
 
 Apply the principles learned in this chapter by completing:
-**[Practical 10 — Offline Outbox and Resilient Synchronization]({{< relref "/playground/practical-10-offline-outbox.md" >}})**
+**[Practical 10 - Offline Outbox and Resilient Synchronization]({{< relref "/playground/practical-10-offline-outbox.md" >}})**
 
 In this laboratory, you will construct a fully functioning offline synchronization engine using IndexedDB. You will implement atomic multi-store transactions, a durable outbox queue with exponential backoff and idempotency keys, active heartbeat egress probing, and optimistic conflict detection.

@@ -947,7 +947,7 @@ Model upload progress, cancellation, size limits, type validation, and partial f
 422 → submitted data violates application rules
 ```
 
-The correct response may be sign-in, permission explanation, or field correction—not a red error beneath an input.
+The correct response may be sign-in, permission explanation, or field correction - not a red error beneath an input.
 
 ---
 

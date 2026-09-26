@@ -3,7 +3,7 @@ title: "Delivery, Observability, and Rollback Loop"
 weight: 17
 ---
 
-# Practical 17 — Delivery, Observability, and Rollback Loop
+# Practical 17 - Delivery, Observability, and Rollback Loop
 
 Related: [Chapter 17]({{< relref "/book/Chapter_17_Continuous_Delivery_Observability_and_Maintenance.md" >}}) · [Lecture slides]({{< relref "/slides/17-delivery-observability-maintenance/index.md" >}}) · [Appendix C: Production Deployment Checklist]({{< relref "/book/appendix-c-production-deployment-checklist.md" >}})
 
@@ -229,7 +229,7 @@ function reportErrorPayload(errorDetails: Record<string, unknown>) {
 
 ### Stage 5: Simulated Disaster Rehearsal & Safe Rollback
 
-A rollback plan that has never been tested is not a rollback plan—it is wishful thinking. In this stage, you will rehearse a full incident recovery cycle:
+A rollback plan that has never been tested is not a rollback plan - it is wishful thinking. In this stage, you will rehearse a full incident recovery cycle:
 
 1. **Inject a Fatal Production Regression into v2.4:**
    In `src/pages/ApplicationForm.ts`, inject a syntax or runtime exception that triggers when users click "Submit Application" (e.g. invoking an undefined function or invalid regular expression).

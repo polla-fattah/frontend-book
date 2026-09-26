@@ -3,7 +3,7 @@ title: "URL-Driven State Architecture and Form Boundaries"
 weight: 8
 ---
 
-# Practical 08 — URL-Driven State Architecture and Form Boundaries
+# Practical 08 - URL-Driven State Architecture and Form Boundaries
 
 Related: [Chapter 8]({{< relref "/book/Chapter_08_State_Management_Routing_and_Form_Architecture.md" >}}) · [Lecture slides]({{< relref "/slides/08-state-routing-forms/index.md" >}})
 
@@ -43,7 +43,7 @@ chapter-08-url-catalogue/
 
 ---
 
-## Stage 1 — Serializable URL Contract and Boundary Parser
+## Stage 1 - Serializable URL Contract and Boundary Parser
 
 The address bar accepts arbitrary strings from external sources. Raw query strings must be treated as untrusted boundaries and validated against strict schemas before entering application state.
 
@@ -114,7 +114,7 @@ Verify that omitting default values keeps the URL clean (e.g. displaying `/produ
 
 ---
 
-## Stage 2 — History Semantics and Two-Tier Debouncing
+## Stage 2 - History Semantics and Two-Tier Debouncing
 
 Do not push a new browser history entry on every keystroke. Separate immediate typing from committed URL state:
 
@@ -133,7 +133,7 @@ Implement `useURLSync`:
 
 ---
 
-## Stage 3 — Form State Machine and Unsaved Changes Guard
+## Stage 3 - Form State Machine and Unsaved Changes Guard
 
 When a user clicks "Edit" on an item, the application transitions to `/products/:id/edit`.
 
@@ -200,7 +200,7 @@ Attach a `beforeunload` browser event handler and route transition interceptor: 
 
 ---
 
-## Stage 4 — Verification Matrix and Security Boundaries
+## Stage 4 - Verification Matrix and Security Boundaries
 
 ### 1. What Must NEVER Enter the URL
 

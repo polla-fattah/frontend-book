@@ -48,7 +48,7 @@ We will connect:
 
 ## The central principle
 
-> **Architecture is a set of explicit, contextual decisions about trade-offs, boundaries, and future change—not a technology stack or a prediction of everything that might happen.**
+> **Architecture is a set of explicit, contextual decisions about trade-offs, boundaries, and future change - not a technology stack or a prediction of everything that might happen.**
 
 Good architecture makes important change cheaper, safer, and easier to reason about.
 
@@ -2254,7 +2254,7 @@ If the decision cannot name a problem, it may be technology fashion rather than 
 
 ## The chapter in one sentence
 
-> **Make architecture decisions from requirements, quality attributes, constraints, evidence, and reversible boundaries—and keep revisiting them as the system and organization learn.**
+> **Make architecture decisions from requirements, quality attributes, constraints, evidence, and reversible boundaries - and keep revisiting them as the system and organization learn.**
 
 ---
 

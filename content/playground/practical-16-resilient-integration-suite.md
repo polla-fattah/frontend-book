@@ -3,7 +3,7 @@ title: "Resilient UI Integration Suite"
 weight: 16
 ---
 
-# Practical 16 — Resilient UI Integration Suite
+# Practical 16 - Resilient UI Integration Suite
 
 Related: [Chapter 16]({{< relref "/book/Chapter_16_Testing_Strategies_for_Resilient_Interfaces.md" >}}) · [Lecture slides]({{< relref "/slides/16-testing-resilient-interfaces/index.md" >}})
 

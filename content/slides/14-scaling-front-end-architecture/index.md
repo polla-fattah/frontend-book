@@ -49,7 +49,7 @@ We will connect:
 
 ## The central principle
 
-> **Scale through explicit contracts, ownership, and failure boundaries—not through maximum sharing or maximum distribution.**
+> **Scale through explicit contracts, ownership, and failure boundaries - not through maximum sharing or maximum distribution.**
 
 Every shared abstraction creates a coordination obligation.
 
@@ -1946,7 +1946,7 @@ Write the evidence for the classification: consumers, stability, ownership, acce
 
 ## The chapter in one sentence
 
-> **Scale front-end systems by making shared contracts, package ownership, deployment independence, and failure boundaries explicit—and distribute only when the benefit exceeds the coordination cost.**
+> **Scale front-end systems by making shared contracts, package ownership, deployment independence, and failure boundaries explicit - and distribute only when the benefit exceeds the coordination cost.**
 
 ---
 

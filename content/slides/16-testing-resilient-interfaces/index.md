@@ -52,7 +52,7 @@ We will connect:
 
 Fast tests, realistic tests, and broad tests each provide different evidence.
 
-Quality comes from a balanced set of boundaries—not from a single test type or coverage percentage.
+Quality comes from a balanced set of boundaries - not from a single test type or coverage percentage.
 
 ---
 
@@ -1918,4 +1918,4 @@ The next chapter will build on resilient testing with:
 
 ## Questions
 
-Which important user journey currently has the most confidence from implementation details—and the least evidence from the behavior users actually experience?
+Which important user journey currently has the most confidence from implementation details - and the least evidence from the behavior users actually experience?

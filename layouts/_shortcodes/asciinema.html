@@ -40,7 +40,7 @@
 {{- if in (slice "markdown" "rss") $format -}}
 [{{ partial "content/markdown-escape.html" (printf "%v" $title) }}]({{ partial "content/markdown-url.html" $src }})
 {{- else if eq $format "print" -}}
-<p class="td-asciinema-print">{{ $title }} — <a href="{{ $src }}">{{ $src }}</a></p>
+<p class="td-asciinema-print">{{ $title }} - <a href="{{ $src }}">{{ $src }}</a></p>
 {{- else -}}
 {{- /* Every number is validated lexically before it is cast: a bad value
        warns and falls back (or drops the option) instead of stopping an

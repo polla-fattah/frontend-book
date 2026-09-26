@@ -19,7 +19,7 @@ Polla Fattah
 
 A catalogue heading appears before its image.
 
-Clicking **Load products** appears to do nothing—then everything changes together.
+Clicking **Load products** appears to do nothing - then everything changes together.
 
 What would you inspect first: the requests, the handler, or the rendering work?
 
@@ -31,7 +31,7 @@ What would you inspect first: the requests, the handler, or the rendering work?
 - Why downloading and executing a script are different events.
 - How document state becomes a frame.
 - Why synchronous code, microtasks, and timers behave differently.
-- What evidence DevTools can—and cannot—provide.
+- What evidence DevTools can - and cannot - provide.
 
 ---
 

@@ -448,6 +448,6 @@ Before releasing any front-end application to production, engineering teams must
 ## Practical Lab Brief
 
 Apply the principles learned in this chapter by completing:
-**[Practical 13 — Security Boundary Review: XSS, CORS, and Authentication Boundaries]({{< relref "/playground/practical-13-security-boundary-review.md" >}})**
+**[Practical 13 - Security Boundary Review: XSS, CORS, and Authentication Boundaries]({{< relref "/playground/practical-13-security-boundary-review.md" >}})**
 
 In this laboratory, you will audit and harden an application boundary. You will trace untrusted input from sources into DOM sinks, eliminate XSS vulnerabilities using safe text rendering and DOMPurify, verify CORS preflight behavior, harden session cookies against CSRF, and audit client authorization boundaries.

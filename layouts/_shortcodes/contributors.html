@@ -18,7 +18,7 @@
   {{- range $items }}
     {{- $label := printf "@%s" .github | partial "content/markdown-escape.html" -}}
     {{- $url := .url | partial "content/markdown-url.html" -}}
-    {{- printf "- [%s](%s)%s\n" $label $url (cond .role (printf " — %s" (partial "content/markdown-escape.html" .role)) "") | safeHTML -}}
+    {{- printf "- [%s](%s)%s\n" $label $url (cond .role (printf " - %s" (partial "content/markdown-escape.html" .role)) "") | safeHTML -}}
   {{- end -}}
 {{- else -}}
   {{- $id := printf "contributors-%s-%d" .Page.File.UniqueID .Ordinal -}}
