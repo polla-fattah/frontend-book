@@ -1,5 +1,6 @@
 ---
 title: First Tutorial
+type: docs
 description: A tutorial used for td-active-path and search checks.
 tags: [postgres]
 outputs: [HTML, print, markdown]

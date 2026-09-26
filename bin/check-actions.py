@@ -96,6 +96,7 @@ def action_config(helper: Any, subpath: bool, offline_search: bool = True) -> st
         "    dark_mode:\n"
         "      show_menu: true\n"
         "    page_context_menu:\n"
+        "      enable: true\n"
         "      assistant_links: true\n"
         "    feedback:\n      enable: false\n",
     )
@@ -476,7 +477,7 @@ def validate_custom_url_policy(helper: Any, workspace: Path) -> None:
     that dies takes the whole site down over one config line, so the drop is a
     warning; --panicOnWarning still fails where publishing happens."""
     base = action_config(helper, True)
-    marker = "    page_context_menu:\n      assistant_links: true\n"
+    marker = "    page_context_menu:\n      enable: true\n      assistant_links: true\n"
     require(marker in base, "action config lost the page_context_menu block")
 
     mixed = base.replace(marker, marker.rstrip("\n") + "\n"

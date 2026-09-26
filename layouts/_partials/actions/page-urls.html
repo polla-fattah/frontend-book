@@ -15,8 +15,8 @@
 {{- $repo := $p.Param "github_repo" -}}
 {{- $projectRepo := $p.Param "github_project_repo" | default $repo | default "" -}}
 {{- if and $p.File $repo -}}
-  {{- $workingPrefix := add hugo.WorkingDir "/" -}}
-  {{- $sourcePath := $p.File.Filename -}}
+  {{- $workingPrefix := replace (add hugo.WorkingDir "/") "\\" "/" -}}
+  {{- $sourcePath := replace $p.File.Filename "\\" "/" -}}
   {{- $inWorkingDir := hasPrefix $sourcePath $workingPrefix -}}
   {{- if $inWorkingDir }}{{ $sourcePath = strings.TrimPrefix $workingPrefix $sourcePath }}{{ end -}}
   {{- $subdir := $p.Param "github_subdir" | default "" -}}
