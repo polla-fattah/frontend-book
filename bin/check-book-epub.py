@@ -17,7 +17,9 @@ from zipfile import BadZipFile, ZIP_STORED, ZipFile
 
 CONTAINER_NS = {"container": "urn:oasis:names:tc:opendocument:xmlns:container"}
 OPF_NS = {"opf": "http://www.idpf.org/2007/opf"}
-CHAPTER_RE = re.compile(r"EPUB/text/ch\d+\.xhtml\Z")
+# Pandoc's standalone wrapper occupies ch001.xhtml.  Only the subsequent
+# numbered chunks are BookManifest content chapters.
+CHAPTER_RE = re.compile(r"EPUB/text/ch(?!001\.xhtml\Z)\d+\.xhtml\Z")
 
 
 def local_name(name: str) -> str:

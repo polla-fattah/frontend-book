@@ -37,6 +37,10 @@ SKIP_TAGS = {
 }
 SKIP_CLASSES = {"d-print-none", "td-book-print-cover", "td-book-print-toc", "td-book-toc"}
 REMOTE_MEDIA_TAGS = {"audio", "img", "source", "track", "video"}
+# Pandoc emits a standalone publication wrapper as ch001.xhtml.  The first
+# split content document is therefore ch002.xhtml, even though the source
+# document's first BookManifest page is the first page we package.
+PANDOC_CONTENT_CHAPTER_START = 2
 MAIN_RE = re.compile(
     r"<main\b[^>]*\bid=(?:\"td-main-content\"|'td-main-content'|td-main-content)(?=[\s>])"
     r"[^>]*>(?P<body>.*)</main>",
@@ -103,7 +107,7 @@ class BookHTML(HTMLParser):
         self.pending_page_id: str | None = None
         self.by_path = {str(page["path"]): page for page in pages}
         self.chunk_by_path = {
-            str(page["path"]): f"ch{index:03}.xhtml"
+            str(page["path"]): f"ch{index + PANDOC_CONTENT_CHAPTER_START - 1:03}.xhtml"
             for index, page in enumerate(pages, start=1)
         }
         self.by_route = {
