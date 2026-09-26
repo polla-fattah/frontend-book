@@ -70,10 +70,12 @@ def build_case(helper: Any, workspace: Path, name: str, value: str | None) -> tu
     shutil.copytree(helper.SITE_FIXTURE_PATH, site)
     config = helper.config_text("flat", False, False)
     config = config.replace(
+        "    sidebar_root_menu: true\n",
+        "    sidebar_root_menu: false\n",
+    )
+    config = config.replace(
         "    docs_section: docs\n",
         "    docs_section: docs\n"
-        "    sidebar_root_enabled: true\n"
-        "    sidebar_root_menu: false\n"
         "    sidebar_menu_foldable: true\n",
     )
     if value is not None:
