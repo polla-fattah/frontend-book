@@ -10,6 +10,8 @@ cascade:
 
 *From Browser Fundamentals to Production Architecture*
 
+{{< book-covers >}}
+
 {{< book-toc depth=2 >}}
 
 This book presents modern front-end development as an engineering discipline,

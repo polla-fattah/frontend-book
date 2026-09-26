@@ -16,8 +16,8 @@ The chapter-completeness issue is resolved. The earlier cross-references should 
 
 Chapters 14 and 15 are present and correctly titled:
 
-- Chapter 14 — 4,516 lines, 209 headings, 27 Mermaid blocks.
-- Chapter 15 — 4,629 lines, 204 headings, 13 Mermaid blocks.
+- Chapter 14 - 4,516 lines, 209 headings, 27 Mermaid blocks.
+- Chapter 15 - 4,629 lines, 204 headings, 13 Mermaid blocks.
 
 The chapter sequence is now complete from Chapter 1 through Chapter 18.
 
@@ -29,7 +29,7 @@ The declared structure contains 18 chapters and three appendices. The workspace 
 |---|---:|---:|
 | Chapters | 18 | 18 |
 | Appendices | 3 | 3 |
-| Chapter files missing | — | none |
+| Chapter files missing | - | none |
 
 Present chapter files are `chapter01.md` through `chapter18.md`. The appendices are present.
 
@@ -37,7 +37,7 @@ The manuscript files have balanced Markdown code fences in the initial mechanica
 
 ## Priority findings
 
-### Resolved — Missing Chapters 14 and 15
+### Resolved - Missing Chapters 14 and 15
 
 The initial scan reported this as the primary structural blocker. The files have since been added, and their titles match the declared structure and specifications.
 
@@ -51,27 +51,27 @@ The missing chapters are referenced from existing content, including:
 
 The previously identified cross-references can now be checked against the actual content of Chapters 14 and 15. They should not be treated as broken references by default.
 
-### P0 — Git review workflow unavailable
+### P0 - Git review workflow unavailable
 
 `git status` reports that the workspace is not a Git repository, and no `.git` directory is visible at the workspace root. This conflicts with the manuscript safety requirement to preserve originals in Git history and inspect diffs after edits.
 
 Recommended action: restore or expose the repository metadata before making substantive edits. Until then, limit changes to reports and explicitly approved standalone files.
 
-### P1 — Extreme section-granularity variation
+### P1 - Extreme section-granularity variation
 
 The chapters intentionally vary in depth, which is compatible with the editorial brief. However, the current top-level section counts range from 7 in Chapter 1 to 199 in Chapter 18. Several later chapters use a very large number of short numbered sections.
 
 This is not a reason to mechanically reduce headings. It is a review flag for navigation cost, repeated explanations, and whether each heading adds a distinct layer of understanding. Chapter 18 is the first candidate for this focused review, followed by Chapters 16 and 17.
 
-### P1 — Repeated end-of-chapter scaffolding
+### P1 - Repeated end-of-chapter scaffolding
 
 All present chapters contain the same broad end sequence: misconceptions, summary, review questions, practical lab, key terms, and closing perspective.
 
 This can be pedagogically useful and should not be removed automatically. The audit should instead check whether each instance is chapter-specific, whether the practical lab matches the chapter’s depth level, and whether repeated prose is adding new understanding.
 
-### P1 — Appendix B contains chapter-level material
+### P1 - Appendix B contains chapter-level material
 
-Appendix B includes sections titled “Chapter 14 — Scale” and “Chapter 15 — Performance” near its end. These may be intentional cross-reference material or remnants of an earlier structure. They should be compared with the newly present chapters before any appendix edits are attempted. Appendix C is now the production deployment checklist, with guided implementation work maintained separately under `practicals/`.
+Appendix B includes sections titled “Chapter 14 - Scale” and “Chapter 15 - Performance” near its end. These may be intentional cross-reference material or remnants of an earlier structure. They should be compared with the newly present chapters before any appendix edits are attempted. Appendix C is now the production deployment checklist, with guided implementation work maintained separately under `practicals/`.
 
 ## Initial consistency observations
 
@@ -103,30 +103,30 @@ The following topics require authoritative, current-source verification before c
 
 ## Recommended staged plan
 
-### Stage 0 — Resolve repository and manuscript completeness
+### Stage 0 - Resolve repository and manuscript completeness
 
 1. Restore or expose Git metadata.
 2. Confirm Chapters 14 and 15 against `book-proposal.md` and `Detailed Chapter Specifications.md`.
 
-### Stage 1 — Structural audit
+### Stage 1 - Structural audit
 
 1. Validate chapter order, titles, cross-references, and appendix placement.
 2. Check heading hierarchy, code fences, Mermaid blocks, tables, and internal links.
 3. Review section granularity without imposing equal chapter length.
 
-### Stage 2 — Technical accuracy audit
+### Stage 2 - Technical accuracy audit
 
 Review the technical verification queue using first-party or standards sources. Record sources in a separate review log rather than adding unrequested URLs to manuscript prose.
 
-### Stage 3 — Editorial consistency audit
+### Stage 3 - Editorial consistency audit
 
 Check recurring principles, framework balance, depth-level appropriateness, accessibility, internationalization, security, performance, progressive enhancement, runtime validation, and error/recovery treatment.
 
-### Stage 4 — Controlled editing
+### Stage 4 - Controlled editing
 
 Edit one chapter or issue family at a time. Preserve intentional repetition, inspect every diff, and keep a change log.
 
-### Stage 5 — Final quality pass
+### Stage 5 - Final quality pass
 
 Re-run structural checks, validate Mermaid diagrams, inspect internal references, review all current technical claims, and confirm that the final book structure is complete.
 

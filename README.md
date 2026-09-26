@@ -37,6 +37,6 @@ The Playground contains exercise briefs only. Implementation code for those exer
 
 ## Main sections
 
-- `/book` — the complete manuscript;
-- `/slides` — chapter lecture decks;
-- `/playground` — practical chapter exercises.
+- `/book` - the complete manuscript;
+- `/slides` - chapter lecture decks;
+- `/playground` - practical chapter exercises.

@@ -201,14 +201,14 @@ params:
     # none | banner (a framed figure above the title) | wash (the image
     # behind the article header at a low opacity) | hero (the immersive
     # presentation: the blog shell paints the image as its own full-bleed
-    # backdrop and moves the opening down — on single pages and section
+    # backdrop and moves the opening down - on single pages and section
     # indexes alike). Front matter `featured_image` overrides it for one
     # page or, in a cascade, one section. A page that carries no image
     # renders nothing either way.
     featured_image: none
     # Presentation of the right rail: fixed (a panel pinned to the viewport)
     # or flow (a wider panel in the content flow that starts where the
-    # article starts and pins only on scroll — the immersive blog rail).
+    # article starts and pins only on scroll - the immersive blog rail).
     toc_style: fixed
     # Taxonomy term clouds on the right rail. Front matter `toc_taxonomies`
     # (or a section cascade) turns them off; a rail left with neither a TOC

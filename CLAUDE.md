@@ -38,7 +38,7 @@ When public behavior changes, update the implementation here, its owning
 checker, and both language versions of the affected Design contract in the same
 delivery. Put stable accepted rationale under the site's `decisions/`, dated
 evidence under `research/`, and retired drafts in Git history and
-`CHANGELOG.md`—never in a local planning directory.
+`CHANGELOG.md` - never in a local planning directory.
 
 ## Shortest commands
 
@@ -111,7 +111,7 @@ Use Hugo Extended 0.160.1 for the compatibility floor. Output checkers accept
 - Theme policy lives under `params.ui.*`; page overrides drop `ui.`. Boolean
   switches are bare booleans unless a multi-setting feature also accepts a
   boolean shorthand. Public renames get a targeted owning-resolver warning,
-  migration note, and strict negative test—not a global compatibility registry.
+  migration note, and strict negative test - not a global compatibility registry.
 - Theme-owned network features are off until explicitly and completely
   configured. A normal build downloads nothing. Vendored artifact, license,
   version, and checksum change together in `VENDOR.json`.

@@ -11,7 +11,7 @@ The `frontend-Book/` directory in the older location is primarily a Hugo publish
 
 ## Executive recommendation
 
-Yes, it is worth bringing selected ideas from the older version into the current one—but selectively.
+Yes, it is worth bringing selected ideas from the older version into the current one - but selectively.
 
 The current manuscript should remain the primary book. It has the stronger curriculum, better audience calibration, more careful platform/framework separation, and more mature coverage of security, data boundaries, rendering, performance, testing, delivery, and architecture.
 
@@ -64,7 +64,7 @@ The older `Appendix_B_Front_End_Production_Architecture_and_Deployment_Checklist
 
 ### 4. It provides a compact chapter navigation model
 
-The older seven-part pattern—mental model, mechanics, implementation, trade-offs, hazards, and project—makes chapters easy to scan. The current manuscript should not restore this as a rigid template, but the labels can inspire local navigation signposts in especially dense chapters.
+The older seven-part pattern - mental model, mechanics, implementation, trade-offs, hazards, and project - makes chapters easy to scan. The current manuscript should not restore this as a rigid template, but the labels can inspire local navigation signposts in especially dense chapters.
 
 ## What the current version does better
 
@@ -103,7 +103,7 @@ The current version is more careful about:
 
 ## Ideas worth bringing over
 
-### High value — bring into the current manuscript
+### High value - bring into the current manuscript
 
 #### A. A separate practical-companion layer
 
@@ -181,7 +181,7 @@ The older testing project’s scenario-oriented acceptance list is worth bringin
 
 ### 1. The rigid seven-section chapter template
 
-Use its headings as optional signposts, not as a book-wide rule. The current editorial principle—consistent explanatory quality with variable implementation depth—is stronger.
+Use its headings as optional signposts, not as a book-wide rule. The current editorial principle - consistent explanatory quality with variable implementation depth - is stronger.
 
 ### 2. The older senior/architect audience and dense tone
 
@@ -201,7 +201,7 @@ The older Chapter 14 compares React, Vue, Svelte, and SolidJS using runtime cost
 
 ### 6. The custom AST micro-bundler as a core reader project
 
-It is an interesting advanced spike, but it is too implementation-heavy and easy to make misleading. If retained, present it as an awareness-level experiment showing why real build systems are complex—not as a production bundler or required project.
+It is an interesting advanced spike, but it is too implementation-heavy and easy to make misleading. If retained, present it as an awareness-level experiment showing why real build systems are complex - not as a production bundler or required project.
 
 ### 7. “Zero-INP” and guaranteed performance language
 
@@ -209,13 +209,13 @@ Use hypotheses, budgets, traces, and measured results. Do not promise a metric o
 
 ## Recommended integration plan
 
-### Phase 1 — Low-risk editorial improvements
+### Phase 1 - Low-risk editorial improvements
 
 1. Add verification criteria to selected current labs.
 2. Add a concise production deployment checklist based on the older Appendix B.
 3. Add optional-project callouts in Chapters 2, 6, 10, 15, and 16.
 
-### Phase 2 — Practical companion
+### Phase 2 - Practical companion
 
 Create separate practical files for the strongest projects, beginning with:
 
@@ -227,7 +227,7 @@ Create separate practical files for the strongest projects, beginning with:
 
 Each should be rewritten to current standards and tested independently.
 
-### Phase 3 — Advanced optional projects
+### Phase 3 - Advanced optional projects
 
 Consider the streaming renderer and micro-bundler only after the main book is stable. Keep them explicitly optional and label their implementation limits.
 

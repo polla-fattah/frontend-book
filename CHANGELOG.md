@@ -181,8 +181,8 @@ maintainer contracts stable. This entry rolls up every theme change after
 ### Added
 
 - Opt-in static backlinks (knowledge-graph proposal, stage G1): with
-  `params.ui.backlinks: true` — or the prefix-free front matter key
-  `backlinks`, which a section can cascade — every page lists the pages
+  `params.ui.backlinks: true` - or the prefix-free front matter key
+  `backlinks`, which a section can cascade - every page lists the pages
   that link to it as an aside group in the right rail, beside the table of
   contents and the taxonomy clouds: what is on this page, what points at
   this page. The group wears the rail family's head, icon, and metrics, is
@@ -199,15 +199,15 @@ maintainer contracts stable. This entry rolls up every theme change after
   actually link in, sorted by stable page path. The per-page Markdown
   output carries the same list through the same shared resolver; RSS and
   the print output format omit it like the rest of the rail. Unresolvable
-  destinations are dropped silently — a documented gap, not a link
+  destinations are dropped silently - a documented gap, not a link
   checker. An invalid value warns, falls back to off, and fails
   `--panicOnWarning`. `bin/check-backlinks.py` owns the contract.
 - Opt-in `NAVJSON` output format: a machine-readable navigation tree
   (`navigation.json`), one file per language at the language root, enabled
   through the site's `outputs.home`. The tree serializes the same authority
-  chain the sidebar and pager read — the explicit `data/docs_nav.json` tree
+  chain the sidebar and pager read - the explicit `data/docs_nav.json` tree
   for docs/book sections when it exists, the weighted content tree
-  everywhere else — with child selection shared through the new
+  everywhere else - with child selection shared through the new
   `shell/nav-children.html` partial the flattened reading chain also
   consumes. Array order is the contract; `weight` is never serialized.
   Manual-link placeholders appear as `external`/`link` nodes the way the
@@ -218,7 +218,7 @@ maintainer contracts stable. This entry rolls up every theme change after
   own language. `bin/check-agent-indexes.py` validates schema compliance,
   URL resolution, language isolation, determinism, the explicit-tree order
   (manual links included), and that the docs subtree flattens to exactly the
-  LLMSFULL bundle's page sequence — two template paths, one authority.
+  LLMSFULL bundle's page sequence - two template paths, one authority.
 - Opt-in `LLMSFULL` output format: a per-top-level-section full-text bundle
   (`llms-full.txt`) for agents, concatenating the same semantic Markdown as
   the per-page output in sidebar reading order, one file per language. A
@@ -916,8 +916,8 @@ maintainer contracts stable. This entry rolls up every theme change after
   vocabulary: text and glyph fade to the link color while the soft ground
   fades in beneath them, on the 150ms Tailwind colors curve
   (`--td-shell-ease-color`) instead of a hard background swap. Every other
-  anchor sitewide — article links, sidebar and TOC entries, cards, badges,
-  pagers — inherits the same colors transition from the base layer, so any
+  anchor sitewide - article links, sidebar and TOC entries, cards, badges,
+  pagers - inherits the same colors transition from the base layer, so any
   hover that changes color, background, or border glides instead of
   snapping. Reduced motion zeroes the shared duration tokens, so the fades
   collapse to instant changes there.
@@ -1253,8 +1253,8 @@ fail the build with the new name rather than being silently ignored.
   existing calls.
 - **Breaking.** The Prism highlighting path, `params.prism_syntax_highlighting`,
   `static/js/prism.js`, and `static/css/prism.css`. Prism could not coexist
-  with the attributes this theme's code blocks are built on — `tab`, `group`,
-  `value`, `num`, and `caption` all require Chroma — so any site using tabs or
+  with the attributes this theme's code blocks are built on - `tab`, `group`,
+  `value`, `num`, and `caption` all require Chroma - so any site using tabs or
   numbered examples failed the build the moment it opted in, while every site
   paid 55 KB of published assets whether it enabled Prism or not. Chroma with
   `params.highlight_classes` is the only highlighter.
@@ -1294,7 +1294,7 @@ fail the build with the new name rather than being silently ignored.
 
 - Landing section `preview`: a Markdown `source` beside what the theme
   renders from it. The rendered pane is the real renderer (`RenderString`
-  through the site's hooks — callouts, `{.steps}`, adjacent-fence tabs, and
+  through the site's hooks - callouts, `{.steps}`, adjacent-fence tabs, and
   fences all appear as on a docs page and register their runtimes); the
   source pane is Chroma-highlighted Markdown on the terminal surface. Markdown
   output emits the source as a fence; RSS omits Landing sections. Pane labels
@@ -1343,7 +1343,7 @@ fail the build with the new name rather than being silently ignored.
 - **Breaking.** Configuration keys converge on three rules ahead of the 1.0
   API freeze: a boolean
   switch is the bare feature name (`ui.annotation: true`, not
-  `ui.annotation.enable` or `ui.annotation_enabled` — the only `_enabled`
+  `ui.annotation.enable` or `ui.annotation_enabled` - the only `_enabled`
   suffixes left are `ui.navbar_enabled`, `ui.sidebar_enabled`, and
   `ui.sidebar_root_enabled`, whose bare names would collide with sibling
   keys); a single-key map is flattened to a scalar, and the maps that stay
@@ -1403,11 +1403,11 @@ fail the build with the new name rather than being silently ignored.
   `bin/check-params.py` enforces the key rules and the legacy-key errors.
 
   Rule 3 has no exceptions any more. Every `params.ui.*` setting that a page
-  may override — the Docsy sidebar family (`sidebar_menu_compact`,
+  may override - the Docsy sidebar family (`sidebar_menu_compact`,
   `sidebar_menu_foldable`, `sidebar_expand_levels`, `sidebar_width_*`,
   `sidebar_item_overflow`, `sidebar_headings`, `sidebar_enabled`),
   `section_index`, `section_index_columns`, `lastmod_commit`, `breadcrumb`,
-  `scroll_spy`, `code_copy`, `keyboard_nav`, `book_draft_banner` — is read
+  `scroll_spy`, `code_copy`, `keyboard_nav`, `book_draft_banner` - is read
   through one helper (`ui-param.html`) that takes the bare key from front
   matter or a cascade (`section_index: cards`), not `params.ui.section_index`.
   Front matter never carries a `ui:` block; one that does fails the build
@@ -1426,7 +1426,7 @@ fail the build with the new name rather than being silently ignored.
   are `data-td-*`; CSS custom properties are `--td-*` (`--oink-*` and
   `--term-*` are gone); the ECharts extension point is
   `window.OinkEchartsFunctions`. The site header and nav are now
-  `td-site-header` / `td-site-nav` / `td-site-container` — they style every
+  `td-site-header` / `td-site-nav` / `td-site-container` - they style every
   page, not only a landing page, and the old names said otherwise.
   `check-namespace.py` keeps it that way.
 - **Breaking.** Callout labels are namespaced i18n keys (`callout_note`,
@@ -1448,8 +1448,8 @@ fail the build with the new name rather than being silently ignored.
 - Print output loads 7.9 KB instead of 100 KB: it keeps the action runtime its
   "click to print" control needs and drops Bootstrap, the navbar, the sidebar,
   the palette, and the scroll spy, none of which a print view can use.
-- Both sidebar sources — the content tree and an explicit `data/docs_nav.json`
-  tree — render through one row partial, `shell/sidebar-node.html`. The two
+- Both sidebar sources - the content tree and an explicit `data/docs_nav.json`
+  tree - render through one row partial, `shell/sidebar-node.html`. The two
   walkers keep their own tree traversal; everything a reader can see is now
   written once instead of being kept in sync by a check script.
 - Every shortcode validates its parameters through
@@ -1482,10 +1482,10 @@ fail the build with the new name rather than being silently ignored.
   the tokens instead of maintaining a per-selector opt-out list that drifted
   (12 selectors covered 42 rules; four files had no guard at all).
 - `bin/migrations/oink06.py` gains a `frontmatter` transform (run first)
-  that rewrites the 0.5.0 page-key renames in YAML front matter and cascades —
+  that rewrites the 0.5.0 page-key renames in YAML front matter and cascades  - 
   `manualLink*`, `context_menu`, `hide_readingtime`, `hide_feedback`,
   `exclude_search`/`excludeSearch`, `content_width`, `assistant_links`,
-  `annotation: {enable}`, and any `ui:` block (lifted to bare keys) — with
+  `annotation: {enable}`, and any `ui:` block (lifted to bare keys) - with
   findings for anything it will not guess at; TOML/JSON front matter is
   reported, not rewritten. Dry-run over the eleven in-house sites: 628 files,
   0 findings, idempotent.
@@ -1553,8 +1553,8 @@ fail the build with the new name rather than being silently ignored.
 - Folded (`[!TYPE]-` / `[!DETAILS]`) callouts get symmetric summary padding:
   the print-only static title rule no longer zeroes the `<summary>` bottom
   padding, and the open state keeps the static callout's title-to-body rhythm.
-- The image resolver labels its errors by the caller — a Markdown image says
-  `image`, not `shortcode` — so a failure names something the author can find.
+- The image resolver labels its errors by the caller - a Markdown image says
+  `image`, not `shortcode` - so a failure names something the author can find.
 - Book `fig` sources resolve through the shared image resolver, and
   configuration image sources are held to the same URL policy as content.
 - The navbar renders on the home page; callout titles meet contrast; Gallery
@@ -1721,7 +1721,7 @@ fail the build with the new name rather than being silently ignored.
   cascade, or per page; disabling it restores the previous chrome (mobile
   subnav, sidebar brand and search rows, TOC-rail utility buttons, sidebar
   footer utilities). The navbar has exactly two states: full, and a compact
-  state below `lg` that keeps every item visible as a right-aligned icon —
+  state below `lg` that keeps every item visible as a right-aligned icon  - 
   there is no separate mobile menu, and the `navbar_accordion_single_open`
   parameter is retired. Menu parents are plain links that open their panel on
   hover or keyboard focus (no disclosure caret); the version selector, the
@@ -1734,7 +1734,7 @@ fail the build with the new name rather than being silently ignored.
   copyright line on every layout, `slim` keeps only the line, and `none`
   removes the footer; an unknown value fails the build. Fat-footer data now
   lives in `data/footer/<lang>.yaml` (or single-language `data/footer.yaml`),
-  with the legacy `data/home/<lang>.yaml` `footer` key still honored — note
+  with the legacy `data/home/<lang>.yaml` `footer` key still honored - note
   that sites using the legacy key now get the fat footer site-wide, where it
   was previously homepage-only. A fat footer without data degrades to slim.
 
@@ -1769,14 +1769,14 @@ fail the build with the new name rather than being silently ignored.
 - **`/` now opens the Command Palette in full search mode** (it previously
   opened the command-only mode); the new `\` shortcut opens command-only
   mode, and the `>` prefix keeps working inside the palette. Palette command
-  listings now mirror the navbar control order — version, language, theme,
-  then GitHub — with configured site commands after the built-ins, and the
+  listings now mirror the navbar control order - version, language, theme,
+  then GitHub - with configured site commands after the built-ins, and the
   empty command-only listing keeps this order instead of sorting
   alphabetically.
 - Move the page actions from the collapsible TOC-rail group to a Fumadocs-style
   split button in the breadcrumb row: an icon-only primary copies the page's
   Markdown (flipping to a green check), and the caret disclosure lists ten
-  actions — reading items (copy, assistants, view markdown, view history)
+  actions - reading items (copy, assistants, view markdown, view history)
   above a separator, acting items (edit, create child page, create docs or
   project issue, print entire section) below, plus configured custom links.
   `create_child_page`, `create_project_issue`, and `print_section` are now
@@ -1795,11 +1795,11 @@ fail the build with the new name rather than being silently ignored.
   `sidebar_root_for: self`, listing the section itself (the default) plus each
   opted-in descendant. Sibling top-level sections belong to the navbar, and a
   section without switchable descendants renders a plain, unboxed link to its
-  landing page — flush with the tree's top-level rows — instead of a
+  landing page - flush with the tree's top-level rows - instead of a
   single-entry dropdown. Taxonomy term pages adopt their members' shared top
   section for both the sidebar tree and the root link, so following a docs tag
   keeps the docs navigation instead of falling back to the site-wide tree. Blog leaf pages no longer show an RSS
-  icon — feeds belong to the blog root and its sections. Fix the blank seam
+  icon - feeds belong to the blog root and its sections. Fix the blank seam
   between the sidebar's lower edge and the footer while scrolling.
 
 - Pin the navbar to the viewport edges on shell pages: the brand logo sits in

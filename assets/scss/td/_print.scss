@@ -270,4 +270,45 @@
   .td-content-cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .td-book-cover-page {
+    page-break-before: always !important;
+    page-break-after: always !important;
+    break-before: page !important;
+    break-after: page !important;
+    min-height: 95vh !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+
+    img {
+      max-height: 94vh !important;
+      max-width: 95% !important;
+      width: auto !important;
+      box-shadow: none !important;
+    }
+  }
+
+  .td-book-print-page {
+    page-break-before: always !important;
+    break-before: page !important;
+    padding-top: 1.5rem !important;
+  }
+}
+
+.td-book-cover-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-block: 2.5rem;
+
+  img {
+    max-height: 85vh;
+    max-width: 100%;
+    width: auto;
+    border-radius: 8px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  }
 }

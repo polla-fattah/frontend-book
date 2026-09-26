@@ -36,11 +36,11 @@ The first verification pass found no critical factual error in the sampled high-
 
 ## Confirmed areas
 
-### Chapter 1 — speculative resource discovery
+### Chapter 1 - speculative resource discovery
 
 The text explicitly avoids claiming that a preload scanner is always a separate thread and correctly limits the claim to possible discovery of available markup. It also states that JavaScript-created and CSS-buried resources may be discovered later. No change is required from this pass.
 
-### Chapter 3 — cascade layers
+### Chapter 3 - cascade layers
 
 The manuscript correctly states that, within the relevant author-origin context:
 
@@ -52,27 +52,27 @@ The manuscript correctly states that, within the relevant author-origin context:
 
 This matches [MDN’s cascade-layer guidance](https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Cascade_layers) and [MDN’s `!important` reference](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/important).
 
-### Chapter 5 — TypeScript assertions and runtime validation
+### Chapter 5 - TypeScript assertions and runtime validation
 
 The examples correctly explain that `as User` changes compile-time interpretation, is erased by compilation, and does not inspect or validate runtime data. This matches the [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html).
 
 The treatment of branded types as an advanced pattern is appropriate.
 
-### Chapter 7 — React and Vue
+### Chapter 7 - React and Vue
 
 The chapter correctly distinguishes React Effects, refs, and memoization from Vue’s computed values and watchers. It also correctly teaches that Effects/watchers are not the default mechanism for ordinary derivation.
 
 React’s current documentation describes `useEffect` as synchronization with external systems, `useRef` as storage that does not trigger re-rendering, and `useMemo` as a performance optimization rather than a semantic guarantee: [useEffect](https://react.dev/reference/react/useEffect), [useRef](https://react.dev/reference/react/useRef), [useMemo](https://react.dev/reference/react/useMemo). Vue’s documentation similarly distinguishes computed derivation from watchers: [Vue watchers](https://vuejs.org/guide/essentials/watchers).
 
-### Chapter 9 — Fetch and HTTP status handling
+### Chapter 9 - Fetch and HTTP status handling
 
 The manuscript correctly states that `fetch()` fulfills with a `Response` for HTTP statuses such as 404 or 500 and rejects for conditions such as network failure. This matches [MDN’s Fetch documentation](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch).
 
-### Chapter 10 — offline and background capabilities
+### Chapter 10 - offline and background capabilities
 
 The manuscript correctly treats Background Sync as an enhancement, not a foundation, and correctly warns that `navigator.onLine` is only an indication of network connectivity. [MDN documents Background Sync as limited availability](https://developer.mozilla.org/en-US/docs/Web/API/Background_Synchronization_API) and warns that the `online` event does not prove a particular website is reachable](https://developer.mozilla.org/en-US/docs/Web/API/Window/online_event).
 
-### Chapter 11 — rendering topologies
+### Chapter 11 - rendering topologies
 
 The chapter correctly separates:
 
@@ -83,13 +83,13 @@ The chapter correctly separates:
 
 No critical correction was identified in this pass.
 
-### Chapter 13 — security boundaries
+### Chapter 13 - security boundaries
 
 The chapter correctly distinguishes CORS from authentication and authorization, identifies OAuth as primarily delegated authorization, treats OpenID Connect as adding identity/authentication semantics, and presents PKCE and exact redirect URI validation as modern browser-flow concerns.
 
 The current OAuth security baseline is [RFC 9700](https://www.rfc-editor.org/info/rfc9700), which recommends PKCE for public clients and requires authorization servers to support it. The newer browser-based application guidance is [RFC 10017](https://www.rfc-editor.org/rfc/rfc10017.html).
 
-### Chapter 15 — Core Web Vitals
+### Chapter 15 - Core Web Vitals
 
 The chapter’s current set and “good” thresholds are correct:
 
@@ -101,13 +101,13 @@ The chapter’s current set and “good” thresholds are correct:
 
 The manuscript also correctly identifies field data, p75 evaluation, lab diagnostics, and Lighthouse as distinct concepts. These points align with [web.dev’s Core Web Vitals threshold guidance](https://web.dev/articles/defining-core-web-vitals-thresholds) and [field/lab measurement guidance](https://web.dev/articles/vitals-measurement-getting-started).
 
-### Chapter 16 — testing and accessibility
+### Chapter 16 - testing and accessibility
 
 The chapter correctly presents accessible names as a web accessibility concept rather than a Testing Library invention. It also correctly treats role/name queries as useful but insufficient proof of accessibility, allows test IDs as fallbacks, and avoids banning CSS selectors absolutely.
 
 This aligns with the W3C material on [accessible names and descriptions](https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/) and [Accessible Name and Description Computation](https://www.w3.org/WAI/news/2018-12-18/accessible-name-and-description-computation-accname-is-a-w3c-recommendation/).
 
-### Chapter 17 — OpenTelemetry and feature flags
+### Chapter 17 - OpenTelemetry and feature flags
 
 The chapter’s caution is accurate. The official OpenTelemetry JavaScript documentation currently labels browser client instrumentation as experimental and mostly unspecified: [OpenTelemetry JavaScript](https://opentelemetry.io/docs/languages/js/) and [browser guidance](https://opentelemetry.io/docs/languages/js/getting-started/browser/).
 
@@ -115,7 +115,7 @@ The text also correctly states that browser-delivered feature flags are visible 
 
 ## Clarifications recommended
 
-### T1 — Chapter 9: avoid “Application Cache” ambiguity
+### T1 - Chapter 9: avoid “Application Cache” ambiguity
 
 Locations: `chapters/chapter09.md:1814`, `chapters/chapter09.md:4024`.
 
@@ -123,7 +123,7 @@ The explanatory text itself says “application-level query cache” and “appl
 
 Recommendation: use **application/query cache** or **application-level server-state cache** consistently. Reserve **Application Cache API** for historical discussion of the deprecated platform feature, if it is mentioned at all.
 
-### T1 — Chapter 10: distinguish `Cache`, `CacheStorage`, and “Cache API” more precisely
+### T1 - Chapter 10: distinguish `Cache`, `CacheStorage`, and “Cache API” more precisely
 
 Locations: `chapters/chapter10.md:1385`, `chapters/chapter10.md:3685`.
 
@@ -131,33 +131,33 @@ The statement that Cache API storage represents Request/Response pairs is concep
 
 Recommendation: revise the first introduction to say “The Cache interface stores Request/Response pairs; CacheStorage manages named Cache objects.” Keep the broader educational term “Cache API” as an umbrella only after defining these interfaces.
 
-### T1 — Chapter 12: qualify Vite 8/Rolldown claims
+### T1 - Chapter 12: qualify Vite 8/Rolldown claims
 
-Locations: `chapters/chapter12.md:799–815`, `chapters/chapter12.md:1429`.
+Locations: `chapters/chapter12.md:799-815`, `chapters/chapter12.md:1429`.
 
 The claims are current as of the audit date: Vite 8 uses Rolldown as its unified Rust-based bundler. This is confirmed by [the Vite 8 announcement](https://vite.dev/blog/announcing-vite8) and [the Vite migration guide](https://vite.dev/guide/migration).
 
 Because build-tool details are time-sensitive, keep the durable architecture explanation first and qualify implementation-specific wording with “Vite 8” or “in the current Vite 8 toolchain.” Avoid wording that implies all historical or future Vite versions share the same internals.
 
-### T1 — Chapter 13: refine the COEP diagram and wording
+### T1 - Chapter 13: refine the COEP diagram and wording
 
-Locations: `chapters/chapter13.md:2448–2509`.
+Locations: `chapters/chapter13.md:2448-2509`.
 
 The prose says a strong COEP policy may require compatible CORS or CORP, which is directionally correct. The diagram text “Embedded Resources Need Compatible CORS/CORP” can be read as requiring both mechanisms for every resource. In practice, CORS-mode requests are governed by CORS, while `no-cors` resources may need CORP under `COEP: require-corp`; `credentialless` changes the conditions. See [MDN COEP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy) and [MDN CORP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cross-Origin_Resource_Policy).
 
 Recommendation: change the diagram label to something such as “Cross-origin resources must satisfy the applicable CORS/CORP conditions.”
 
-### T2 — Chapter 13: strengthen OAuth wording
+### T2 - Chapter 13: strengthen OAuth wording
 
-Locations: `chapters/chapter13.md:1882–1885`.
+Locations: `chapters/chapter13.md:1882-1885`.
 
 “Modern OAuth security guidance strongly favors PKCE” is safe but less precise than current guidance. For browser-based public clients, current best practice is stronger: PKCE is required, and authorization servers must support it under RFC 9700/RFC 10017.
 
 Recommendation: state the requirement with deployment scope: “Browser-based public clients should use the Authorization Code flow with PKCE; current OAuth security guidance requires PKCE for public clients.” Preserve caveats for legacy providers and interoperability.
 
-### T2 — Chapter 15: preserve the current-metrics qualifier
+### T2 - Chapter 15: preserve the current-metrics qualifier
 
-Locations: `chapters/chapter15.md:159–175`, `chapters/chapter15.md:3588–3612`.
+Locations: `chapters/chapter15.md:159-175`, `chapters/chapter15.md:3588-3612`.
 
 The content is accurate now. Retain “current” and the audit date in the review log because Core Web Vitals definitions and thresholds are time-sensitive. The manuscript appropriately avoids treating Lighthouse as the performance objective.
 

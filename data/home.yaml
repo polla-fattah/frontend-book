@@ -50,7 +50,7 @@ metrics:
     desc: framework comparisons, browser APIs, and deployment
   - value: 18
     label: Lecture decks
-    desc: presentation materials for Chapters 1–18
+    desc: presentation materials for Chapters 1-18
   - value: 18
     label: Practical briefs
     desc: one guided exercise for each chapter
@@ -72,46 +72,46 @@ paths:
   items:
   - name: The complete path
     icon: fa-solid fa-seedling
-    meta: Chapters 1–18
+    meta: Chapters 1-18
     desc: Follow the platform, application, and production topics in order.
     url: book/chapter_01_the_modern_web_platform_and_browser_internals/
   - name: Platform foundations
     icon: fa-solid fa-code
-    meta: Chapters 1–5
+    meta: Chapters 1-5
     desc: Strengthen browser, HTML, accessibility, CSS, JavaScript, and TypeScript knowledge.
     url: book/chapter_01_the_modern_web_platform_and_browser_internals/
   - name: Application architecture
     icon: fa-solid fa-layer-group
-    meta: Chapters 6–14
+    meta: Chapters 6-14
     desc: Explore components, reactivity, state, APIs, offline systems, rendering, tooling, security,
       and scale.
     url: book/chapter_06_component_driven_architecture_and_design_patterns/
   - name: Production engineering
     icon: fa-solid fa-gauge-high
-    meta: Chapters 15–18
+    meta: Chapters 15-18
     desc: Investigate performance, test resilient interfaces, plan delivery, and justify architectural
       choices.
     url: book/chapter_15_core_web_vitals_and_performance_engineering/
 timeline:
   title: The arc of the book
   items:
-  - date: Chapters 1–5
+  - date: Chapters 1-5
     title: Understand the web platform
     desc: Browser internals, semantic HTML, accessibility, CSS, JavaScript, and safe TypeScript boundaries.
     url: book/chapter_01_the_modern_web_platform_and_browser_internals/
-  - date: Chapters 6–8
+  - date: Chapters 6-8
     title: Structure interactive applications
     desc: Component design, rendering mechanics, state management, routing, and forms.
     url: book/chapter_06_component_driven_architecture_and_design_patterns/
-  - date: Chapters 9–11
+  - date: Chapters 9-11
     title: Connect data and rendering
     desc: API communication, caching, real-time and offline systems, and rendering topologies.
     url: book/chapter_09_client_server_communication_apis_and_cache_management/
-  - date: Chapters 12–14
+  - date: Chapters 12-14
     title: Build and scale responsibly
     desc: Build tools, team workflows, security, design systems, monorepos, and micro-frontends.
     url: book/chapter_12_modern_build_systems_development_tooling_and_team_workflows/
-  - date: Chapters 15–18
+  - date: Chapters 15-18
     title: Measure, deliver, and decide
     desc: Performance, testing, continuous delivery, observability, and architectural judgment.
     url: book/chapter_15_core_web_vitals_and_performance_engineering/
@@ -217,7 +217,7 @@ faq:
       follow each brief for its requirements. Runnable companion implementations are planned for a separate
       repository.
   - question: Are lecture slides available?
-    answer: There are currently 18 lecture decks covering Chapters 1–18. Open a deck from Lecture slides
+    answer: There are currently 18 lecture decks covering Chapters 1-18. Open a deck from Lecture slides
       to present it or use its print layout.
   - question: Where should I begin?
     answer: Start with Chapter 1 for the full progression, or choose a learning path above to revisit

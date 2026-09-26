@@ -4,6 +4,9 @@
 {{- $sequence := partial "book/pages.html" . -}}
 {{- $pages := slice -}}
 {{- range $sequence }}{{ if or (eq . $section) (ne .Params.no_print true) }}{{ $pages = $pages | append . }}{{ end }}{{ end -}}
+<div class="td-book-cover-page td-book-cover-front text-center mb-5">
+  <img src="{{ "images/cover-front.png" | relURL }}" alt="Modern Front-End Engineering - Front Cover" class="img-fluid rounded shadow" style="max-height: 85vh; object-fit: contain;">
+</div>
 <div class="td-content td-book-print-cover">
   {{ partial "print/page-heading.html" $section }}
   <nav class="td-book-print-toc" aria-label="{{ T "book_toc" }}">
@@ -24,3 +27,6 @@
   {{ $content }}
 </section>
 {{- end -}}
+<div class="td-book-cover-page td-book-cover-back text-center mt-5 pt-4">
+  <img src="{{ "images/cover-back.png" | relURL }}" alt="Modern Front-End Engineering - Back Cover" class="img-fluid rounded shadow" style="max-height: 85vh; object-fit: contain;">
+</div>

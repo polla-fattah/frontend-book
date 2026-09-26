@@ -2,7 +2,7 @@
 
 *From Browser Fundamentals to Production Architecture*
 
-## Detailed Chapter Specifications — Version 1.1
+## Detailed Chapter Specifications - Version 1.1
 
 ---
 
@@ -89,9 +89,9 @@ The book should avoid becoming dependent on particular library versions whenever
 
 ---
 
-# Part I — The Web Platform, Languages & Browser Runtime
+# Part I - The Web Platform, Languages & Browser Runtime
 
-# Chapter 1 — The Modern Web Platform & Browser Internals
+# Chapter 1 - The Modern Web Platform & Browser Internals
 
 ## Purpose
 
@@ -360,7 +360,7 @@ Correct ideas such as:
 
 ---
 
-# Chapter 2 — Semantic HTML, Accessibility, Internationalization & the DOM
+# Chapter 2 - Semantic HTML, Accessibility, Internationalization & the DOM
 
 ## Purpose
 
@@ -592,7 +592,7 @@ Construct a small multilingual service interface with:
 
 ---
 
-# Chapter 3 — Modern CSS Architecture & Layout Systems
+# Chapter 3 - Modern CSS Architecture & Layout Systems
 
 ## Purpose
 
@@ -805,7 +805,7 @@ Develop a dashboard or catalogue interface supporting:
 
 ---
 
-# Chapter 4 — Modern JavaScript & Asynchronous Programming
+# Chapter 4 - Modern JavaScript & Asynchronous Programming
 
 ## Purpose
 
@@ -973,7 +973,7 @@ Examples should include:
 
 ---
 
-# Chapter 5 — TypeScript, Runtime Contracts & Safe Data Boundaries
+# Chapter 5 - TypeScript, Runtime Contracts & Safe Data Boundaries
 
 ## Purpose
 
@@ -1172,9 +1172,9 @@ Show:
 
 ---
 
-# Part II — Component Architecture & Application State
+# Part II - Component Architecture & Application State
 
-# Chapter 6 — Component-Driven Architecture & Design Patterns
+# Chapter 6 - Component-Driven Architecture & Design Patterns
 
 ## Purpose
 
@@ -1312,7 +1312,7 @@ Then show comparable component arrangements in React and Vue.
 
 ---
 
-# Chapter 7 — Reactivity & Rendering Mechanics
+# Chapter 7 - Reactivity & Rendering Mechanics
 
 ## Purpose
 
@@ -1456,7 +1456,7 @@ Implement equivalent behavior in React and Vue and trace which parts of the UI u
 
 ---
 
-# Chapter 8 — State Management, Routing & Form Architecture
+# Chapter 8 - State Management, Routing & Form Architecture
 
 ## Purpose
 
@@ -1622,9 +1622,9 @@ Build a searchable administrative/catalogue interface with:
 
 ---
 
-# Part III — Data, Networking & Rendering Topologies
+# Part III - Data, Networking & Rendering Topologies
 
-# Chapter 9 — Client-Server Communication, APIs & Cache Management
+# Chapter 9 - Client-Server Communication, APIs & Cache Management
 
 ## Purpose
 
@@ -1790,7 +1790,7 @@ Build a CRUD-style application supporting:
 
 ---
 
-# Chapter 10 — Real-Time Communication, Offline Systems & Client Persistence
+# Chapter 10 - Real-Time Communication, Offline Systems & Client Persistence
 
 ## Purpose
 
@@ -1947,7 +1947,7 @@ Use two small examples rather than one overloaded application:
 
 ---
 
-# Chapter 11 — Rendering Topologies: CSR, SSR, SSG & Beyond
+# Chapter 11 - Rendering Topologies: CSR, SSR, SSG & Beyond
 
 ## Purpose
 
@@ -2188,9 +2188,9 @@ Inspect:
 
 ---
 
-# Part IV — Tooling, Security & Front-End Scale
+# Part IV - Tooling, Security & Front-End Scale
 
-# Chapter 12 — Modern Build Systems, Development Tooling & Team Workflows
+# Chapter 12 - Modern Build Systems, Development Tooling & Team Workflows
 
 ## Purpose
 
@@ -2350,7 +2350,7 @@ Inspect:
 
 ---
 
-# Chapter 13 — Front-End Security, Authentication & Browser Isolation
+# Chapter 13 - Front-End Security, Authentication & Browser Isolation
 
 ## Purpose
 
@@ -2571,7 +2571,7 @@ Use small attack/correction exercises:
 
 ---
 
-# Chapter 14 — Scaling Front-End Architecture: Design Systems, Monorepos & Micro-Frontends
+# Chapter 14 - Scaling Front-End Architecture: Design Systems, Monorepos & Micro-Frontends
 
 ## Purpose
 
@@ -2765,9 +2765,9 @@ The case should show trade-offs rather than produce one universal answer.
 
 ---
 
-# Part V — Performance, Quality & Production Engineering
+# Part V - Performance, Quality & Production Engineering
 
-# Chapter 15 — Core Web Vitals & Performance Engineering
+# Chapter 15 - Core Web Vitals & Performance Engineering
 
 ## Purpose
 
@@ -2914,7 +2914,7 @@ Improve it based on measurements and compare before/after results.
 
 ---
 
-# Chapter 16 — Testing Strategies for Resilient Interfaces
+# Chapter 16 - Testing Strategies for Resilient Interfaces
 
 ## Purpose
 
@@ -3152,7 +3152,7 @@ Then identify which tests are redundant.
 
 ---
 
-# Chapter 17 — Continuous Delivery, Observability & Maintenance
+# Chapter 17 - Continuous Delivery, Observability & Maintenance
 
 ## Purpose
 
@@ -3311,7 +3311,7 @@ Follow one feature through:
 
 ---
 
-# Chapter 18 — Front-End Architecture & Technical Decision-Making
+# Chapter 18 - Front-End Architecture & Technical Decision-Making
 
 ## Purpose
 
@@ -3554,7 +3554,7 @@ Its role is synthesis and judgment.
 
 ---
 
-# Appendix A — The Front-End Architectural Rosetta Stone
+# Appendix A - The Front-End Architectural Rosetta Stone
 
 ## Purpose
 
@@ -3587,7 +3587,7 @@ It is not a replacement for dedicated React or Vue documentation.
 
 ---
 
-# Appendix B — Modern Browser APIs Reference
+# Appendix B - Modern Browser APIs Reference
 
 ## Purpose
 
@@ -3629,7 +3629,7 @@ Each entry should explain:
 
 ---
 
-# Appendix C — Front-End Production Deployment Checklist
+# Appendix C - Front-End Production Deployment Checklist
 
 ## Purpose
 

@@ -1,6 +1,6 @@
 The plan should treat **each chapter, its slide deck, and its Playground practical as one teaching unit**. Improving the prose alone would leave the teaching materials out of sync.
 
-Your concern about mechanical writing becomes a primary requirement across all 18 chapters. The aim is a connected explanation that develops an idea—not a sequence of definitions, warnings, and miniature sections.
+Your concern about mechanical writing becomes a primary requirement across all 18 chapters. The aim is a connected explanation that develops an idea - not a sequence of definitions, warnings, and miniature sections.
 
 This is a plan only; no manuscript changes have been made.
 
@@ -10,7 +10,7 @@ This is a plan only; no manuscript changes have been made.
 - **Establish direction early.** Explain what the reader will understand and how it connects to earlier chapters, without lengthy inventories of forthcoming topics.
 - **Develop ideas in dependency order.** Introduce the problem, explain the mechanism, demonstrate it, then discuss implications and alternatives.
 - **Write connected prose.** Combine unnecessary one-sentence paragraphs, repetitive rhetorical questions, and disconnected lists. Keep lists where they genuinely help.
-- **Use natural headings.** Prefer “Headings and document structure” to a bare tag or code fragment. Retain identifiers where precision matters—for example, “Canceling requests with `AbortController`.” Do not mechanically strip code formatting or replace useful headings with vague labels.
+- **Use natural headings.** Prefer “Headings and document structure” to a bare tag or code fragment. Retain identifiers where precision matters - for example, “Canceling requests with `AbortController`.” Do not mechanically strip code formatting or replace useful headings with vague labels.
 - **Group related micro-sections.** Use major sections for substantial ideas and subsections for supporting explanations. Do not impose equal chapter lengths or a fixed section count.
 - **Preserve intentional examples.** A placeholder inside a clearly labeled template is not unfinished prose. A heading inside a code fence is not part of the document outline.
 - **Make transitions explicit.** Explain why the next concept follows from the previous one.
@@ -221,8 +221,8 @@ The individual prompts also need to maintain these shared relationships:
 - **Chapter 1 → Chapter 15:** browser observation first; deeper performance investigation later.
 - **Chapter 4 → Chapter 5:** JavaScript behavior before advanced TypeScript requirements.
 - **Chapter 2 → Chapters 6 and 16:** semantics and keyboard behavior remain consistent in component and testing examples.
-- **Chapters 8–10:** use compatible state, cache, request, persistence, and recovery terminology.
-- **Chapters 11–12:** distinguish rendering decisions from build-tool implementation.
+- **Chapters 8-10:** use compatible state, cache, request, persistence, and recovery terminology.
+- **Chapters 11-12:** distinguish rendering decisions from build-tool implementation.
 - **Chapters 13 and 17:** align security boundaries, release practices, telemetry, and operational ownership.
 - **Chapters 14 and 18:** align organizational trade-offs and decision-making guidance.
 
@@ -238,7 +238,7 @@ Keep chapter filenames, page URLs, numbering, and front-matter contracts stable 
 
 **Order and completion criteria**
 
-Work through Chapters **1–18 in order**, establishing the editorial approach in Chapter 1 without turning it into a rigid template for the rest. Review shared consistency again after Chapters 5, 10, 14, and 18.
+Work through Chapters **1-18 in order**, establishing the editorial approach in Chapter 1 without turning it into a rigid template for the rest. Review shared consistency again after Chapters 5, 10, 14, and 18.
 
 A chapter is complete only when:
 

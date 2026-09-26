@@ -51,9 +51,9 @@ However, it does explain the JavaScript, browser, TypeScript, architectural, and
 
 ---
 
-# Part I — The Web Platform, Languages & Browser Runtime
+# Part I - The Web Platform, Languages & Browser Runtime
 
-## Chapter 1 — The Modern Web Platform & Browser Internals
+## Chapter 1 - The Modern Web Platform & Browser Internals
 
 This chapter explains what actually happens between entering a URL and seeing an interactive application.
 
@@ -119,7 +119,7 @@ The reader understands the browser as a runtime and can reason about how front-e
 
 ---
 
-## Chapter 2 — Semantic HTML, Accessibility, Internationalization & the DOM
+## Chapter 2 - Semantic HTML, Accessibility, Internationalization & the DOM
 
 This chapter establishes the structural and semantic foundations of web applications.
 
@@ -205,7 +205,7 @@ The reader can construct meaningful, accessible, multilingual web interfaces and
 
 ---
 
-## Chapter 3 — Modern CSS Architecture & Layout Systems
+## Chapter 3 - Modern CSS Architecture & Layout Systems
 
 This chapter moves from CSS syntax toward maintainable, responsive, and internationalized interface architecture.
 
@@ -289,7 +289,7 @@ The reader can design responsive, accessible, maintainable, and direction-indepe
 
 ---
 
-## Chapter 4 — Modern JavaScript & Asynchronous Programming
+## Chapter 4 - Modern JavaScript & Asynchronous Programming
 
 This chapter assumes basic JavaScript syntax and develops the language concepts necessary for modern application engineering.
 
@@ -361,7 +361,7 @@ The reader can reason about modern JavaScript execution, asynchronous control fl
 
 ---
 
-## Chapter 5 — TypeScript, Runtime Contracts & Safe Data Boundaries
+## Chapter 5 - TypeScript, Runtime Contracts & Safe Data Boundaries
 
 This chapter introduces type-driven application design without confusing compile-time safety with runtime trust.
 
@@ -430,9 +430,9 @@ The reader understands how static typing and runtime validation work together to
 
 ---
 
-# Part II — Component Architecture & Application State
+# Part II - Component Architecture & Application State
 
-## Chapter 6 — Component-Driven Architecture & Design Patterns
+## Chapter 6 - Component-Driven Architecture & Design Patterns
 
 This chapter develops component thinking independently of any single framework.
 
@@ -496,7 +496,7 @@ The reader can design coherent component boundaries and reusable component APIs 
 
 ---
 
-## Chapter 7 — Reactivity & Rendering Mechanics
+## Chapter 7 - Reactivity & Rendering Mechanics
 
 This chapter explains how frameworks detect application changes and synchronize them with the user interface.
 
@@ -559,7 +559,7 @@ The reader understands why modern UI frameworks update differently and can reaso
 
 ---
 
-## Chapter 8 — State Management, Routing & Form Architecture
+## Chapter 8 - State Management, Routing & Form Architecture
 
 This chapter focuses on where application state belongs and how navigation and user input affect that state.
 
@@ -636,9 +636,9 @@ The reader can classify application state, determine ownership, architect naviga
 
 ---
 
-# Part III — Data, Networking & Rendering Topologies
+# Part III - Data, Networking & Rendering Topologies
 
-## Chapter 9 — Client-Server Communication, APIs & Cache Management
+## Chapter 9 - Client-Server Communication, APIs & Cache Management
 
 This chapter explains how front-end applications communicate with backend systems and manage remote data.
 
@@ -726,7 +726,7 @@ The reader can design resilient client-server data flows and reason about cache 
 
 ---
 
-## Chapter 10 — Real-Time Communication, Offline Systems & Client Persistence
+## Chapter 10 - Real-Time Communication, Offline Systems & Client Persistence
 
 This chapter covers applications whose data cannot be modeled solely as isolated HTTP request-response operations.
 
@@ -793,7 +793,7 @@ The reader can design front-end applications for real-time communication, browse
 
 ---
 
-## Chapter 11 — Rendering Topologies: CSR, SSR, SSG & Beyond
+## Chapter 11 - Rendering Topologies: CSR, SSR, SSG & Beyond
 
 This chapter compares the major models for turning application data and components into user-visible interfaces.
 
@@ -882,9 +882,9 @@ The reader can identify rendering topologies and choose an appropriate strategy 
 
 ---
 
-# Part IV — Tooling, Security & Front-End Scale
+# Part IV - Tooling, Security & Front-End Scale
 
-## Chapter 12 — Modern Build Systems, Development Tooling & Team Workflows
+## Chapter 12 - Modern Build Systems, Development Tooling & Team Workflows
 
 This chapter explains the infrastructure surrounding modern front-end development.
 
@@ -960,7 +960,7 @@ The reader understands the development and build pipeline rather than treating i
 
 ---
 
-## Chapter 13 — Front-End Security, Authentication & Browser Isolation
+## Chapter 13 - Front-End Security, Authentication & Browser Isolation
 
 This chapter examines the browser security model and the security responsibilities of front-end applications.
 
@@ -1040,7 +1040,7 @@ This chapter examines the browser security model and the security responsibiliti
 * package provenance concepts
 * third-party scripts
 
-### Cross-Origin Isolation — Advanced
+### Cross-Origin Isolation - Advanced
 
 * COOP
 * COEP
@@ -1054,7 +1054,7 @@ The reader understands the major browser security threats, authentication models
 
 ---
 
-## Chapter 14 — Scaling Front-End Architecture: Design Systems, Monorepos & Micro-Frontends
+## Chapter 14 - Scaling Front-End Architecture: Design Systems, Monorepos & Micro-Frontends
 
 This chapter focuses on architectural concerns that become important as applications, teams, and organizations grow.
 
@@ -1137,9 +1137,9 @@ The reader can evaluate front-end architecture for large teams and systems witho
 
 ---
 
-# Part V — Performance, Quality & Production Engineering
+# Part V - Performance, Quality & Production Engineering
 
-## Chapter 15 — Core Web Vitals & Performance Engineering
+## Chapter 15 - Core Web Vitals & Performance Engineering
 
 This chapter teaches performance as an evidence-driven engineering activity.
 
@@ -1217,7 +1217,7 @@ The reader can measure, diagnose, and improve real front-end performance rather 
 
 ---
 
-## Chapter 16 — Testing Strategies for Resilient Interfaces
+## Chapter 16 - Testing Strategies for Resilient Interfaces
 
 This chapter presents testing as a risk-management strategy rather than simply a collection of testing frameworks.
 
@@ -1293,7 +1293,7 @@ The reader can create a testing strategy appropriate to the risk and architectur
 
 ---
 
-## Chapter 17 — Continuous Delivery, Observability & Maintenance
+## Chapter 17 - Continuous Delivery, Observability & Maintenance
 
 This chapter deals with what happens after code leaves the developer's workstation.
 
@@ -1363,7 +1363,7 @@ The reader understands that software engineering continues after deployment thro
 
 ---
 
-## Chapter 18 — Front-End Architecture & Technical Decision-Making
+## Chapter 18 - Front-End Architecture & Technical Decision-Making
 
 This final chapter brings together everything learned throughout the book.
 
@@ -1465,7 +1465,7 @@ The reader can move beyond knowing technologies and make defensible engineering 
 
 # Appendices
 
-## Appendix A — The Front-End Architectural Rosetta Stone
+## Appendix A - The Front-End Architectural Rosetta Stone
 
 A side-by-side conceptual and syntax reference comparing:
 
@@ -1496,7 +1496,7 @@ The objective is not to determine which framework is “better,” but to demons
 
 ---
 
-## Appendix B — Modern Browser APIs Reference
+## Appendix B - Modern Browser APIs Reference
 
 A concise practical reference to important browser APIs, including:
 
@@ -1526,7 +1526,7 @@ A concise practical reference to important browser APIs, including:
 
 ---
 
-## Appendix C — Front-End Production Deployment Checklist
+## Appendix C - Front-End Production Deployment Checklist
 
 A concise operational review aid covering:
 
@@ -1609,9 +1609,9 @@ The book should repeatedly reinforce:
 
 The reader progresses through five broad stages.
 
-## Stage 1 — Understanding the Platform
+## Stage 1 - Understanding the Platform
 
-Chapters 1–5
+Chapters 1-5
 
 The reader understands:
 
@@ -1624,9 +1624,9 @@ The reader understands:
 * internationalization;
 * runtime data safety.
 
-## Stage 2 — Engineering Applications
+## Stage 2 - Engineering Applications
 
-Chapters 6–8
+Chapters 6-8
 
 The reader learns:
 
@@ -1637,9 +1637,9 @@ The reader learns:
 * routing;
 * form architecture.
 
-## Stage 3 — Engineering Data & Rendering
+## Stage 3 - Engineering Data & Rendering
 
-Chapters 9–11
+Chapters 9-11
 
 The reader learns:
 
@@ -1652,9 +1652,9 @@ The reader learns:
 * rendering topologies;
 * server/client boundaries.
 
-## Stage 4 — Engineering at Scale
+## Stage 4 - Engineering at Scale
 
-Chapters 12–14
+Chapters 12-14
 
 The reader learns:
 
@@ -1667,9 +1667,9 @@ The reader learns:
 * monorepos;
 * micro-frontends.
 
-## Stage 5 — Engineering for Production
+## Stage 5 - Engineering for Production
 
-Chapters 15–18
+Chapters 15-18
 
 The reader learns:
 
@@ -1684,7 +1684,7 @@ The reader learns:
 
 # Book Structure Summary
 
-## Part I — Web Platform, Languages & Browser Runtime
+## Part I - Web Platform, Languages & Browser Runtime
 
 1. The Modern Web Platform & Browser Internals
 2. Semantic HTML, Accessibility, Internationalization & the DOM
@@ -1692,25 +1692,25 @@ The reader learns:
 4. Modern JavaScript & Asynchronous Programming
 5. TypeScript, Runtime Contracts & Safe Data Boundaries
 
-## Part II — Component Architecture & Application State
+## Part II - Component Architecture & Application State
 
 6. Component-Driven Architecture & Design Patterns
 7. Reactivity & Rendering Mechanics
 8. State Management, Routing & Form Architecture
 
-## Part III — Data, Networking & Rendering Topologies
+## Part III - Data, Networking & Rendering Topologies
 
 9. Client-Server Communication, APIs & Cache Management
 10. Real-Time Communication, Offline Systems & Client Persistence
 11. Rendering Topologies: CSR, SSR, SSG & Beyond
 
-## Part IV — Tooling, Security & Front-End Scale
+## Part IV - Tooling, Security & Front-End Scale
 
 12. Modern Build Systems, Development Tooling & Team Workflows
 13. Front-End Security, Authentication & Browser Isolation
 14. Scaling Front-End Architecture: Design Systems, Monorepos & Micro-Frontends
 
-## Part V — Performance, Quality & Production Engineering
+## Part V - Performance, Quality & Production Engineering
 
 15. Core Web Vitals & Performance Engineering
 16. Testing Strategies for Resilient Interfaces
