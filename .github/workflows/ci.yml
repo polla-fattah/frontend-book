@@ -39,6 +39,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+      - name: Symlink workspace to theme name
+        run: ln -sfn "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/../oink"
       - uses: actions/setup-python@v7
         with:
           python-version: '3.x'
@@ -177,6 +179,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+      - name: Symlink workspace to theme name
+        run: ln -sfn "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/../oink"
       - uses: actions/setup-python@v7
         with:
           python-version: '3.x'
