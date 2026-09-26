@@ -314,6 +314,8 @@ def config_text(
         "  github_project_repo: https://github.com/pgsty/oink",
         "  ui:",
         "    shell_types: [docs, blog, swagger]",
+        "    sidebar_root_enabled: true",
+        "    sidebar_root_menu: true",
         "    docs_section: docs",
         "    blog_section: blog",
         "    feedback:",
@@ -631,7 +633,7 @@ def observe_variant(
         + list((output / "js/chunks").glob("*.js"))
     )
     palette_bundles = {
-        str(bundle.relative_to(output))
+        bundle.relative_to(output).as_posix()
         for bundle in main_bundles
         if "td-shell-search" in bundle.read_text(encoding="utf-8")
     }
