@@ -355,9 +355,8 @@ def prepare_documents():
     with open(HTML_SOURCE, "r", encoding="utf-8") as f:
         content_raw = f.read()
 
-    # Clean dark theme and unwanted scripts from head
+    # Remove only the inline dark-theme canvas override (keep all script tags so Mermaid runs)
     content_raw = re.sub(r'<style>\s*html\s*\{[^}]*Canvas.*?<\/style>', '', content_raw, flags=re.DOTALL)
-    content_raw = re.sub(r'<script>.*?<\/script>', '', content_raw, flags=re.DOTALL)
 
     # Remove cover divs
     content_raw = re.sub(r'<div class="td-book-cover-page[^"]*".*?</div>', '', content_raw, flags=re.DOTALL)
@@ -412,6 +411,26 @@ async def render_pdfs():
     print("Rendering Content to PDF...")
     content_url = f"file:///{CONTENT_HTML.replace('\\', '/')}"
     await page.goto(content_url, {"waitUntil": "networkidle0", "timeout": 120000})
+
+    # Wait for Mermaid diagrams to render (they produce SVG inside .td-diagram--mermaid)
+    print("Waiting for Mermaid diagrams to render...")
+    try:
+        await page.waitForFunction(
+            """
+            () => {
+                const containers = document.querySelectorAll('.td-diagram--mermaid');
+                if (containers.length === 0) return true;  // no diagrams, proceed
+                return Array.from(containers).every(el => el.querySelector('svg') !== null);
+            }
+            """,
+            {"timeout": 60000, "polling": 500}
+        )
+        print("Mermaid diagrams rendered.")
+    except Exception as e:
+        print(f"Warning: Mermaid wait timed out or errored ({e}). Proceeding anyway.")
+
+    # Extra settle time for fonts and layout reflow
+    await asyncio.sleep(2)
 
     header_template = """
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 7.5pt; color: #64748b; width: 100%; padding: 0 20mm; display: flex; justify-content: space-between; border-bottom: 0.5pt solid #cbd5e1; padding-bottom: 3px;">

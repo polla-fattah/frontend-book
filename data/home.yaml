@@ -20,6 +20,14 @@ hero:
   desc: Understand how browsers work, build reliable interfaces, and make informed architectural decisions.
     Move from the web platform through components, state, data, and rendering to performance, testing,
     and production delivery. Basic HTML, CSS, JavaScript, and command-line knowledge is assumed.
+  image:
+    light: images/cover-front.png
+    dark: images/cover-front.png
+    alt: "Book cover: Modern Front-End Engineering - From Browser Fundamentals to Production Architecture by Dr. Polla Abdulhamid Fattah"
+  media:
+    hide_below: md
+    ratio: 1fr 1fr
+    max_width: 540px
   actions:
   - label: 'Start reading: Chapter 1'
     url: book/chapter_01_the_modern_web_platform_and_browser_internals/
