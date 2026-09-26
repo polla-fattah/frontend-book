@@ -37,7 +37,10 @@ def fixture_config(*extra: Path) -> str:
 
 
 def fixture_config_args(*extra: Path) -> list[str]:
-    return ["--config", fixture_config(*extra)]
+    # Every checker that builds tests/site must resolve the checkout as the
+    # classic `oink` theme. CI creates ../oink; keeping this here prevents
+    # individual checkers from silently falling back to tests/site/themes/oink.
+    return ["--themesDir", str(ROOT.parent), "--config", fixture_config(*extra)]
 
 
 def fixture_media_config(*extra: Path) -> str:
@@ -65,8 +68,6 @@ def build_fixture_public(
             hugo,
             "--source",
             str(TEST_SITE),
-            "--themesDir",
-            str(ROOT.parent),
             "--destination",
             str(destination),
             *fixture_config_args(),

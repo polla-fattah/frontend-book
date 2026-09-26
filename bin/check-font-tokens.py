@@ -53,7 +53,7 @@ def main() -> int:
     errors: list[str] = []
     sources: dict[Path, str] = {}
     for path in sorted(SCSS_ROOT.rglob("*.scss")):
-        source = path.read_text()
+        source = path.read_text(encoding="utf-8")
         sources[path] = source
         for number, line in enumerate(source.splitlines(), 1):
             if path not in FAMILY_NAME_ALLOWLIST and FAMILY_PATTERN.search(line):
@@ -82,7 +82,7 @@ def main() -> int:
             )
 
     for path in sorted(LAYOUT_ROOT.rglob("*.html")):
-        source = path.read_text()
+        source = path.read_text(encoding="utf-8")
         if FAMILY_PATTERN.search(source):
             errors.append(
                 f"{path.relative_to(ROOT)}: bundled text faces belong in "

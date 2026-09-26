@@ -36,6 +36,8 @@ def run(
     command = [hugo, "--source", str(source), "--logLevel", "warn"]
     if source == FIXTURE:
         command.extend(fixture_config_args())
+    else:
+        command.extend(["--themesDir", str(ROOT.parent)])
     if destination is not None:
         command.extend(["--destination", str(destination)])
     if panic_on_warning:
@@ -314,13 +316,11 @@ def check_sources() -> list[str]:
 
 
 def create_site(root: Path, landing_data: str, *, language: str = "en") -> None:
-    (root / "themes").mkdir(parents=True)
-    (root / "themes/oink").symlink_to(ROOT, target_is_directory=True)
     write(
         root / "hugo.yaml",
         f"""baseURL: https://example.org/
 title: Landing fixture
-theme: oink
+theme: {ROOT.name}
 defaultContentLanguage: {language}
 languages:
   {language}:

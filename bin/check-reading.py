@@ -297,13 +297,11 @@ def write_file(path: Path, content: str) -> None:
 
 
 def create_theme_site(root: Path) -> None:
-    (root / "themes").mkdir(parents=True)
-    (root / "themes/oink").symlink_to(ROOT, target_is_directory=True)
     write_file(
         root / "hugo.yaml",
-        """baseURL: https://example.org/
+        f"""baseURL: https://example.org/
 title: fixture
-theme: oink
+theme: {ROOT.name}
 defaultContentLanguage: en
 disableKinds: [home, RSS, sitemap, taxonomy, term]
 outputs:
@@ -333,7 +331,16 @@ cascade:
 
 def run_site(hugo: str, source: Path, *extra: str) -> subprocess.CompletedProcess[str]:
     return run_hugo_process(
-        [hugo, "--source", str(source), "--logLevel", "warn", *extra],
+        [
+            hugo,
+            "--source",
+            str(source),
+            "--themesDir",
+            str(ROOT.parent),
+            "--logLevel",
+            "warn",
+            *extra,
+        ],
         cwd=ROOT,
         capture_output=True,
         text=True,
@@ -519,13 +526,11 @@ def check_home_root_navigation(hugo: str) -> list[str]:
     errors: list[str] = []
     with tempfile.TemporaryDirectory(prefix="oink-components-home-root-") as temp:
         source = Path(temp)
-        (source / "themes").mkdir(parents=True)
-        (source / "themes/oink").symlink_to(ROOT, target_is_directory=True)
         write_file(
             source / "hugo.yaml",
-            """baseURL: https://example.org/
+            f"""baseURL: https://example.org/
 title: Root manual fixture
-theme: oink
+theme: {ROOT.name}
 defaultContentLanguage: en
 disableKinds: [RSS, sitemap, taxonomy, term]
 outputs:
