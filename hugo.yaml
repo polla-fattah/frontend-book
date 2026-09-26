@@ -5,7 +5,7 @@
 # This repository is the complete Hugo website. The former frontend-book
 # theme has been folded into the site root so content and presentation evolve
 # together in one project.
-baseURL: http://localhost:1313/
+baseURL: https://polla.dev/frontend-book/
 title: "Modern Front-End Engineering"
 locale: en
 defaultContentLanguage: en
