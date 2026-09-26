@@ -25,6 +25,10 @@ hero:
     url: book/chapter_01_the_modern_web_platform_and_browser_internals/
     icon: fa-solid fa-book-open
     style: primary
+  - label: Download Book (PDF)
+    url: downloads/Modern_Front_End_Engineering.pdf
+    icon: fa-solid fa-file-pdf
+    style: primary
   - label: Choose a learning path
     url: '#paths'
     icon: fa-solid fa-route
@@ -219,8 +223,7 @@ faq:
     answer: Start with Chapter 1 for the full progression, or choose a learning path above to revisit
       platform foundations, application architecture, or production engineering.
   - question: Can I download the book?
-    answer: The online chapters are available now. The PDF and combined HTML links below are placeholders
-      for future exports.
+    answer: Yes! You can download the complete offline PDF edition or read the entire manuscript online in a single continuous view using the download section below.
 principles:
   title: Engineering principles
   columns: 3
@@ -237,17 +240,16 @@ principles:
     desc: Choose the simplest approach that meets the requirements, and record its costs and constraints.
 cta:
   title: Read the book online or download
-  desc: Read all 18 chapters and 3 appendices online. Combined HTML and PDF editions are planned; their
-    links are placeholders for now.
+  desc: Read all 18 chapters and 3 appendices online. You can also download the complete PDF edition for offline reading or browse the full continuous HTML edition.
   actions:
-  - label: View Entirely (HTML)
-    url: book/full/
-    icon: fa-solid fa-book-open-reader
-    style: primary
   - label: Download (PDF)
     url: downloads/Modern_Front_End_Engineering.pdf
     icon: fa-solid fa-file-pdf
     style: primary
+  - label: View Entirely (HTML)
+    url: _print/book/
+    icon: fa-solid fa-book-open-reader
+    style: ghost
   - label: Start Chapter 1
     url: book/chapter_01_the_modern_web_platform_and_browser_internals/
     icon: fa-solid fa-compass
