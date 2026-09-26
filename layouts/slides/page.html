@@ -6,7 +6,7 @@
 {{- $slides := split (string .Content) "<hr>" -}}
 {{- $total := len $slides -}}
 <!doctype html>
-<html lang="{{ .Site.Language.Lang }}">
+<html lang="{{ .Site.Language.Lang }}" data-td-typography="{{ partial "typography-preset.html" .Site }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
