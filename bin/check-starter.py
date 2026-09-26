@@ -35,6 +35,8 @@ def build(base_url: str, public: Path) -> None:
             "hugo",
             "--source",
             str(FIXTURE),
+            "--themesDir",
+            str(ROOT.parent),
             "--destination",
             str(public),
             "--baseURL",
