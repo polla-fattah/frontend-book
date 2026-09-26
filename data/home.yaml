@@ -33,17 +33,9 @@ hero:
     url: book/chapter_01_the_modern_web_platform_and_browser_internals/
     icon: fa-solid fa-book-open
     style: primary
-  - label: Download Book (PDF)
-    url: downloads/Modern_Front_End_Engineering.pdf
-    icon: fa-solid fa-file-pdf
-    style: primary
   - label: Choose a learning path
     url: '#paths'
     icon: fa-solid fa-route
-    style: ghost
-  - label: Explore learning topics
-    url: topics/
-    icon: fa-solid fa-list
     style: ghost
 metrics:
   title: The book in four numbers
