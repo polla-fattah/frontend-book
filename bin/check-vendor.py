@@ -93,6 +93,13 @@ def tree_digest(root: Path) -> tuple[int, str]:
     for path in files:
         relative = path.relative_to(ROOT).as_posix().encode("utf-8")
         content = path.read_bytes()
+        # Git may materialize text files with CRLF on Windows.  Keep the
+        # inventory digest identical to the LF bytes checked on Linux, while
+        # leaving binary fonts and other opaque assets untouched.
+        try:
+            content = content.decode("utf-8").replace("\r\n", "\n").encode("utf-8")
+        except UnicodeDecodeError:
+            pass
         digest.update(len(relative).to_bytes(8, "big"))
         digest.update(relative)
         digest.update(len(content).to_bytes(8, "big"))

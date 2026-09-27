@@ -74,6 +74,8 @@ def temp_build(hugo: str, pages: dict[str, str], *, prefix: str, extra_config: s
         hugo,
         "--source",
         str(FIXTURE),
+        "--themesDir",
+        str(ROOT.parent),
         "--contentDir",
         str(content),
         "--destination",
@@ -556,7 +558,19 @@ def check_invalid_cases(hugo: str) -> list[str]:
             content.mkdir(parents=True)
             (content / "invalid.md").write_text(f"---\ntitle: Invalid {name}\n---\n\n{body}")
             destination = temp_path / "public"
-            command = [hugo, "--source", str(FIXTURE), "--contentDir", str(temp_path / "content"), "--destination", str(destination), "--logLevel", "warn"]
+            command = [
+                hugo,
+                "--source",
+                str(FIXTURE),
+                "--themesDir",
+                str(ROOT.parent),
+                "--contentDir",
+                str(temp_path / "content"),
+                "--destination",
+                str(destination),
+                "--logLevel",
+                "warn",
+            ]
             result = run_hugo_process(command, cwd=ROOT, capture_output=True, text=True, check=False)
             output = result.stdout + result.stderr
             if result.returncode != 0:
