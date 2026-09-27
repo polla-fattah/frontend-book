@@ -32,6 +32,15 @@
   {{ $tablePages = $pager.Pages -}}
 {{ end -}}
 {{ if .Pages -}}
+{{ if $toggle -}}
+<button type="button" class="td-page-actions__primary td-page-actions__form d-print-none" hidden
+  data-td-blog-index-toggle
+  title="{{ T "ui_blog_index_toggle" }}" aria-label="{{ T "ui_blog_index_toggle" }}">
+  <span class="td-page-actions__icon td-page-actions__icon--form-list"><i class="fa-solid fa-list" aria-hidden="true"></i></span>
+  <span class="td-page-actions__icon td-page-actions__icon--form-cards"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i></span>
+  <span class="td-page-actions__icon td-page-actions__icon--form-table"><i class="fa-solid fa-table-list" aria-hidden="true"></i></span>
+</button>
+{{ end -}}
 <div class="td-blog-posts" data-td-blog-default="{{ $mode }}"{{ if $toggle }} data-td-blog-forms="all"{{ end }}>
   {{/* Standalone tables are complete archives; toggle views share one page. */ -}}
   {{ if or (eq $mode "table") $toggle -}}

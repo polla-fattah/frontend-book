@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 
 from runtime_assets import chunk, referenced_chunks
-from test_site import fixture_config_args, run_hugo_process
+from test_site import fixture_config_args, output_mentions_path, run_hugo_process
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -482,7 +482,11 @@ def check_invalid(hugo: str) -> list[str]:
             result = run(hugo, site)
             output = result.stdout + result.stderr
             require(expected in output, f"invalid case {name} did not report {expected!r}", errors)
-            require("content/docs/invalid.md:" in output, f"invalid case {name} lost its source position", errors)
+            require(
+                output_mentions_path(output, "content/docs/invalid.md:"),
+                f"invalid case {name} lost its source position",
+                errors,
+            )
             page = site / "public/docs/invalid/index.html"
             require(page.is_file(), f"invalid case {name} emitted no safe page output", errors)
             if name in STRICT_INVALID_CANARIES:

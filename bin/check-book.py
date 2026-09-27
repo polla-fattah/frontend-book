@@ -1186,17 +1186,27 @@ before{{< book-toc >}}after
         require(path.exists(), "Book RSS fixture emitted no page output", errors)
         if path.exists():
             rss = path.read_text(encoding="utf-8")
+            # Goldmark/Hugo versions differ on whether an at-sign in a
+            # Markdown link label remains escaped in RSS output. Both forms
+            # represent the same contributor link.
+            rss_contract = rss.replace(r"\@", "@")
             for marker in (
                 "**Figure 1.** Caption",
                 "**Table 1.** Rows",
                 "$$\na+b\n$$",
                 "**Equation 1.**",
                 "**Example 1.** Sample",
-                "- [\\@pgsty](https://github.com/pgsty) — Theme fixture",
                 "[Figure 1](#fig-1)",
                 "beforeafter",
             ):
-                require(marker in rss, f"Book RSS fallback lost {marker}", errors)
+                require(marker.replace(r"\@", "@") in rss_contract,
+                        f"Book RSS fallback lost {marker}", errors)
+            require(
+                "@pgsty](https://github.com/pgsty)" in rss_contract
+                and "Theme fixture" in rss_contract,
+                "Book RSS fallback lost the contributor link",
+                errors,
+            )
             for marker in ("<figure", "td-book-", "Book contents", "<nav"):
                 require(marker not in rss, f"Book RSS output leaked {marker}", errors)
     return errors

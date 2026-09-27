@@ -29,6 +29,12 @@ def run_hugo_process(
         ) from exc
 
 
+def output_mentions_path(output: str, relative_path: str) -> bool:
+    """Match Hugo source positions consistently on POSIX and Windows."""
+
+    return relative_path.replace("\\", "/") in output.replace("\\", "/")
+
+
 def fixture_config(*extra: Path) -> str:
     """Return the fixture config followed by any test-specific overrides."""
 

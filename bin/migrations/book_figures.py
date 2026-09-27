@@ -255,7 +255,7 @@ def tpme_inventory(sources: dict[Path, str]) -> tuple[dict[str, Target], list[Fi
 
 
 def tpme_reference(line: str, path: Path, targets: dict[str, Target], counts: Counter[str]) -> str:
-    if not str(path).startswith("content/zh/"):
+    if not path.as_posix().startswith("content/zh/"):
         return line
 
     def replace(match: re.Match[str]) -> str:
