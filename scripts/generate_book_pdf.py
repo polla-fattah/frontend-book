@@ -470,13 +470,25 @@ def assemble_final_pdf():
     A4_WIDTH = 595.276
     A4_HEIGHT = 841.890
     a4_rect = pymupdf.Rect(0, 0, A4_WIDTH, A4_HEIGHT)
+    cover_margin = 18.0
+    cover_rect = pymupdf.Rect(
+        cover_margin,
+        cover_margin,
+        A4_WIDTH - cover_margin,
+        A4_HEIGHT - cover_margin,
+    )
+
+    def add_cover(document, image_path):
+        page = document.new_page(width=A4_WIDTH, height=A4_HEIGHT)
+        page.draw_rect(a4_rect, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
+        page.insert_image(cover_rect, filename=image_path, keep_proportion=True)
+        return page
 
     final_doc = pymupdf.open()
 
-    # 1. Front Cover (Full Bleed A4)
-    print(f"Adding full-bleed Front Cover from {FRONT_COVER_IMG}...")
-    front_page = final_doc.new_page(width=A4_WIDTH, height=A4_HEIGHT)
-    front_page.insert_image(a4_rect, filename=FRONT_COVER_IMG, keep_proportion=False)
+    # 1. Front Cover with a clean white page margin.
+    print(f"Adding Front Cover with white margin from {FRONT_COVER_IMG}...")
+    add_cover(final_doc, FRONT_COVER_IMG)
 
     # 2. Title & Colophon Pages (2 pages, clean)
     print(f"Inserting Title & Colophon pages ({TITLE_PDF})...")
@@ -490,10 +502,9 @@ def assemble_final_pdf():
     final_doc.insert_pdf(content_doc)
     content_doc.close()
 
-    # 4. Back Cover (Full Bleed A4)
-    print(f"Adding full-bleed Back Cover from {BACK_COVER_IMG}...")
-    back_page = final_doc.new_page(width=A4_WIDTH, height=A4_HEIGHT)
-    back_page.insert_image(a4_rect, filename=BACK_COVER_IMG, keep_proportion=False)
+    # 4. Back Cover with the same white page margin as the front.
+    print(f"Adding Back Cover with white margin from {BACK_COVER_IMG}...")
+    add_cover(final_doc, BACK_COVER_IMG)
 
     # Save
     final_doc.save(OUTPUT_PDF, garbage=4, deflate=True)
