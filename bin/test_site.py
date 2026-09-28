@@ -43,10 +43,17 @@ def fixture_config(*extra: Path) -> str:
 
 
 def fixture_config_args(*extra: Path) -> list[str]:
-    # Every checker that builds tests/site must resolve the checkout as the
-    # classic `oink` theme. CI creates ../oink; keeping this here prevents
-    # individual checkers from silently falling back to tests/site/themes/oink.
-    return ["--themesDir", str(ROOT.parent), "--config", fixture_config(*extra)]
+    return [*fixture_theme_args(), "--config", fixture_config(*extra)]
+
+
+def fixture_theme_args() -> list[str]:
+    """Resolve the fixture theme in both CI's sibling checkout and locally."""
+
+    # CI exposes the repository through ../oink. A local checkout normally has
+    # no sibling junction, so use its actual directory name instead of making
+    # every checker create a temporary filesystem alias.
+    theme = "oink" if (ROOT.parent / "oink").is_dir() else ROOT.name
+    return ["--themesDir", str(ROOT.parent), "--theme", theme]
 
 
 def fixture_media_config(*extra: Path) -> str:

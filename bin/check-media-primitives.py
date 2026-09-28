@@ -15,6 +15,7 @@ from test_site import (
     build_fixture_public,
     fixture_config,
     fixture_media_config,
+    fixture_theme_args,
     run_hugo_process,
 )
 
@@ -152,7 +153,7 @@ def check_resolver_matrix(hugo: str) -> list[str]:
             '{{< media-resolve-test src="https://example.invalid/remote.png?fixture=1" alt="Remote raster" >}}\n'
         )
         destination = temp_path / "public"
-        result = run_hugo(hugo, "--source", str(FIXTURE), "--contentDir", str(temp_path / "content"), "--layoutDir", str(temp_path / "layouts"), "--destination", str(destination), "--baseURL", "https://example.org/manual/", "--config", fixture_media_config(), "--logLevel", "warn")
+        result = run_hugo(hugo, "--source", str(FIXTURE), *fixture_theme_args(), "--contentDir", str(temp_path / "content"), "--layoutDir", str(temp_path / "layouts"), "--destination", str(destination), "--baseURL", "https://example.org/manual/", "--config", fixture_media_config(), "--logLevel", "warn")
         if result.returncode != 0:
             errors.append(f"resolver matrix failed to build: {result.stdout}{result.stderr}")
             return errors
@@ -211,7 +212,7 @@ def check_image_hook_matrix(hugo: str) -> list[str]:
         override = temp_path / "rss.yaml"
         override.write_text("disableKinds: [sitemap, taxonomy, term]\noutputs:\n  home: [HTML]\n  section: [HTML]\n  page: [HTML, markdown, RSS]\n")
         destination = temp_path / "public"
-        result = run_hugo(hugo, "--source", str(FIXTURE), "--contentDir", str(temp_path / "content"), "--layoutDir", str(temp_path / "layouts"), "--destination", str(destination), "--config", fixture_media_config(override), "--logLevel", "warn")
+        result = run_hugo(hugo, "--source", str(FIXTURE), *fixture_theme_args(), "--contentDir", str(temp_path / "content"), "--layoutDir", str(temp_path / "layouts"), "--destination", str(destination), "--config", fixture_media_config(override), "--logLevel", "warn")
         if result.returncode != 0:
             errors.append(f"image hook matrix failed to build: {result.stdout}{result.stderr}")
             return errors
@@ -255,7 +256,7 @@ def check_subpath(hugo: str) -> list[str]:
     errors: list[str] = []
     with tempfile.TemporaryDirectory(prefix="oink-media-subpath-") as temp:
         destination = Path(temp) / "public"
-        result = run_hugo(hugo, "--source", str(FIXTURE), "--destination", str(destination), "--baseURL", "https://example.org/manual/", "--config", fixture_config(), "--logLevel", "warn")
+        result = run_hugo(hugo, "--source", str(FIXTURE), *fixture_theme_args(), "--destination", str(destination), "--baseURL", "https://example.org/manual/", "--config", fixture_config(), "--logLevel", "warn")
         if result.returncode != 0:
             errors.append(f"media subpath fixture failed to build: {result.stdout}{result.stderr}")
             return errors
@@ -289,7 +290,7 @@ def check_rss_output(hugo: str) -> list[str]:
         override = temp_path / "rss.yaml"
         override.write_text("disableKinds: [sitemap, taxonomy, term]\noutputs:\n  home: [HTML]\n  section: [HTML]\n  page: [RSS]\n")
         destination = temp_path / "public"
-        result = run_hugo(hugo, "--source", str(FIXTURE), "--contentDir", str(temp_path / "content"), "--layoutDir", str(temp_path / "layouts"), "--destination", str(destination), "--config", f"{FIXTURE / 'hugo.yaml'},{override}", "--logLevel", "warn")
+        result = run_hugo(hugo, "--source", str(FIXTURE), *fixture_theme_args(), "--contentDir", str(temp_path / "content"), "--layoutDir", str(temp_path / "layouts"), "--destination", str(destination), "--config", f"{FIXTURE / 'hugo.yaml'},{override}", "--logLevel", "warn")
         if result.returncode != 0:
             errors.append(f"RSS media fixture failed to build: {result.stdout}{result.stderr}")
             return errors
@@ -401,7 +402,7 @@ def check_invalid_cases(hugo: str) -> list[str]:
             if "{{< image" in body:
                 body = f"{body.rstrip()}{{{{< /image >}}}}\n"
             (content / "index.md").write_text(f"---\ntitle: Invalid media {name}\n---\n\n{body}")
-            result = run_hugo(hugo, "--source", str(FIXTURE), "--contentDir", str(temp_path / "content"), "--destination", str(temp_path / "public"), "--logLevel", "warn")
+            result = run_hugo(hugo, "--source", str(FIXTURE), *fixture_theme_args(), "--contentDir", str(temp_path / "content"), "--destination", str(temp_path / "public"), "--logLevel", "warn")
             output = result.stdout + result.stderr
             if result.returncode != 0:
                 errors.append(f"invalid media case {name} stopped the ordinary build instead of degrading: {output.strip()[-300:]}")
@@ -413,7 +414,7 @@ def check_invalid_cases(hugo: str) -> list[str]:
             if not page.is_file():
                 errors.append(f"invalid media case {name} emitted no safe page output")
             if name in STRICT_INVALID_CANARIES:
-                strict = run_hugo(hugo, "--source", str(FIXTURE), "--contentDir", str(temp_path / "content"), "--destination", str(temp_path / "public-strict"), "--logLevel", "warn", "--panicOnWarning")
+                strict = run_hugo(hugo, "--source", str(FIXTURE), *fixture_theme_args(), "--contentDir", str(temp_path / "content"), "--destination", str(temp_path / "public-strict"), "--logLevel", "warn", "--panicOnWarning")
                 if strict.returncode == 0:
                     errors.append(f"invalid media case {name} survived --panicOnWarning")
     return errors

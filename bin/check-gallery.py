@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 
 from runtime_assets import chunk
-from test_site import build_fixture_public, fixture_config, run_hugo_process
+from test_site import build_fixture_public, fixture_config, fixture_theme_args, run_hugo_process
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -142,7 +142,7 @@ def temp_page_build(hugo: str, body: str, *, front: str = "", panic_on_warning: 
         (content / "index.md").write_text("---\ntitle: Gallery test\noutputs: [HTML, markdown]\n" + front + "---\n\n" + body)
         destination = temp_path / "public"
         extra = ["--panicOnWarning"] if panic_on_warning else []
-        result = run_hugo(hugo, "--source", str(FIXTURE), "--contentDir", str(temp_path / "content"), "--destination", str(destination), "--logLevel", "warn", *extra)
+        result = run_hugo(hugo, "--source", str(FIXTURE), *fixture_theme_args(), "--contentDir", str(temp_path / "content"), "--destination", str(destination), "--logLevel", "warn", *extra)
         html = ""
         markdown = ""
         if result.returncode == 0:
@@ -210,7 +210,7 @@ def check_subpath(hugo: str) -> list[str]:
     errors: list[str] = []
     with tempfile.TemporaryDirectory(prefix="oink-gallery-subpath-") as temp:
         destination = Path(temp) / "public"
-        result = run_hugo(hugo, "--source", str(FIXTURE), "--destination", str(destination), "--baseURL", "https://example.org/manual/", "--config", fixture_config(), "--logLevel", "warn")
+        result = run_hugo(hugo, "--source", str(FIXTURE), *fixture_theme_args(), "--destination", str(destination), "--baseURL", "https://example.org/manual/", "--config", fixture_config(), "--logLevel", "warn")
         if result.returncode != 0:
             errors.append(f"Gallery subpath fixture failed to build: {result.stdout}{result.stderr}")
             return errors

@@ -15,7 +15,7 @@ import re
 import tempfile
 
 from runtime_assets import combined_source, referenced_chunks
-from test_site import build_fixture_public, fixture_config, run_hugo_process
+from test_site import build_fixture_public, fixture_config, fixture_theme_args, run_hugo_process
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -251,7 +251,7 @@ def check_subpath(hugo: str) -> list[str]:
     with tempfile.TemporaryDirectory(prefix="oink-primitives-subpath-") as temp:
         destination = Path(temp) / "public"
         result = run_hugo_process(
-            [hugo, "--source", str(FIXTURE), "--destination", str(destination), "--baseURL", "https://example.org/manual/", "--config", fixture_config(), "--logLevel", "warn"],
+            [hugo, "--source", str(FIXTURE), *fixture_theme_args(), "--destination", str(destination), "--baseURL", "https://example.org/manual/", "--config", fixture_config(), "--logLevel", "warn"],
             cwd=ROOT,
             capture_output=True,
             text=True,
@@ -296,7 +296,7 @@ def check_rss_output(hugo: str) -> list[str]:
         override.write_text("disableKinds: [sitemap, taxonomy, term]\noutputs:\n  home: [HTML]\n  section: [HTML]\n  page: [RSS]\n")
         destination = temp_path / "public"
         result = run_hugo_process(
-            [hugo, "--source", str(FIXTURE), "--contentDir", str(temp_path / "content"), "--layoutDir", str(temp_path / "layouts"), "--destination", str(destination), "--config", f"{FIXTURE / 'hugo.yaml'},{override}", "--logLevel", "warn"],
+            [hugo, "--source", str(FIXTURE), *fixture_theme_args(), "--contentDir", str(temp_path / "content"), "--layoutDir", str(temp_path / "layouts"), "--destination", str(destination), "--config", f"{FIXTURE / 'hugo.yaml'},{override}", "--logLevel", "warn"],
             cwd=ROOT,
             capture_output=True,
             text=True,
@@ -745,18 +745,19 @@ def check_invalid_cases(hugo: str) -> list[str]:
         for name, body, _ in batched:
             (content / f"{name}.md").write_text(f"---\ntitle: Invalid {name}\n---\n\n{body}")
         (content / "param-map.md").write_text("---\ntitle: Param map\nparams:\n  fixture_map:\n    a: 1\n---\n\n{{< param fixture_map >}}\n")
-        command = [hugo, "--source", str(FIXTURE), "--contentDir", str(temp_path / "content"), "--logLevel", "warn"]
+        command = [hugo, "--source", str(FIXTURE), *fixture_theme_args(), "--contentDir", str(temp_path / "content"), "--logLevel", "warn"]
         result = run_hugo_process(
             [*command, "--destination", str(temp_path / "public")],
             cwd=ROOT, capture_output=True, text=True, check=False,
         )
         output = result.stdout + result.stderr
+        normalized_output = output.replace("\\", "/")
         require(result.returncode == 0, f"batched invalid cases failed to render safely: {output.strip()}", errors)
         for name, _, expected in batched:
-            case_output = "\n".join(line for line in output.splitlines() if f"content/docs/{name}.md:" in line)
+            case_output = "\n".join(line for line in normalized_output.splitlines() if f"content/docs/{name}.md:" in line)
             require(expected in case_output, f"invalid case {name} did not report {expected!r} at its position: {case_output or output.strip()}", errors)
             require((temp_path / f"public/docs/{name}/index.html").is_file(), f"invalid case {name} lost its safe output", errors)
-        param_output = "\n".join(line for line in output.splitlines() if "content/docs/param-map.md:" in line)
+        param_output = "\n".join(line for line in normalized_output.splitlines() if "content/docs/param-map.md:" in line)
         require("only scalar values" in param_output, f"param map did not report the scalar rule at its position: {param_output or output.strip()}", errors)
         param_page = temp_path / "public/docs/param-map/index.html"
         require(param_page.is_file(), "param map lost its safe output", errors)
@@ -776,13 +777,14 @@ def check_invalid_cases(hugo: str) -> list[str]:
             content = temp_path / "content/docs"
             content.mkdir(parents=True)
             (content / "invalid.md").write_text(f"---\ntitle: Invalid {name}\n---\n\n{body}")
-            command = [hugo, "--source", str(FIXTURE), "--contentDir", str(temp_path / "content"), "--logLevel", "warn"]
+            command = [hugo, "--source", str(FIXTURE), *fixture_theme_args(), "--contentDir", str(temp_path / "content"), "--logLevel", "warn"]
             result = run_hugo_process(
                 [*command, "--destination", str(temp_path / "public")],
                 cwd=ROOT, capture_output=True, text=True, check=False,
             )
             output = result.stdout + result.stderr
-            case_output = "\n".join(line for line in output.splitlines() if "content/docs/invalid.md:" in line)
+            normalized_output = output.replace("\\", "/")
+            case_output = "\n".join(line for line in normalized_output.splitlines() if "content/docs/invalid.md:" in line)
             require(expected in case_output, f"invalid case {name} did not report {expected!r} at its position: {case_output or output.strip()}", errors)
             page = temp_path / "public/docs/invalid/index.html"
             require(page.is_file() == (result.returncode == 0), f"invalid case {name} left partial output", errors)

@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 
 from runtime_assets import combined_source
-from test_site import build_fixture_public, run_hugo_process
+from test_site import build_fixture_public, fixture_theme_args, run_hugo_process
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -74,8 +74,7 @@ def temp_build(hugo: str, pages: dict[str, str], *, prefix: str, extra_config: s
         hugo,
         "--source",
         str(FIXTURE),
-        "--themesDir",
-        str(ROOT.parent),
+        *fixture_theme_args(),
         "--contentDir",
         str(content),
         "--destination",
@@ -562,8 +561,7 @@ def check_invalid_cases(hugo: str) -> list[str]:
                 hugo,
                 "--source",
                 str(FIXTURE),
-                "--themesDir",
-                str(ROOT.parent),
+                *fixture_theme_args(),
                 "--contentDir",
                 str(temp_path / "content"),
                 "--destination",
