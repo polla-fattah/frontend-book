@@ -355,6 +355,20 @@ def prepare_documents():
     with open(HTML_SOURCE, "r", encoding="utf-8") as f:
         content_raw = f.read()
 
+    # Force html tag to pure light mode
+    content_raw = re.sub(
+        r'<html[^>]*>',
+        '<html lang="en" data-bs-theme="light" data-theme="light" class="light-mode">',
+        content_raw,
+        count=1
+    )
+
+    # Strip theme switcher script so it doesn't dynamically flip to dark mode
+    content_raw = re.sub(r'<script>\s*\(function\(\)\s*\{\s*const themeKey.*?</script>', '', content_raw, flags=re.DOTALL)
+
+    # Set meta color-scheme to light
+    content_raw = re.sub(r'<meta name="color-scheme"[^>]*>', '<meta name="color-scheme" content="light">', content_raw)
+
     # Remove only the inline dark-theme canvas override (keep all script tags so Mermaid runs)
     content_raw = re.sub(r'<style>\s*html\s*\{[^}]*Canvas.*?<\/style>', '', content_raw, flags=re.DOTALL)
 
@@ -364,8 +378,25 @@ def prepare_documents():
     # Convert any mdash to hyphens
     content_raw = content_raw.replace("\u2014", " - ").replace("&mdash;", " - ")
 
-    # Inject base CSS
-    content_raw = content_raw.replace("</head>", f"{base_css}</head>")
+    # Inject base CSS with explicit @page and root white background overrides
+    page_white_css = """
+    <style>
+    @page {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+    }
+    html, :root {
+      color-scheme: light !important;
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+    }
+    body, .td-print-view, .container-fluid, .td-print-shell, .td-print-document, main {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+    }
+    </style>
+    """
+    content_raw = content_raw.replace("</head>", f"{base_css}\n{page_white_css}</head>")
 
     with open(CONTENT_HTML, "w", encoding="utf-8") as f:
         f.write(content_raw)
@@ -385,9 +416,20 @@ async def render_pdfs():
             "--disable-extensions",
             "--disable-dev-shm-usage",
             "--force-color-profile=srgb",
+            "--blink-settings=forceDarkModeEnabled=false",
         ],
     )
     page = await browser.newPage()
+
+    # Enforce light color scheme via Chrome DevTools Protocol
+    try:
+        await page._client.send('Emulation.setEmulatedMedia', {
+            'media': 'screen',
+            'features': [{'name': 'prefers-color-scheme', 'value': 'light'}]
+        })
+    except Exception as e:
+        print(f"Notice: setEmulatedMedia: {e}")
+
     await page.emulateMedia('screen')
 
     # 1. Render Title and Colophon (NO headers, NO footers)
@@ -470,24 +512,18 @@ def assemble_final_pdf():
     A4_WIDTH = 595.276
     A4_HEIGHT = 841.890
     a4_rect = pymupdf.Rect(0, 0, A4_WIDTH, A4_HEIGHT)
-    cover_margin = 18.0
-    cover_rect = pymupdf.Rect(
-        cover_margin,
-        cover_margin,
-        A4_WIDTH - cover_margin,
-        A4_HEIGHT - cover_margin,
-    )
+    bg_color = (13 / 255.0, 20 / 255.0, 28 / 255.0)
 
     def add_cover(document, image_path):
         page = document.new_page(width=A4_WIDTH, height=A4_HEIGHT)
-        page.draw_rect(a4_rect, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
-        page.insert_image(cover_rect, filename=image_path, keep_proportion=True)
+        page.draw_rect(a4_rect, color=bg_color, fill=bg_color, overlay=True)
+        page.insert_image(a4_rect, filename=image_path, keep_proportion=False)
         return page
 
     final_doc = pymupdf.open()
 
-    # 1. Front Cover with a clean white page margin.
-    print(f"Adding Front Cover with white margin from {FRONT_COVER_IMG}...")
+    # 1. Front Cover (Full Bleed)
+    print(f"Adding Front Cover from {FRONT_COVER_IMG}...")
     add_cover(final_doc, FRONT_COVER_IMG)
 
     # 2. Title & Colophon Pages (2 pages, clean)
@@ -502,8 +538,8 @@ def assemble_final_pdf():
     final_doc.insert_pdf(content_doc)
     content_doc.close()
 
-    # 4. Back Cover with the same white page margin as the front.
-    print(f"Adding Back Cover with white margin from {BACK_COVER_IMG}...")
+    # 4. Back Cover (Full Bleed)
+    print(f"Adding Back Cover from {BACK_COVER_IMG}...")
     add_cover(final_doc, BACK_COVER_IMG)
 
     # Save
