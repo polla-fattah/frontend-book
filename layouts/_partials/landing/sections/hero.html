@@ -63,13 +63,20 @@
   <div class="td-landing-hero__glow" aria-hidden="true"></div>
   <div class="td-site-container">
     <div class="td-landing-hero__copy">
-      {{- with $hero.eyebrow }}
       <p class="td-landing-hero__eyebrow">
         <span class="td-landing-status-dot" aria-hidden="true"></span>
-        <span>{{ partial "landing/markdown.html" (dict "page" $page "value" .) }}</span>
+        <span>{{ partial "landing/markdown.html" (dict "page" $page "value" $hero.eyebrow) }}</span>
       </p>
-      {{- end }}
-      <h1 class="td-landing-hero__title" id="{{ $id }}-title">
+      <h1 class="td-landing-hero__title{{ with $hero.logo }} td-landing-hero__title--with-brand{{ end }}" id="{{ $id }}-title">
+        {{- with $hero.logo }}
+          {{- $logoResource := resources.Get . -}}
+          {{- with $logoResource }}
+        <span class="td-landing-hero__brand" aria-label="SSG logo">
+          <img src="{{ .RelPermalink }}" alt="SSG logo" />
+        </span>
+          {{- end }}
+        {{- end }}
+        {{- if $hero.logo }}<span class="td-landing-hero__title-text">{{ end -}}
         {{- with $titleLines -}}
           {{- range . }}
         <span>
@@ -86,6 +93,7 @@
         {{- else -}}
           {{- partial "landing/markdown.html" (dict "page" $page "value" ($hero.title | default $page.Site.Title)) -}}
         {{- end -}}
+        {{- if $hero.logo }}</span>{{ end -}}
       </h1>
       {{- with $hero.subtitle }}<p class="td-landing-hero__subtitle">{{ partial "landing/markdown.html" (dict "page" $page "value" .) }}</p>{{ end }}
       {{- with $lead }}<p class="td-landing-hero__lead">{{ partial "landing/markdown.html" (dict "page" $page "value" .) }}</p>{{ end }}
