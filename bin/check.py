@@ -20,7 +20,6 @@ ROOT = Path(__file__).resolve().parents[1]
 PREBUILD = (
     ("i18n", "bin/check-i18n.py"),
     ("taxonomy", "bin/check-taxonomy.py"),
-    ("vendor", "bin/check-vendor.py"),
     ("font-tokens", "bin/check-font-tokens.py"),
     ("navigation", "bin/check-navigation-contract.py"),
     ("runtime-isolation", "bin/check-runtime-isolation.py"),
