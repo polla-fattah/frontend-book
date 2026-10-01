@@ -14,6 +14,7 @@ sections:
 - principles
 - cta
 hero:
+  eyebrow: '<a href="https://github.com/polla-fattah/frontend-book" class="td-hero-os-badge" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i> <span>Open Source Project</span> <span class="td-hero-os-badge__sep">·</span> <span class="td-hero-os-badge__sub">GitHub</span> <i class="fa-solid fa-arrow-right td-hero-os-badge__arrow"></i></a>'
   title: Modern Front-End Engineering
   title_size: 3rem
   subtitle: From Browser Fundamentals to Production Architecture
@@ -37,6 +38,11 @@ hero:
     url: '#paths'
     icon: fa-solid fa-route
     style: ghost
+  - label: GitHub Repository
+    url: https://github.com/polla-fattah/frontend-book
+    icon: fa-brands fa-github
+    style: ghost
+    external: true
 metrics:
   title: The book in four numbers
   desc: Based on the manuscript and teaching materials currently in this site.

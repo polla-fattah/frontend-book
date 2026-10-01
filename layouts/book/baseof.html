@@ -31,7 +31,20 @@
           <article class="td-shell-article">
             {{ partial "version-banner.html" . }}
             {{ $crumbs := partial "shell/breadcrumb-enabled.html" . -}}
-            {{ $actionsHTML := partial "actions/title-menu.html" . -}}
+            {{ $actionsHTML := "" -}}
+            {{ if .IsPage -}}
+              {{ $repo := .Site.Params.github_repo | default "https://github.com/polla-fattah/frontend-book" -}}
+              {{ $branch := .Site.Params.github_branch | default "main" -}}
+              {{ $editURL := "" -}}
+              {{ if .File -}}
+                {{ $editURL = printf "%s/edit/%s/content/%s" $repo $branch (replace .File.Path "\\" "/") -}}
+              {{ end -}}
+              {{ if $editURL -}}
+                {{ $actionsHTML = printf `<a href="%s" class="td-chapter-edit-btn" target="_blank" rel="noopener noreferrer" title="Amendments are welcomed! Click to edit this chapter directly on GitHub"><i class="fa-solid fa-pencil" aria-hidden="true"></i><span>Amendments are welcomed</span></a>` $editURL | safeHTML -}}
+              {{ end -}}
+            {{ else -}}
+              {{ $actionsHTML = partial "actions/title-menu.html" . -}}
+            {{ end -}}
             {{ if or $crumbs (strings.ContainsNonSpace $actionsHTML) }}
             <div class="td-shell-topline{{ if not $crumbs }} td-shell-topline--actions-only{{ end }}">
               {{ if $crumbs }}{{ partial "breadcrumb.html" . }}{{ end }}

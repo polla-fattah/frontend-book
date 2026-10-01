@@ -10,6 +10,8 @@ cascade:
 
 *From Browser Fundamentals to Production Architecture*
 
+{{< open-source-badge >}}
+
 {{< book-covers >}}
 
 {{< book-toc depth=2 >}}

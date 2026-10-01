@@ -63,10 +63,14 @@
   <div class="td-landing-hero__glow" aria-hidden="true"></div>
   <div class="td-site-container">
     <div class="td-landing-hero__copy">
+      {{- with $hero.eyebrow }}
       <p class="td-landing-hero__eyebrow">
+        {{- if not (strings.Contains . "td-hero-os-badge") }}
         <span class="td-landing-status-dot" aria-hidden="true"></span>
-        <span>{{ partial "landing/markdown.html" (dict "page" $page "value" $hero.eyebrow) }}</span>
+        {{- end }}
+        <span>{{ partial "landing/markdown.html" (dict "page" $page "value" .) }}</span>
       </p>
+      {{- end }}
       <h1 class="td-landing-hero__title{{ with $hero.logo }} td-landing-hero__title--with-brand{{ end }}" id="{{ $id }}-title">
         {{- with $hero.logo }}
           {{- $logoResource := resources.Get . -}}

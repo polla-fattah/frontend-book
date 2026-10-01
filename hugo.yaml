@@ -69,6 +69,8 @@ params:
   time_format_blog: 2006-01-02
   time_format_default: 2006-01-02
   # Branch used by the edit / history / new-page links derived from github_repo.
+  github_repo: https://github.com/polla-fattah/frontend-book
+  github_project_repo: https://github.com/polla-fattah/frontend-book
   github_branch: main
   page_width: normal # normal | wide | full
   # Inner reading measure for Book pages: slim | normal | wide. Unlike
