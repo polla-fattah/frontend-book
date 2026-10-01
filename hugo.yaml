@@ -195,7 +195,7 @@ params:
     #   code: "'Sarasa Mono SC', monospace"
 
     shell_types: [docs, book, blog, swagger]
-    docs_section: book
+    docs_section: docs
     blog_section: blog
     # How a blog page presents the featured image `images` selects:
     # none | banner (a framed figure above the title) | wash (the image
@@ -256,13 +256,13 @@ params:
     sidebar_menu_compact: true
     sidebar_menu_foldable: true
     sidebar_menu_truncate: 2000
-    sidebar_root_enabled: false
-    sidebar_root_menu: false
+    sidebar_root_enabled: true
+    sidebar_root_menu: true
     sidebar_width_min: 220
     sidebar_width_max: 480
     sidebar_item_overflow: ellipsis
     page_context_menu:
-      enable: false
+      enable: true
       # Opt in before exposing the built-in ChatGPT and Claude actions. When a
       # reader activates one, the full browser URL (including query and hash)
       # is sent to that third party; the page body is not uploaded.
@@ -270,7 +270,7 @@ params:
       # Optional external actions may use the placeholders {url}, {title}, and
       # {markdown_url}. No custom links are enabled by default.
       links: []
-    sidebar_expand_levels: 1
+    sidebar_expand_levels: 2
     # Compatibility no-op in 1.x. The normal shell runtime always tracks the
     # active outline heading; keep this key quiet until a breaking release.
     scroll_spy: false
