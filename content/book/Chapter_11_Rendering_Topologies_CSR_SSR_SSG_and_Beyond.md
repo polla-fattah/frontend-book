@@ -309,11 +309,25 @@ const html = `<script id="__DATA__">${JSON.stringify({ name: businessName })}</s
 ```
 
 #### Safe Serialization Rule:
-Always serialize JSON data for HTML embedding by escaping the `<` character as unicode `\u003c`:
+Always serialize JSON data for HTML embedding by guarding against `undefined` and escaping HTML and script-sensitive characters (such as `<` to unicode `\u003c`):
 
 ```typescript
 export function serializeSafeState(data: unknown): string {
-  return JSON.stringify(data).replace(/</g, '\\u003c');
+  // Guard against undefined input causing a TypeError on .replace()
+  const jsonString = JSON.stringify(data ?? null) ?? 'null';
+
+  // Safely escape characters that could break script tag contexts
+  return jsonString.replace(/[<>&/\u2028\u2029]/g, (char) => {
+    switch (char) {
+      case '<': return '\\u003c';
+      case '>': return '\\u003e';
+      case '&': return '\\u0026';
+      case '/': return '\\u002f';
+      case '\u2028': return '\\u2028';
+      case '\u2029': return '\\u2029';
+      default: return char;
+    }
+  });
 }
 ```
 
@@ -392,7 +406,7 @@ In Island Architecture:
 
 ```mermaid
 flowchart TD
-    subgraph ServerOnlyZone["Server Component (PermitDetail.server.tsx)"]
+    subgraph ServerOnlyZone["Server Component (PermitDetail.tsx - Default)"]
         SQL[("Direct PostgreSQL Query\n(SELECT * FROM permits)")] --> SC["Executes EXCLUSIVELY on server\n- Imports 150KB markdown parser\n- Direct access to internal microservices\n- ZERO bytes sent to client JS bundle!"]
     end
     
