@@ -72,6 +72,8 @@ flowchart LR
     D -- Invalid --> F["Structured Error Handling"]
 ```
 
+<!-- Types disappear after compiling. `as Type` only silences the compiler, so outside data must be checked at runtime. -->
+
 ### Type Inference First {#2-type-inference-first}
 
 TypeScript's inference engine is sophisticated. Developers should allow TypeScript to infer local variables, loop indices, and straightforward return values automatically:
@@ -119,6 +121,9 @@ type ServiceViewState =
 
 Every state is unambiguous. If `status === 'success'`, TypeScript automatically narrows the type so that `state.data` is guaranteed to exist. If `status === 'loading'`, attempting to read `state.data` produces a compile-time error.
 
+<!-- just for clarity -->
+The `|` symbol means "or": the state is `idle` **or** `loading` **or** `success` **or** `error`, never two at once.
+
 ```mermaid
 flowchart TD
     State[ServiceViewState Union]
@@ -151,6 +156,8 @@ function renderStatusBadge(state: ServiceViewState): string {
   }
 }
 ```
+
+The important part is the `never` check. Without it, a new state that is missing from the `switch` can slip through silently. With it, the compiler points to the exact line and refuses to build until the new state is handled.
 
 ---
 
@@ -240,6 +247,16 @@ async function safeApiCall<T>(url: string, parser: (raw: unknown) => T): Promise
 
 Here, `safeApiCall` works for any domain model (`T`), returning either the parsed type `{ ok: true; data: T }` or a descriptive failure `{ ok: false; error: string }`.
 
+The benefit is that the parser decides `T`, so TypeScript works out the result type for you:
+
+```typescript
+const result = await safeApiCall('/api/services/SR-1042', parseCitizenService);
+
+if (result.ok) {
+  result.data.name; // TypeScript knows this is a CitizenService
+}
+```
+
 ---
 
 ## 5. Strictness and DOM Typing {#32-typing-the-dom}
@@ -261,7 +278,13 @@ Enterprise projects must enable strict mode in `tsconfig.json`:
 }
 ```
 
+With `strict`, TypeScript turns on a family of strict checks together, so it catches more mistakes.
+
 With `strictNullChecks`, TypeScript prevents accessing properties on values that might be `null` or `undefined`.
+
+With `noImplicitAny`, TypeScript gives an error instead of quietly using `any` when it cannot work out a type, so you must write the type yourself.
+
+With `noUncheckedIndexedAccess`, reading an array item or object key gives `T | undefined`, because the item might not exist.
 
 ### Querying the DOM Safely
 
@@ -336,7 +359,7 @@ Avoid casting API responses directly with `as`:
 const data = (await res.json()) as CitizenService[];
 ```
 
-An assertion produces zero bytes of runtime JavaScript. It silences compiler errors, but guarantees that any schema mismatch will surface as an unhandled exception deep inside your UI components.
+An assertion adds no check at runtime means that it will be removed by then. It only silences the compiler, so wrong data gets into your app and crashes later, far from where it came from.
 
 ---
 
@@ -393,6 +416,9 @@ export function parseCitizenService(raw: unknown): Result<CitizenService, string
   if (typeof record.availableOnline !== 'boolean') {
     return { ok: false, error: 'Field "availableOnline" must be boolean' };
   }
+  if (record.department !== 'Civil' && record.department !== 'Housing' && record.department !== 'Legal') {
+    return { ok: false, error: 'Field "department" must be Civil, Housing, or Legal' };
+  }
 
   // Successfully parsed into trusted domain shape
   return {
@@ -401,7 +427,8 @@ export function parseCitizenService(raw: unknown): Result<CitizenService, string
       id: record.id,
       name: record.name.trim(),
       fee: record.fee,
-      availableOnline: record.availableOnline
+      availableOnline: record.availableOnline,
+      department: record.department
     }
   };
 }
@@ -461,8 +488,9 @@ export type Result<T, E = Error> =
 export interface ServiceRecord {
   id: string;
   name: string;
-  feeIqd: number;
-  isAvailable: boolean;
+  fee: number;
+  availableOnline: boolean;
+  department: 'Civil' | 'Housing' | 'Legal';
 }
 
 export class BoundaryError extends Error {
@@ -530,7 +558,7 @@ function parseServiceRecord(raw: unknown): Result<ServiceRecord, BoundaryError> 
 
   const rec = raw as Record<string, unknown>;
 
-  if (typeof rec.id !== 'string' || !rec.id.startsWith('SR-')) {
+  if (typeof rec.id !== 'string' || !/^SR-\d{4}$/.test(rec.id)) {
     return {
       ok: false,
       error: new BoundaryError('schema', 'Missing or invalid service ID format (expected "SR-XXXX")')
@@ -542,16 +570,22 @@ function parseServiceRecord(raw: unknown): Result<ServiceRecord, BoundaryError> 
       error: new BoundaryError('schema', 'Service name must be a valid non-empty string')
     };
   }
-  if (typeof rec.feeIqd !== 'number' || rec.feeIqd < 0) {
+  if (typeof rec.fee !== 'number' || rec.fee < 0) {
     return {
       ok: false,
       error: new BoundaryError('schema', 'Fee must be a non-negative number')
     };
   }
-  if (typeof rec.isAvailable !== 'boolean') {
+  if (typeof rec.availableOnline !== 'boolean') {
     return {
       ok: false,
       error: new BoundaryError('schema', 'Service availability must be a boolean flag')
+    };
+  }
+  if (rec.department !== 'Civil' && rec.department !== 'Housing' && rec.department !== 'Legal') {
+    return {
+      ok: false,
+      error: new BoundaryError('schema', 'Department must be Civil, Housing, or Legal')
     };
   }
 
@@ -561,8 +595,9 @@ function parseServiceRecord(raw: unknown): Result<ServiceRecord, BoundaryError> 
     data: {
       id: rec.id,
       name: rec.name.trim(),
-      feeIqd: rec.feeIqd,
-      isAvailable: rec.isAvailable
+      fee: rec.fee,
+      availableOnline: rec.availableOnline,
+      department: rec.department
     }
   };
 }
@@ -587,7 +622,7 @@ async function renderServiceView(serviceId: string, statusContainer: HTMLElement
 
   // TypeScript guarantees result.data matches ServiceRecord!
   const service = result.data;
-  statusContainer.textContent = `Service: ${service.name} (Fee: ${service.feeIqd.toLocaleString()} IQD)`;
+  statusContainer.textContent = `Service: ${service.name} (Fee: ${service.fee.toLocaleString()} IQD)`;
 }
 ```
 
