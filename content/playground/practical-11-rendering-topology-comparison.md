@@ -249,7 +249,7 @@ Record your measurements and architectural observations in the following compari
 | **Initial HTML Size** | ~1.5 KB (skeleton only) | 12–40 KB (full markup + JSON) | 10–30 KB (full markup, 0 JSON) |
 | **Time to First Byte (TTFB)** | ~20 ms (static edge host) | 80–300 ms (server DB query latency) | <20 ms (global CDN cache) |
 | **First Contentful Paint (FCP)** | Slow (blocked by JS download & API) | Fast (instant paint of HTML) | Fastest (instant paint of static HTML) |
-| **Time to Interactive (TTI)** | Synchronized with FCP | Lagging FCP (the "uncanny valley") | Immediate (or zero if no JS needed) |
+| **Time to Interactive (TTI)** | Delayed (blocked by bundle & API) | Lagging FCP (the "uncanny valley") | Immediate (or zero if no JS needed) |
 | **SEO Indexability** | Reliant on search bot JS execution | Universal (raw HTML available) | Universal (raw HTML available) |
 | **Server Compute Overhead** | Zero (static assets only) | High (CPU & memory per request) | Zero at runtime (build-time only) |
 | **Content Freshness** | Always fresh (client queries API) | Real-time per request | Stale until next build/revalidation |
