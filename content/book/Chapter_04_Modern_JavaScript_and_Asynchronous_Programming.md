@@ -90,7 +90,7 @@ A **debounce** higher-order function uses a closure to retain a timer ID across 
 function debounce(fn, delayMs = 300) {
   let timerId = null; // Captured in closure
 
-  return function debounced(...args) {
+  function debounced(...args) {
     if (timerId !== null) {
       clearTimeout(timerId);
     }
@@ -98,7 +98,15 @@ function debounce(fn, delayMs = 300) {
       fn.apply(this, args);
       timerId = null;
     }, delayMs);
+  }
+
+  // Drop a pending call (used during teardown)
+  debounced.cancel = () => {
+    clearTimeout(timerId);
+    timerId = null;
   };
+
+  return debounced;
 }
 ```
 
@@ -142,7 +150,7 @@ Methods defined inside `class` bodies are assigned to `ServiceRecord.prototype`,
 
 ### Composition Over Inheritance {#9-composition-is-often-simpler-than-deep-inheritance}
 
-Deep inheritance hierarchies (`Record` $\rightarrow$ `ServiceRecord` $\rightarrow$ `UrgentServiceRecord` $\rightarrow$ `LocalizedUrgentRecord`) create brittle coupling where changes to base classes ripple unpredictably down the tree.
+Deep inheritance hierarchies (`Record` → `ServiceRecord` → `UrgentServiceRecord` → `LocalizedUrgentRecord`) create brittle coupling where changes to base classes ripple unpredictably down the tree.
 
 Modern architecture favors **composition**: assembling objects from focused, discrete capabilities:
 
@@ -346,7 +354,7 @@ JavaScript provides four static Promise combinators to manage multiple concurren
 | :--- | :--- | :--- | :--- |
 | **`Promise.all`** | All-or-nothing parallel dependencies | Resolves with array of all values when **all** succeed | Rejects immediately on **first** failure |
 | **`Promise.allSettled`** | Comprehensive batch processing | Resolves when **all** settle (each as `{status: 'fulfilled', value}` or `{status: 'rejected', reason}`) | Never rejects |
-| **`Promise.race`** | Latency race | Settles with the state and value of the **first** settled promise | Settles with the state of the first settled promise |
+| **`Promise.race`** | Latency race | Resolves if the **first** promise to settle fulfills | Rejects if the **first** promise to settle rejects |
 | **`Promise.any`** | Redundant failover | Resolves with the **first successful** value | Rejects only when **all** fail (AggregateError) |
 
 ```javascript
@@ -377,7 +385,7 @@ flowchart LR
     AS -->|passed to| Listeners[Event Listeners]
     AS -->|passed to| Custom[Custom Async Tasks]
     
-    Trigger[ac.abort('New search started')] -.->|triggers| AS
+    Trigger["ac.abort('New search started')"] -.->|triggers| AS
     AS -.->|cancels| Fetch
     AS -.->|removes| Listeners
 ```
@@ -403,13 +411,13 @@ fetch('/api/search?q=residence', { signal: controller.signal })
 controller.abort();
 ```
 
-When aborted, the `fetch()` Promise rejects with a DOMException named `AbortError`. Well-architected code treats `AbortError` as intentional control flow, not an application error.
+When aborted with `controller.abort()` (no argument), the `fetch()` Promise rejects with a DOMException named `AbortError`. If a reason is passed, as in `controller.abort('New search')`, it rejects with that reason instead, so checking `signal.aborted` is the more reliable test. Well-architected code treats cancellation as intentional control flow, not an application error.
 
 ### Composing Signals and Automated Timeouts
 
 Modern runtimes provide built-in signal composition utilities:
 
-* `AbortSignal.timeout(ms)`: Automatically triggers after a specified duration:
+* `AbortSignal.timeout(ms)`: Automatically triggers after a specified duration (the request rejects with a `TimeoutError`, not an `AbortError`):
   ```javascript
   // Request fails automatically if server takes > 5 seconds
   const response = await fetch('/api/data', { signal: AbortSignal.timeout(5000) });
@@ -451,7 +459,7 @@ const feeFormatter = new Intl.NumberFormat('ckb', {
   currency: 'IQD',
   maximumFractionDigits: 0
 });
-console.log(feeFormatter.format(25000)); // "٢٥٬٠٠٠ د.ع."
+console.log(feeFormatter.format(25000)); // e.g. "٢٥٬٠٠٠ د.ع." (exact output depends on the browser's locale data)
 
 // Relative Time Formatting
 const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
@@ -486,6 +494,7 @@ export function createLiveSearch({ inputElement, resultsElement, statusElement, 
 
     const trimmed = query.trim();
     if (!trimmed) {
+      searchSequence++; // Invalidate any response still in flight
       resultsElement.replaceChildren();
       statusElement.textContent = 'Enter search query.';
       return;
@@ -516,7 +525,8 @@ export function createLiveSearch({ inputElement, resultsElement, statusElement, 
       statusElement.textContent = `Found ${data.length} services matching "${trimmed}".`;
     } catch (error) {
       // 4. Differentiate expected cancellation from real network failures
-      if (error.name === 'AbortError') {
+      //    (abort('reason') rejects with the reason, not an AbortError)
+      if (signal.aborted) {
         // Ignored: superseded by newer query
         return;
       }
@@ -550,6 +560,7 @@ export function createLiveSearch({ inputElement, resultsElement, statusElement, 
 
   // Return a cleanup disposal handle
   return function destroy() {
+    onInput.cancel(); // Drop any keystroke still waiting on the timer
     if (activeController !== null) {
       activeController.abort('Search destroyed');
     }
