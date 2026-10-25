@@ -1144,8 +1144,7 @@ sequenceDiagram
     Note over Host: Host encounters dynamic import('licensingRemote/AuditPanel')
     Host->>Remote: Fetch remoteEntry.js (Manifest of exposed modules & shared singletons)
     Remote-->>Host: Returns module federation metadata
-    Note over Host: Host verifies shared React version (18.3.1 === 18.3.1)
-Re-uses host React runtime without downloading second copy!
+    Note over Host: Host verifies shared React version (18.3.1 === 18.3.1)<br/>Re-uses host React runtime without downloading second copy!
     Host->>Remote: Fetch AuditPanel.[hash].js
     Remote-->>Host: Emitted chunk code
     Note over Host: Host mounts Remote Component into shell DOM tree!
@@ -1509,7 +1508,8 @@ flowchart TD
 
     Proxy -->|90% Legacy Traffic| Legacy
     Proxy -->|10% Migrated Route: /permits/apply| NewApp
-    Note over Proxy: Gradually shift routes from Legacy to NewApp until Legacy is completely retired!
+    Hint["Gradually shift routes from Legacy to NewApp until Legacy is retired"]
+    Proxy -.- Hint
 ```
 
 Use stable URLs, data contracts, and ownership rules to keep the old and new systems coherent during transition.
@@ -1700,7 +1700,8 @@ flowchart TD
     Shell --- Catalog
     Shell --- ErrorBoundary
     FailedRemote -.->|Error caught by Boundary| Fallback
-    Note over Shell: Entire application survives! User continues browsing catalogue.
+    Outcome["Entire application survives! User continues browsing the catalogue."]
+    Shell -.- Outcome
 ```
 
 If every remote failure breaks the shell, distribution has not created meaningful containment.
