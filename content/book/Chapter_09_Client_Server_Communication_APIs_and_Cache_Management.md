@@ -237,8 +237,11 @@ export async function httpClient<T>(url: string, options: RequestOptions = {}): 
     if (error instanceof HttpError) {
       throw error;
     }
+    if (error instanceof DOMException && error.name === 'TimeoutError') {
+      throw new Error(`Request timed out after ${timeoutMs}ms`);
+    }
     if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new Error(`Request cancelled or timed out after ${timeoutMs}ms`);
+      throw new Error('Request was manually cancelled');
     }
     throw new Error(error instanceof Error ? error.message : 'Unknown network failure');
   }
@@ -261,7 +264,7 @@ flowchart TD
 
 The mathematical formula for exponential backoff with full jitter is:
 
-$$T_{\text{wait}} = \min(T_{\max},\; T_{\text{base}} \times 2^{\text{attempt}}) + \text{random}(0, \text{jitter})$$
+$$T_{\text{wait}} = \text{random}(0,\; \min(T_{\max},\; T_{\text{base}} \times 2^{\text{attempt}}))$$
 
 This distributes retries across time, preventing millions of mobile clients from bombarding recovering application servers simultaneously.
 
