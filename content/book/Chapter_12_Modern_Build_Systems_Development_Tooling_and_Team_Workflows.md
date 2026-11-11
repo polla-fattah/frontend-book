@@ -8,9 +8,9 @@ book_kind: book
 
 A software engineer at the Erbil General Directorate of Municipalities writes a new component: `PermitApprovalCard.tsx`.
 
-The component is written in TypeScript. It imports JSX syntax, uses modern ECMAScript optional chaining, imports scoped CSS modules, loads an SVG municipal coat-of-arms icon, references an environment variable `import.meta.env.VITE_API_URL`, and dynamically imports a heavy PDF generation library when an inspector clicks "Print Certificate."
+The component is written in TypeScript. It imports JSX syntax, imports scoped CSS modules, loads an SVG municipal coat-of-arms icon, references an environment variable `import.meta.env.VITE_API_URL`, and dynamically imports a heavy PDF generation library when an inspector clicks "Print Certificate."
 
-None of these constructs are native to standard web browsers:
+Most of these authoring patterns cannot be executed directly by standard web browsers without tooling:
 - Browsers do not understand TypeScript interfaces or type annotations.
 - Browsers cannot execute JSX tags like `<article className={styles.card}>` without a runtime transform.
 - Browsers cannot natively resolve bare package specifiers like `import { format } from 'date-fns'` without an explicit URL or import map.
@@ -33,7 +33,7 @@ flowchart LR
     subgraph Toolchain["2. Toolchain Pipeline"]
         P1["Resolver & Package Manager\n(Lockfile verification, exports mapping)"]
         P2["Transformer (esbuild / Rust)\n(Strip types, lower syntax, compile CSS)"]
-        P3["Bundler & Tree Shaker (Rollup / Vite)\n(Construct DAG, dead code elimination)"]
+        P3["Bundler & Tree Shaker (Rollup / Vite)\n(Construct Module Graph, dead code elimination)"]
         P4["Chunking & Fingerprinting\n(Dynamic split, content hashing)"]
     end
 
@@ -60,14 +60,14 @@ flowchart TD
     A["1. File System Entry\n(src/components/PermitApprovalCard.tsx)"] --> B["2. Package & Path Resolution\n(Resolve './card.module.css', 'date-fns', '@/utils/format')"]
     B --> C["3. Syntax Parsing & AST Generation\n(Convert source code into Abstract Syntax Tree)"]
     C --> D["4. Transformation & Type Stripping\n(Remove TS types, convert JSX to React.createElement/jsxRuntime)"]
-    D --> E["5. Module Graph Placement (DAG)\n(Identify incoming dependencies and outgoing imports)"]
+    D --> E["5. Module Graph Placement\n(Identify incoming dependencies and outgoing imports)"]
     E --> F["6. Optimization & Emit\n(Tree-shake unused functions, minify variable names, compute content hash)"]
 ```
 
 1. **Resolution:** The toolchain encounters `import { formatCurrency } from '../utils/math'`. It resolves the relative path to an absolute disk location, checking file extensions (`.ts`, `.tsx`, `.js`, `.json`) according to configured resolution algorithms.
 2. **Parsing:** The parser reads the raw text characters and transforms them into an **Abstract Syntax Tree (AST)** - a structured tree representation of the code syntax in memory.
 3. **Transformation:** Specialized compilers (such as esbuild, SWC, or Babel) walk the AST, stripping away TypeScript type definitions and converting modern JSX tags into executable JavaScript function calls.
-4. **Module Graph Traversal:** The bundler links the module into a comprehensive **Directed Acyclic Graph (DAG)** representing every file in the project and their explicit relationships.
+4. **Module Graph Traversal:** The bundler links the module into a comprehensive **Directed Graph** representing every file in the project and their explicit relationships.
 5. **Optimization (Tree Shaking & Minification):** Unreferenced export functions are pruned from the graph. Variable names are shortened (`formatCurrency` $\rightarrow$ `a`), whitespace is removed, and dead code branches are eliminated.
 6. **Emitting Fingerprinted Assets:** The final code is written into chunk files with cryptographic content hashes in their filenames (`PermitCard.8f31c9a1.js`), ready for deployment to edge content delivery networks.
 
@@ -199,7 +199,7 @@ Therefore, production pipelines use dedicated production bundlers (such as Rollu
 
 ```mermaid
 flowchart LR
-    S1["1. Module Graph (DAG)"] --> S2["2. Tree Shaking & DCE"]
+    S1["1. Module Graph"] --> S2["2. Tree Shaking & DCE"]
     S2 --> S3["3. Route Code Splitting"]
     S3 --> S4["4. Minification & Mangling"]
     S4 --> S5["5. Asset Fingerprinting"]
