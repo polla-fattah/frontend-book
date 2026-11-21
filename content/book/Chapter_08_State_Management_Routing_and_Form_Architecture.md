@@ -65,7 +65,7 @@ flowchart TD
 | **URL State** | Browser history entry | Browser address bar | `window.location`, router | `?district=erbil&page=4` |
 | **Form State** | Active editing session | Form boundary | Form hook, reducer | `touched: Set`, `errors: Record` |
 | **Persistent State** | Across reloads/sessions | Browser storage | `localStorage`, `IndexedDB` | `densityPreference: 'compact'` |
-| **Derived State** | Synchronous calculation | Pure function / getter | `useMemo`, `computed` | `filteredCount = list.length` |
+| **Derived State** | Synchronous calculation | Pure function / getter | Inline calculation, `useMemo` (only if expensive) | `activeTotal = cart.reduce(...)` |
 
 ### 1.2 Server State Is Not Ordinary Client State
 
@@ -228,6 +228,18 @@ flowchart TD
 
 Using `pushState` on every keystroke in a search input is a catastrophic UX defect: a user typing ten characters must click the Back button eleven times just to leave the page!
 
+#### The `popstate` Trap: Programmatic Updates vs. History Traversal
+
+A pervasive misconception in front-end routing is assuming that `window.addEventListener('popstate')` fires whenever `history.pushState()` or `history.replaceState()` is called.
+
+Under the W3C/WHATWG HTML specification, **it does not**.
+
+The browser dispatches the `popstate` event **exclusively** during user-initiated session history traversal—such as when the user clicks the browser's physical **Back** or **Forward** buttons, or when script calls `history.back()`, `history.forward()`, or `history.go()`. Calling `history.pushState()` or `history.replaceState()` programmatically alters the address bar and updates the session history, but it is completely silent to `popstate` listeners.
+
+Because of this asymmetry, a Single-Page Application router cannot rely on `popstate` alone to detect navigation. Production architectures solve this through one of two patterns:
+1. **Centralized Router Context:** Navigation is driven through a framework hook (e.g., `navigate('/permits')`) that calls `history.pushState()` and immediately updates an internal reactive route store in the same tick.
+2. **Event Wrapping (Monkey-Patching):** In vanilla architectures, scripts wrap `history.pushState` and `history.replaceState` to dispatch a synthetic window event (such as `locationchange`) alongside the native history call.
+
 ---
 
 ## 5. The URL as the Single Source of Truth for Navigable State
@@ -286,6 +298,34 @@ Without intentional focus management:
 * Focus remains trapped on the inactive link at the bottom of the page, leaving the user completely unaware that navigation occurred!
 
 Architects implement route transition listeners that programmatically shift focus to the primary `<h1>` heading or the main `<main id="content">` landmark upon route commit.
+
+#### The `tabindex="-1"` Requirement and Focus Ring Reset
+
+In standard HTML, container and heading elements (`<h1>`, `<main>`, `<article>`) are **non-interactive and non-focusable by default**. Executing `document.querySelector('h1').focus()` in JavaScript will silently fail unless the target element possesses a `tabindex="-1"` attribute:
+
+```html
+<main id="content" tabindex="-1">
+  <h1 id="page-title" tabindex="-1">Business Operating Permits</h1>
+  <!-- Page Content -->
+</main>
+```
+
+The attribute `tabindex="-1"` allows JavaScript to programmatically shift keyboard and assistive technology focus to the element without inserting it into the user's sequential Tab key order.
+
+**An Essential Styling Best Practice:**  
+When an element receives programmatic focus via `tabindex="-1"`, most browsers draw their default focus ring (a visible blue or black outline) around the entire heading or main container. Because this focus shift is an invisible, mechanical routing transition rather than an explicit keyboard navigation by a sighted user, this outline appears as a visual defect or layout glitch. 
+
+Architects always pair the programmatic focus attribute with a targeted CSS reset to suppress the outline:
+
+```css
+/* Suppress focus rings on programmatic route targets */
+h1[tabindex="-1"]:focus,
+main[tabindex="-1"]:focus {
+  outline: none;
+}
+```
+
+This ensures screen readers announce the new page title immediately upon route commit while preserving a clean, unglitched visual presentation.
 
 ---
 
