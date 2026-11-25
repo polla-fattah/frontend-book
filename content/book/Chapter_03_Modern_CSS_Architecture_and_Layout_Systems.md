@@ -594,15 +594,18 @@ We assemble these systems into an adaptive, production-grade dashboard implement
     box-sizing: border-box;
     margin: 0;
   }
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+}
+
+@layer base {
   body {
     line-height: 1.5;
     font-family: system-ui, -apple-system, sans-serif;
     color: var(--color-text);
     background: var(--color-bg);
-  }
-  ul {
-    list-style: none;
-    padding: 0;
   }
 }
 
@@ -610,6 +613,7 @@ We assemble these systems into an adaptive, production-grade dashboard implement
   .dashboard-shell {
     display: grid;
     min-block-size: 100vh;
+    min-block-size: 100dvh; /* avoids the jump from mobile browser toolbars */
     grid-template-rows: auto 1fr;
     grid-template-columns: minmax(14rem, 18rem) 1fr;
     grid-template-areas:
