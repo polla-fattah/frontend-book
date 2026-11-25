@@ -295,7 +295,7 @@ In standard grid layouts, cards are placed in rows, but the internal elements of
 
 ```mermaid
 flowchart TD
-    ParentGrid[Parent Grid: repeat(auto-fit, minmax(280px, 1fr))]
+    ParentGrid["Parent Grid: repeat(auto-fit, minmax(18rem, 1fr))"]
     
     subgraph Card1["Card 1 (rows: subgrid)"]
         H1["Header (Row 1)"]
