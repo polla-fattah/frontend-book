@@ -201,7 +201,7 @@ Because custom properties inherit through the DOM, themes can be toggled by swit
   --color-border: #e2e8f0;
 }
 
-[data-theme="dark"],
+/* Follow the OS setting unless the user picked light explicitly */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --color-bg: #0b0f19;
@@ -210,7 +210,17 @@ Because custom properties inherit through the DOM, themes can be toggled by swit
     --color-border: #334155;
   }
 }
+
+/* Manual toggle */
+:root[data-theme="dark"] {
+  --color-bg: #0b0f19;
+  --color-text: #f1f5f9;
+  --color-surface: #1e293b;
+  --color-border: #334155;
+}
 ```
+
+Note that a selector and an `@media` rule cannot share one selector list, so the explicit `[data-theme="dark"]` override needs its own rule.
 
 Components simply consume `var(--color-surface)` and `var(--color-text)` without needing separate dark-mode selector overrides.
 
