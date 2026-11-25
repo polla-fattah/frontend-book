@@ -112,10 +112,10 @@ sequenceDiagram
     Browser->>CDN: GET /assets/index.8f2a.js (1.4 MB)
     CDN-->>Browser: Returns JavaScript Bundle
     Note over Browser: Parse & Compile JS (250ms on mobile CPU)
-    Note over Browser: Framework initializes; mounts root component
+    Note over Browser: Framework initializes, mounts root component
     Browser->>API: GET /api/permits/104 (Fetch dynamic data)
     API-->>Browser: Returns JSON Payload
-    Note over Browser: Calculate Virtual DOM; Paint DOM elements
+    Note over Browser: Calculate Virtual DOM, then paint DOM elements
     Note over Browser: Content finally visible! (FCP = 4.2s over 3G)
 ```
 
@@ -134,7 +134,7 @@ Despite its initial loading penalties, CSR possesses compelling architectural ad
 
 ```mermaid
 flowchart LR
-    A["CI/CD Build Pipeline\n(npx build)"] --> B["Fetch data at compile\n(Query database/headless CMS)"]
+    A["CI/CD Build Pipeline\n(npm run build)"] --> B["Fetch data at compile\n(Query database/headless CMS)"]
     B --> C["renderToString(Page)\nfor every route"]
     C --> D["Write static files to disk\n(/permits/101.html, /permits/102.html)"]
     D --> E["Deploy to Global Edge CDN\n(<20ms TTFB globally)"]
@@ -144,7 +144,7 @@ flowchart LR
 
 Because SSG compiles HTML ahead of time:
 - **Instantaneous Time to First Byte (TTFB):** Edge CDN servers serve raw `.html` files directly from fast NVMe storage or memory caches in under 20ms worldwide.
-- **Superior Core Web Vitals:** First Contentful Paint (FCP) and Largest Contentful Paint (LCP) occur almost instantly because the browser receives fully rendered typography and layout structures in the very first TCP packet.
+- **Superior Core Web Vitals:** First Contentful Paint (FCP) and Largest Contentful Paint (LCP) occur almost instantly because the browser receives fully rendered typography and layout structures in the initial HTML response.
 - **Flawless Search Engine Optimization (SEO):** Web crawlers (Googlebot, Bingbot, social media preview scrapers) receive complete semantic HTML without executing a single line of client JavaScript.
 - **Total Infrastructure Resilience:** Even if the municipal database suffers a catastrophic outage, the public documentation and regulatory guides continue serving smoothly from CDN edge nodes.
 
@@ -175,7 +175,7 @@ sequenceDiagram
     CDN-->>Citizen2: Serves fresh pre-rendered HTML!
 ```
 
-With ISR, individual routes regenerate in the background on demand or via explicit webhook invalidation (`revalidatePath('/permits/104')`), preserving instant static delivery without marathon build times.
+With ISR, individual routes regenerate in the background on demand or via explicit webhook invalidation (in Next.js, a webhook handler calls `revalidatePath('/permits/104')`), preserving instant static delivery without marathon build times.
 
 ---
 
@@ -191,7 +191,7 @@ flowchart TD
     Auth --> Fetch["Query Database for User 88's Assessments"]
     Fetch --> Render["renderToString(<Dashboard data={userAssessments} />)"]
     Render --> Doc["Construct Full HTML Document + Serialized State JSON"]
-    Doc --> Res["Stream HTTP 200 OK + HTML Response to Browser"]
+    Doc --> Res["Send HTTP 200 OK + HTML Response to Browser"]
 ```
 
 ### The Hydration Phase: Breathing Life into Dead Markup
@@ -214,24 +214,26 @@ Hydration creates a subtle but frustrating user experience defect known as the *
 3. **Nothing happens.** The browser is still downloading and parsing the 300KB client JavaScript bundle. The button looks clickable, but its `onClick` listener has not yet been registered.
 4. At $t = 1200\text{ms}$, hydration completes. Now, tapping the button finally triggers the expected modal.
 
-On low-powered mobile devices over slow networks, this gap between visual rendering and actual interactivity (Time to Interactive / Total Blocking Time) can stretch to several seconds.
+On low-powered mobile devices over slow networks, this gap between visual rendering and actual interactivity can stretch to several seconds. The classic lab name for the moment the gap closes is Time to Interactive (TTI), but Lighthouse removed TTI in version 10; today the gap shows up in the lab as Total Blocking Time (TBT) and in the field as Interaction to Next Paint (INP).
 
 ### Hydration Mismatches: Causes and Prevention
 
-During hydration, the client framework renders the component tree in memory and compares it node-by-node against the server-generated HTML DOM. If the client tree produces different markup than the server HTML, a **Hydration Mismatch Warning** is thrown:
+During hydration, the client framework renders the component tree in memory and compares it node-by-node against the server-generated HTML DOM. If the client tree produces different markup than the server HTML, the framework reports a **Hydration Mismatch**. React 19 logs it as a recoverable error:
 
 ```text
-Warning: Text content did not match. Server: "Current Time: 10:30 AM" Client: "Current Time: 10:31 AM"
+Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client.
 ```
+
+Older React versions printed a shorter warning, such as `Text content did not match. Server: "Current Time: 10:30 AM" Client: "Current Time: 10:31 AM"`.
 
 When a mismatch occurs, the framework must discard the pre-rendered DOM subtree and forcefully re-render it on the client, destroying the performance advantage of SSR and causing visible screen flickers.
 
 #### The Three Primary Causes of Hydration Mismatches:
 1. **Clock and Timezone Discrepancies:** The origin server runs in UTC (`2026-09-24T04:30:00Z`), while the user's browser renders in Erbil local time (`AST / UTC+3`). Formatting timestamps directly during rendering causes instant mismatches.
 2. **Non-Deterministic Generators:** Invoking `Math.random()`, `crypto.randomUUID()`, or sequential ID counters directly inside component rendering logic produces different values on server and client.
-3. **Browser-Only Globals:** Accessing `window.innerWidth`, `navigator.userAgent`, or `localStorage` during initial render. Because these globals do not exist in Node.js on the server, developers wrap them in conditions that render differently on client and server.
+3. **Browser-Only Globals:** Accessing `window.innerWidth`, `navigator.userAgent`, or `localStorage` during initial render. On the server, `window` does not exist in Node.js, `localStorage` is not available by default, and recent Node.js versions do define `navigator` but report a `userAgent` such as `Node.js/26` instead of the visitor's browser. Developers wrap these reads in conditions, and the condition then renders differently on client and server.
 
-```typescript
+```tsx
 // ANTIPATTERN: Guaranteed Hydration Mismatch
 function Header() {
   // Server renders: "Desktop Layout" (window is undefined)
@@ -260,7 +262,7 @@ A major architectural trap of naive SSR is the **Data Double-Fetch Problem**.
 
 Consider what happens if an application server fetches permit data, renders HTML, and sends it to the browser. When the client JavaScript bundle initializes in the browser, the component mounts:
 
-```typescript
+```tsx
 // ANTIPATTERN: The Double-Fetch Bug
 function PermitView({ permitId }) {
   const [data, setData] = useState(null);
@@ -346,7 +348,7 @@ In traditional SSR, the server cannot send a single byte of HTML to the browser 
 
 ### The Streaming SSR Architecture
 
-**Streaming Server-Side Rendering** (enabled by modern standards like HTML5 Chunked Transfer Encoding and React Suspense / Vue Async Components) breaks this bottleneck.
+**Streaming Server-Side Rendering** breaks this bottleneck. It relies on HTTP response streaming (chunked transfer encoding in HTTP/1.1; HTTP/2 and HTTP/3 stream the body in frames instead) together with framework support such as React Suspense with `renderToPipeableStream()` or `renderToReadableStream()`. Vue can also stream its server output, but Vue's `<Suspense>` is still marked experimental.
 
 ```mermaid
 sequenceDiagram
@@ -360,11 +362,11 @@ sequenceDiagram
     Server-->>Browser: Flush HTTP 200 Headers + App Shell + Skeleton Placeholder
     Note over Browser: Browser immediately parses HTML and paints Shell! (FCP = 80ms)
     
-    Note over Server: Main Permit Data resolves in 50ms
+    Note over Server: Main Permit Data resolves in 45ms
     Server-->>Browser: Flush Stream Chunk 2: Permit Details HTML
     Note over Browser: Browser replaces permit skeleton with real text
     
-    Note over Server: Slow Agency Audit Query finishes in 800ms
+    Note over Server: Slow Agency Audit Query finishes in 850ms
     Server-->>Browser: Flush Stream Chunk 3: Historical Audits HTML + inline script
     Note over Browser: Browser smoothly swaps audit skeleton with final table
 ```
@@ -388,9 +390,9 @@ flowchart TD
 
 ### 1. Island Architecture (Partial Hydration)
 
-Pioneered by architectural systems like Astro and Fresh, **Island Architecture** treats the page as a pure static HTML document containing small, isolated "islands" of interactivity.
+Popularized by frameworks like Astro and Fresh, **Island Architecture** treats the page as a pure static HTML document containing small, isolated "islands" of interactivity.
 
-In a traditional React/Next.js or Vue/Nuxt application, even if 95% of a page is static text (such as an article or product description), the client browser must still download the entire React runtime, download component definitions for the static paragraphs, and walk the entire DOM tree during hydration.
+In a traditional full-hydration application (for example, the Next.js Pages Router or a standard Nuxt app), even if 95% of a page is static text (such as an article or product description), the client browser must still download the entire framework runtime, download component definitions for the static paragraphs, and walk the entire DOM tree during hydration.
 
 In Island Architecture:
 - The header, article text, table of contents, and footer are compiled to **pure static HTML with zero client JavaScript shipped**.
@@ -415,6 +417,8 @@ flowchart TD
 
 Unlike traditional SSR (which executes components on the server to produce HTML, and then re-executes the exact same components in the browser during hydration), **Server Components never re-execute in the browser**. Their code, dependencies, and internal database drivers are stripped completely from the client JavaScript bundle.
 
+In frameworks built on RSC, such as the Next.js App Router, a component is a Server Component by default. Only the boundary into client code is marked, with `'use client'` at the top of a file. There is no directive for Server Components: `'use server'` marks Server Functions (functions the client can call on the server), not components. The `.server.js` and `.client.js` file suffixes seen in older articles come from the December 2020 experimental RSC demo and are no longer the convention.
+
 ### 3. Resumability (Zero-Hydration Architecture)
 
 Frameworks like Qwik reject hydration altogether. Hydration is fundamentally wasteful: the server already executed the application, calculated the state, and rendered the DOM. Hydration forces the client browser to duplicate that entire computation simply to attach event listeners.
@@ -422,19 +426,20 @@ Frameworks like Qwik reject hydration altogether. Hydration is fundamentally was
 **Resumability** serializes the application's entire reactive state, component boundaries, and event listener symbols directly into the HTML DOM itself:
 
 ```html
-<!-- Resumable HTML Output -->
-<button q:on="click:./button_onclick.js#handleClick">Submit</button>
+<!-- Resumable HTML Output (simplified Qwik 1.x markup) -->
+<!-- The on:click attribute names the chunk file and the exported handler to load later -->
+<button on:click="./button_onclick.js#handleClick">Submit</button>
 ```
 
 When the page loads in the browser:
-- **Zero client JavaScript is executed on boot.** No bundle downloads, no VDOM construction, no DOM walking.
-- When the user clicks the button, the browser intercepts the native DOM event, inspects `q:on`, downloads a tiny 1KB chunk containing only that specific click handler, and executes it immediately.
+- **No application JavaScript is executed on boot.** No bundle downloads, no VDOM construction, no DOM walking. The only script that runs is the Qwikloader, a tiny global listener (under 2 KB gzipped) that waits for events.
+- When the user clicks the button, the Qwikloader catches the native DOM event, reads the `on:click` attribute, downloads the small chunk containing only that specific click handler, and executes it immediately.
 
 ---
 
 ## 8. The Route-Specific Architectural Decision Matrix
 
-Rather than arguing over framework brands, architects evaluate each route across four concrete criteria:
+Rather than arguing over framework brands, architects evaluate each route with three concrete questions:
 
 ```mermaid
 flowchart TD
@@ -487,7 +492,7 @@ By applying this decision matrix, the Erbil Municipal engineering team delivers 
 5. Describe the Data Double-Fetch Problem in naive SSR implementations and explain how a serialized state handoff script resolves it.
 6. What is a Hydration Mismatch, and why does reading `window.innerWidth` during initial component render cause it?
 7. How does Streaming SSR with Suspense improve perceived performance when a page depends on a slow database query?
-8. In Island Architecture, how does declaring `<Comments client:visible />` reduce client JavaScript execution compared to standard Next.js or Nuxt hydration?
+8. In Island Architecture, how does declaring `<Comments client:visible />` reduce client JavaScript execution compared to full-page hydration in a traditional Next.js (Pages Router) or Nuxt app?
 9. How do React Server Components (RSC) differ from traditional server-rendered HTML with respect to client bundle size?
 10. What is Resumability, and how does it eliminate the DOM-walking hydration phase entirely?
 
