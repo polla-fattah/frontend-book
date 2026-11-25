@@ -309,22 +309,22 @@ const html = `<script id="__DATA__">${JSON.stringify({ name: businessName })}</s
 ```
 
 #### Safe Serialization Rule:
-Always serialize JSON data for HTML embedding by guarding against `undefined` and escaping HTML and script-sensitive characters (such as `<` to unicode `\u003c`):
+Always serialize JSON data for HTML embedding by guarding against values that `JSON.stringify()` cannot represent and escaping the `<` character as unicode `\u003c`. Escaping a few other characters as well is cheap defense in depth:
 
 ```typescript
 export function serializeSafeState(data: unknown): string {
-  // Guard against undefined input causing a TypeError on .replace()
-  const jsonString = JSON.stringify(data ?? null) ?? 'null';
+  // JSON.stringify returns undefined for undefined/functions/symbols, so fall back to null
+  const json = JSON.stringify(data) ?? 'null';
 
-  // Safely escape characters that could break script tag contexts
-  return jsonString.replace(/[<>&/\u2028\u2029]/g, (char) => {
+  // Swap risky characters for \uXXXX escapes; JSON.parse() turns them back
+  return json.replace(/[<>&\/\u2028\u2029]/g, (char) => {
     switch (char) {
-      case '<': return '\\u003c';
-      case '>': return '\\u003e';
-      case '&': return '\\u0026';
-      case '/': return '\\u002f';
-      case '\u2028': return '\\u2028';
-      case '\u2029': return '\\u2029';
+      case '<': return '\\u003c'; // essential: blocks </script> and <!--
+      case '>': return '\\u003e'; // extra safety
+      case '&': return '\\u0026'; // extra safety
+      case '/': return '\\u002f'; // extra safety
+      case '\u2028': return '\\u2028'; // line separator: broke inline JS before ES2019
+      case '\u2029': return '\\u2029'; // paragraph separator: same reason
       default: return char;
     }
   });
@@ -406,7 +406,7 @@ In Island Architecture:
 
 ```mermaid
 flowchart TD
-    subgraph ServerOnlyZone["Server Component (PermitDetail.tsx - Default)"]
+    subgraph ServerOnlyZone["Server Component by default (PermitDetail.tsx, no directive)"]
         SQL[("Direct PostgreSQL Query\n(SELECT * FROM permits)")] --> SC["Executes EXCLUSIVELY on server\n- Imports 150KB markdown parser\n- Direct access to internal microservices\n- ZERO bytes sent to client JS bundle!"]
     end
     
