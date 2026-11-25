@@ -75,7 +75,7 @@ Only after completing Stages 1–3, evaluate whether a custom widget is justifie
 2. Inside, render child options with `role="option"` and `aria-selected="false"`.
 3. Implement **roving `tabindex`**:
    * The currently focused option has `tabindex="0"`; all other options have `tabindex="-1"`.
-   * Pressing `DownArrow` or `UpArrow` moves focus and updates `tabindex="0"` to the next or previous option without scrolling the page.
+   * Pressing `DownArrow` or `UpArrow` calls `preventDefault()`, moves focus, and updates `tabindex="0"` to the next or previous option without scrolling the page.
    * `Home` moves focus to the first option; `End` moves to the last option.
    * `Space` toggles the selection state (`aria-selected="true|false"`).
 4. Preserve the native `<select multiple>` as a fallback.

@@ -292,13 +292,13 @@ When an input is invalid, associate the error message directly with the input us
 ```html
 <div>
   <label for="national-id">National ID Number</label>
+  <!-- Set aria-invalid="true" only after this field fails validation. -->
   <input 
     type="text" 
     id="national-id" 
     name="national_id" 
     required 
     pattern="[A-Z]{2}[0-9]{6}" 
-    aria-invalid="true" 
     aria-describedby="national-id-error national-id-hint"
   >
   <p id="national-id-hint">Format: 2 capital letters followed by 6 digits (e.g., AB123456).</p>
@@ -354,7 +354,7 @@ The `:focus-visible` pseudo-class allows designers to display focus rings primar
 
 ## 5. The Accessibility Tree and Accessible Names {#6-accessibility-begins-with-structure}
 
-The browser parses the DOM and translates its semantic structure into the **Accessibility Tree**. Platform accessibility APIs (such as UI Automation on Windows, AXAPI on macOS, and ATK on Linux) expose this tree to assistive technologies.
+The browser parses the DOM and translates its semantic structure into the **Accessibility Tree**. Platform accessibility APIs (such as UI Automation on Windows, macOS Accessibility (AX) APIs, and ATK on Linux) expose this tree to assistive technologies.
 
 ```mermaid
 flowchart TD
@@ -386,8 +386,8 @@ flowchart TD
     C -- Yes --> R2[Use value of aria-label attribute]
     C -- No --> D{Has native label or alt text?}
     D -- Yes --> R3[Use label element, alt, button text, or caption]
-    D -- No --> E{Has title or placeholder?}
-    E -- Yes --> R4[Use title or placeholder fallback]
+    D -- No --> E{Has title?}
+    E -- Yes --> R4[Use title as a fallback]
     E -- No --> R5[No accessible name: Warning]
 ```
 
@@ -490,11 +490,11 @@ When right-to-left and left-to-right text are mixed in a single sentence, the **
 
 ### RTL Is Not "Mirror Everything" {#14-rtl-is-not-mirror-everything}
 
-Transitioning an interface to RTL layout flips structural flow (margins, padding, column order, navigation arrows), but several elements remain strictly LTR:
-* Phone numbers (`+964 750 ...`) and mathematical formulas.
-* Code snippets and URLs.
-* Media playback timelines (audio/video progress bars advance left-to-right universally).
-* Physical device icons (e.g. keyboards, volume sliders).
+Transitioning an interface to RTL layout flips structural flow (margins, padding, column order, navigation arrows). Direction-sensitive values and controls still need deliberate handling:
+* Phone numbers (`+964 750 ...`) and mathematical formulas should use explicit LTR isolation when their direction is not inherited correctly.
+* Code snippets and URLs should use explicit LTR markup or `<bdi>` when embedded in RTL text.
+* Media playback timelines and other controls should follow the application’s component design and platform conventions rather than assume a universal direction.
+* Physical device icons should preserve their actual physical or platform orientation instead of being mirrored solely because the page is RTL.
 
 ---
 
@@ -659,6 +659,7 @@ We now assemble these concepts into the comprehensive public-service portal.
               <option value="identity">National ID Replacement</option>
               <option value="birth">Civil Record Copy</option>
             </select>
+            <p id="service-error" class="error-msg" role="alert" hidden></p>
           </div>
 
           <div class="form-field">
@@ -709,7 +710,7 @@ We now assemble these concepts into the comprehensive public-service portal.
     </main>
 
     <footer>
-      <p>&copy; 2026 Directorate of Public Informatics & Citizen Services.</p>
+      <p>&copy; 2026 Directorate of Public Informatics &amp; Citizen Services.</p>
     </footer>
   </body>
 </html>
@@ -724,6 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const serviceSelect = document.querySelector('#service-select');
   const notesTextarea = document.querySelector('#applicant-notes');
   const notesError = document.querySelector('#notes-error');
+  const serviceError = document.querySelector('#service-error');
   const statusRegion = document.querySelector('#submission-status');
   const tableBody = document.querySelector('#request-rows');
 
@@ -733,8 +735,22 @@ document.addEventListener('DOMContentLoaded', () => {
     notesError.hidden = true;
     notesError.textContent = '';
     notesTextarea.removeAttribute('aria-invalid');
+    // Reset and clear all validation state before evaluating the next submission.
+    serviceError.hidden = true;
+    serviceError.textContent = '';
+    serviceSelect.removeAttribute('aria-invalid');
+    serviceSelect.removeAttribute('aria-describedby');
 
     if (!form.checkValidity()) {
+      if (!serviceSelect.value) {
+        // Associate a visible, announced error with the field that caused this branch.
+        serviceSelect.setAttribute('aria-invalid', 'true');
+        serviceSelect.setAttribute('aria-describedby', 'service-error');
+        serviceError.textContent = 'Please select a service before submitting.';
+        serviceError.hidden = false;
+        serviceSelect.focus();
+        return;
+      }
       if (!notesTextarea.value.trim()) {
         notesTextarea.setAttribute('aria-invalid', 'true');
         notesError.textContent = 'Please provide statement details before submitting.';
@@ -812,7 +828,7 @@ Web Components are platform standards allowing developers to define reusable, en
 
 1. **Custom Elements (`customElements.define`)**: Extends HTML vocabulary with custom tags containing hyphens (e.g. `<service-alert>`).
 2. **Shadow DOM**: Encapsulates an element's internal DOM subtree and CSS styles from the outer document.
-3. **HTML Templates (`<template>`) and Slots (`<slot>`)**: Declares markup fragments that remain inert until cloned and rendered.
+3. **HTML Templates (`<template>`) and Slots (`<slot>`)**: `<template>` declares reusable markup that remains inert until it is cloned and rendered. `<slot>` defines insertion points for projected light-DOM content inside a shadow tree.
 
 ```javascript
 class ServiceAlert extends HTMLElement {
