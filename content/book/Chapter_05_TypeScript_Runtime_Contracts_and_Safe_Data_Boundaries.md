@@ -18,6 +18,7 @@ interface CitizenService {
 
 async function loadService(id: string): Promise<CitizenService> {
   const response = await fetch(`/api/services/${id}`);
+  // `as` does not check anything here, it just tells the compiler "trust me"
   return (await response.json()) as CitizenService;
 }
 ```
@@ -37,6 +38,8 @@ TypeError: Cannot read properties of undefined (reading 'toLowerCase')
 The TypeScript annotation did nothing to stop the crash.
 
 Why? Because **TypeScript types are completely erased at compile time**. The compiler analyzes source code to verify internal consistency, but the emitted JavaScript contains no runtime checks. An assertion (`as CitizenService`) is not a conversion, a validator, or a protective force field around external data. It is merely a command instructing the compiler to silence its doubts.
+
+<!-- My note: the type only lives in the editor. In the browser it is just plain JS, so a wrong response goes right through without any error. -->
 
 ```mermaid
 flowchart TD
@@ -72,6 +75,8 @@ flowchart LR
     D -- Invalid --> F["Structured Error Handling"]
 ```
 
+<!-- Types disappear after compiling. `as Type` only silences the compiler, so outside data must be checked at runtime. -->
+
 ### Type Inference First {#2-type-inference-first}
 
 TypeScript's inference engine is sophisticated. Developers should allow TypeScript to infer local variables, loop indices, and straightforward return values automatically:
@@ -82,11 +87,14 @@ const requestCount: number = 0;
 const serviceName: string = "Residence Certificate";
 
 // Clean, idiomatic inference
+// TypeScript already knows these are number and string, no need to write it
 const requestCount = 0;
 const serviceName = "Residence Certificate";
 ```
 
 Explicit type annotations should be reserved for architectural boundaries: function signatures, interface contracts, complex data models, and places where inference would default to `any`.
+
+<!-- So I write types where data comes in or goes out (function inputs and outputs), and let TypeScript guess the rest. -->
 
 ---
 
@@ -97,6 +105,7 @@ One of the most frequent sources of UI bugs is representing state with loose, in
 ```typescript
 // Fragile state modeling
 interface ServiceViewState {
+  // three separate fields, nothing stops them from saying different things at the same time
   isLoading: boolean;
   error: string | null;
   data: CitizenService[] | null;
@@ -113,11 +122,14 @@ A **discriminated union** (or tagged union) uses a shared literal property (the 
 type ServiceViewState =
   | { status: 'idle' }
   | { status: 'loading' }
-  | { status: 'success'; data: CitizenService[] }
-  | { status: 'error'; message: string; retryable: boolean };
+  | { status: 'success'; data: CitizenService[] } // data only exists in this state
+  | { status: 'error'; message: string; retryable: boolean }; // message only exists in this state
 ```
 
 Every state is unambiguous. If `status === 'success'`, TypeScript automatically narrows the type so that `state.data` is guaranteed to exist. If `status === 'loading'`, attempting to read `state.data` produces a compile-time error.
+
+<!-- just for clarity -->
+The `|` symbol means "or": the state is `idle` **or** `loading` **or** `success` **or** `error`, never two at once.
 
 ```mermaid
 flowchart TD
@@ -140,8 +152,10 @@ function renderStatusBadge(state: ServiceViewState): string {
     case 'loading':
       return 'Fetching records...';
     case 'success':
+      // inside this case TypeScript knows `state` has `data`
       return `Loaded ${state.data.length} services`;
     case 'error':
+      // and here it knows `state` has `message`
       return `Error: ${state.message}`;
     default: {
       // If a new status is added, 'state' here is NOT never -> compile error!
@@ -151,6 +165,8 @@ function renderStatusBadge(state: ServiceViewState): string {
   }
 }
 ```
+
+The important part is the `never` check. Without it, a new state that is missing from the `switch` can slip through silently. With it, the compiler points to the exact line and refuses to build until the new state is handled.
 
 ---
 
@@ -171,6 +187,8 @@ const rawData: unknown = JSON.parse(storedString);
 // rawData.profile.name -> Compile error: Object is of type 'unknown'.
 ```
 
+<!-- Easy way to remember it: `any` means "trust me", `unknown` means "prove it first". -->
+
 ### Type Narrowing Techniques
 
 To safely use an `unknown` value, narrow its type using runtime JavaScript guards:
@@ -183,6 +201,7 @@ function formatIdentifier(id: unknown): string {
   if (typeof id === 'number') {
     return `ID-${id.toFixed(0)}`; // Narrowed to number
   }
+  // anything else is not allowed, so we stop here with a clear error
   throw new TypeError(`Expected string or number, received: ${typeof id}`);
 }
 ```
@@ -197,10 +216,11 @@ interface ServicePayload {
   name: string;
 }
 
+// `value is ServicePayload` means: if this returns true, treat `value` as a ServicePayload
 function isServicePayload(value: unknown): value is ServicePayload {
   return (
     typeof value === 'object' &&
-    value !== null &&
+    value !== null && // needed because typeof null is also 'object'
     'id' in value &&
     typeof (value as Record<string, unknown>).id === 'string' &&
     'name' in value &&
@@ -224,7 +244,9 @@ type Result<T, E = Error> =
   | { ok: true; data: T }
   | { ok: false; error: E };
 
+// T is not written by hand, it comes from whatever the parser returns
 async function safeApiCall<T>(url: string, parser: (raw: unknown) => T): Promise<Result<T, string>> {
+  // errors are returned as a value, not thrown, so the caller has to check `ok` first
   try {
     const res = await fetch(url);
     if (!res.ok) {
@@ -239,6 +261,16 @@ async function safeApiCall<T>(url: string, parser: (raw: unknown) => T): Promise
 ```
 
 Here, `safeApiCall` works for any domain model (`T`), returning either the parsed type `{ ok: true; data: T }` or a descriptive failure `{ ok: false; error: string }`.
+
+The benefit is that the parser decides `T`, so TypeScript works out the result type for you:
+
+```typescript
+const result = await safeApiCall('/api/services/SR-1042', parseCitizenService);
+
+if (result.ok) {
+  result.data.name; // TypeScript knows this is a CitizenService
+}
+```
 
 ---
 
@@ -261,7 +293,13 @@ Enterprise projects must enable strict mode in `tsconfig.json`:
 }
 ```
 
+With `strict`, TypeScript turns on a family of strict checks together, so it catches more mistakes.
+
 With `strictNullChecks`, TypeScript prevents accessing properties on values that might be `null` or `undefined`.
+
+With `noImplicitAny`, TypeScript gives an error instead of quietly using `any` when it cannot work out a type, so you must write the type yourself.
+
+With `noUncheckedIndexedAccess`, reading an array item or object key gives `T | undefined`, because the item might not exist.
 
 ### Querying the DOM Safely
 
@@ -273,6 +311,7 @@ const button = document.querySelector('#submit-btn')!;
 button.addEventListener('click', () => {});
 
 // SAFE: Treat null as an expected condition
+// <HTMLButtonElement> gives us button types instead of a plain Element
 const button = document.querySelector<HTMLButtonElement>('#submit-btn');
 if (button) {
   button.addEventListener('click', () => {});
@@ -290,6 +329,7 @@ When typing event handlers, prefer `event.currentTarget` over `event.target`:
 ```typescript
 function handleFormSubmit(event: SubmitEvent) {
   event.preventDefault();
+  // currentTarget is the form the listener is on, target could be any child inside it
   const form = event.currentTarget as HTMLFormElement;
   const formData = new FormData(form);
   // Process validated formData...
@@ -333,10 +373,11 @@ Avoid casting API responses directly with `as`:
 
 ```typescript
 // THE DANGEROUS SHORTCUT
+// no check happens here, if the API sends something else we only find out when it crashes
 const data = (await res.json()) as CitizenService[];
 ```
 
-An assertion produces zero bytes of runtime JavaScript. It silences compiler errors, but guarantees that any schema mismatch will surface as an unhandled exception deep inside your UI components.
+An assertion adds no check at runtime means that it will be removed by then. It only silences the compiler, so wrong data gets into your app and crashes later, far from where it came from.
 
 ---
 
@@ -364,6 +405,7 @@ export const CitizenServiceSchema = z.object({
 });
 
 // 2. Automatically derive static TypeScript type from schema
+// one schema gives both the runtime check and the type, so they can't get out of sync
 export type CitizenService = z.infer<typeof CitizenServiceSchema>;
 ```
 
@@ -379,6 +421,7 @@ export function parseCitizenService(raw: unknown): Result<CitizenService, string
     return { ok: false, error: 'Expected object payload' };
   }
 
+  // this `as` is fine, every value is still unknown, so we still have to check each field
   const record = raw as Record<string, unknown>;
 
   if (typeof record.id !== 'string' || !/^SR-\d{4}$/.test(record.id)) {
@@ -393,15 +436,20 @@ export function parseCitizenService(raw: unknown): Result<CitizenService, string
   if (typeof record.availableOnline !== 'boolean') {
     return { ok: false, error: 'Field "availableOnline" must be boolean' };
   }
+  if (record.department !== 'Civil' && record.department !== 'Housing' && record.department !== 'Legal') {
+    return { ok: false, error: 'Field "department" must be Civil, Housing, or Legal' };
+  }
 
   // Successfully parsed into trusted domain shape
+  // we build a new clean object, so extra fields from the server don't leak in
   return {
     ok: true,
     data: {
       id: record.id,
       name: record.name.trim(),
       fee: record.fee,
-      availableOnline: record.availableOnline
+      availableOnline: record.availableOnline,
+      department: record.department
     }
   };
 }
@@ -433,6 +481,7 @@ A **branded type** attaches a unique phantom symbol to a primitive type:
 ```typescript
 declare const BrandSymbol: unique symbol;
 
+// the brand only exists for the compiler, at runtime it is still a normal string
 export type Branded<T, B> = T & { readonly [BrandSymbol]: B };
 
 export type ServiceId = Branded<string, 'ServiceId'>;
@@ -445,6 +494,8 @@ function cancelApplication(user: UserId, service: ServiceId) { ... }
 ```
 
 Branded types should remain an **optional pattern**. Use them strictly where domain mix-ups cause critical business errors (e.g. monetary balances, cryptographic keys, database IDs), and generate brands exclusively inside validation parsers.
+
+<!-- My note: add the brand only after the value is checked, otherwise the brand is lying just like `as`. -->
 
 ---
 
@@ -461,12 +512,14 @@ export type Result<T, E = Error> =
 export interface ServiceRecord {
   id: string;
   name: string;
-  feeIqd: number;
-  isAvailable: boolean;
+  fee: number;
+  availableOnline: boolean;
+  department: 'Civil' | 'Housing' | 'Legal';
 }
 
 export class BoundaryError extends Error {
   constructor(
+    // 'transport' = could not reach the server, 'schema' = got a reply but the data is wrong
     public readonly kind: 'transport' | 'schema',
     message: string,
     public readonly details?: unknown
@@ -506,6 +559,7 @@ export async function fetchServiceById(
   }
 
   // 2. Ingestion phase (treat body as unknown)
+  // we don't trust the body yet, so it stays unknown until the parser checks it
   let rawJson: unknown;
   try {
     rawJson = await response.json();
@@ -530,7 +584,7 @@ function parseServiceRecord(raw: unknown): Result<ServiceRecord, BoundaryError> 
 
   const rec = raw as Record<string, unknown>;
 
-  if (typeof rec.id !== 'string' || !rec.id.startsWith('SR-')) {
+  if (typeof rec.id !== 'string' || !/^SR-\d{4}$/.test(rec.id)) {
     return {
       ok: false,
       error: new BoundaryError('schema', 'Missing or invalid service ID format (expected "SR-XXXX")')
@@ -542,16 +596,22 @@ function parseServiceRecord(raw: unknown): Result<ServiceRecord, BoundaryError> 
       error: new BoundaryError('schema', 'Service name must be a valid non-empty string')
     };
   }
-  if (typeof rec.feeIqd !== 'number' || rec.feeIqd < 0) {
+  if (typeof rec.fee !== 'number' || rec.fee < 0) {
     return {
       ok: false,
       error: new BoundaryError('schema', 'Fee must be a non-negative number')
     };
   }
-  if (typeof rec.isAvailable !== 'boolean') {
+  if (typeof rec.availableOnline !== 'boolean') {
     return {
       ok: false,
       error: new BoundaryError('schema', 'Service availability must be a boolean flag')
+    };
+  }
+  if (rec.department !== 'Civil' && rec.department !== 'Housing' && rec.department !== 'Legal') {
+    return {
+      ok: false,
+      error: new BoundaryError('schema', 'Department must be Civil, Housing, or Legal')
     };
   }
 
@@ -561,8 +621,9 @@ function parseServiceRecord(raw: unknown): Result<ServiceRecord, BoundaryError> 
     data: {
       id: rec.id,
       name: rec.name.trim(),
-      feeIqd: rec.feeIqd,
-      isAvailable: rec.isAvailable
+      fee: rec.fee,
+      availableOnline: rec.availableOnline,
+      department: rec.department
     }
   };
 }
@@ -575,7 +636,9 @@ function parseServiceRecord(raw: unknown): Result<ServiceRecord, BoundaryError> 
 async function renderServiceView(serviceId: string, statusContainer: HTMLElement) {
   const result = await fetchServiceById(serviceId);
 
+  // we have to check `ok` first, TypeScript won't let us read result.data before that
   if (!result.ok) {
+    // show a different message for each kind, and keep the raw error out of the UI
     if (result.error.kind === 'transport') {
       statusContainer.textContent = 'Connection error. Please check your internet or retry.';
     } else {
@@ -587,7 +650,7 @@ async function renderServiceView(serviceId: string, statusContainer: HTMLElement
 
   // TypeScript guarantees result.data matches ServiceRecord!
   const service = result.data;
-  statusContainer.textContent = `Service: ${service.name} (Fee: ${service.feeIqd.toLocaleString()} IQD)`;
+  statusContainer.textContent = `Service: ${service.name} (Fee: ${service.fee.toLocaleString()} IQD)`;
 }
 ```
 
