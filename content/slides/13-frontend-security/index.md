@@ -419,8 +419,10 @@ Security review traces values from source to sink and asks what validation or en
 ## `textContent` is safer for text
 
 ```ts
-const status = document.querySelector("#status");
-status?.textContent = externalValue;
+const statusElement = document.querySelector("#status");
+if (statusElement !== null) {
+  statusElement.textContent = externalValue;
+}
 ```
 
 It creates a text node rather than parsing markup.
@@ -1475,10 +1477,11 @@ Do not place passwords, access tokens, private records, or sensitive form values
 ## `postMessage` is an explicit cross-origin channel
 
 ```ts
-window.postMessage(message, "https://trusted.example");
+const frame = document.querySelector<HTMLIFrameElement>("#trusted-frame");
+frame?.contentWindow?.postMessage(message, "https://trusted.example");
 ```
 
-Use an exact target origin where possible.
+Call `postMessage` on the recipient window. The target origin restricts delivery; it does not select a window.
 
 Treat both outgoing and incoming messages as untrusted protocol data.
 
