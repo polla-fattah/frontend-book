@@ -6,14 +6,14 @@ type: book
 book_kind: book
 ---
 
-A team deploys an initial release of a product catalogue for a municipal public-service portal. Initially, the feature resides entirely within a single file: `CataloguePage.tsx`. At 1,200 lines of code, it contains eighteen reactive state variables, three network fetch effects, inline SVG icons, complex filter algorithms, pagination mathematics, a modal confirmation dialog, and cart submission handlers.
+A team deploys an initial release of a product catalogue for a municipal public-service portal. Initially, the feature resides entirely within a single file: `CataloguePage.tsx`. At 1,200 lines of code, it contains eighteen reactive state variables, three network fetch effects, inline SVG icons, complex filter algorithms, pagination mathematics, a modal confirmation dialog, and application submission handlers.
 
 In the first two weeks, development feels rapid. Everything is in one place; any variable can be accessed directly without passing props through intermediate layers.
 
 Then requirements evolve:
-1. Marketing requests that the product card appear inside a promotional carousel on the homepage.
+1. The communications team requests that the service card appear inside a promotional carousel on the homepage.
 2. An accessibility audit discovers that keyboard focus inside the detail modal leaks into the background pagination buttons.
-3. A pricing change introduces volume discounts, and updating the calculation inadvertently breaks the category filter reset button.
+3. A fee change introduces reduced fees for bundled applications, and updating the calculation inadvertently breaks the category filter reset button.
 
 In response, the team attempts a rapid refactor. Working under pressure, they extract every repeating `<div>` and HTML snippet into its own file. Two weeks later, the codebase suffers from the opposite pathology: **component explosion**. The project now has 38 miniature components - `HeaderWrapper`, `HeaderTitleContainer`, `CardRowLayout`, `PriceTypography` - where passing a single click callback requires drilling through six layers of inert wrappers. A developer attempting to trace what happens when a citizen clicks "Apply Now" must navigate across ten open files.
 
@@ -54,8 +54,8 @@ flowchart LR
     end
     subgraph Encapsulated["With Component Boundaries"]
         P1[Catalogue Coordinator] --> P2[SearchControls]
-        P1 --> P3[ProductGrid]
-        P3 --> P4[ProductCard]
+        P1 --> P3[ServiceGrid]
+        P3 --> P4[ServiceCard]
         P1 --> P5[Pagination]
     end
 ```
@@ -76,7 +76,7 @@ Front-end codebases typically swing between two design failures:
 
 | Extreme | Manifestation | Architectural Failure | Consequence |
 |---|---|---|---|
-| **The God Component** | A 1,500-line file managing network, layout, validation, and child DOM nodes. | Zero encapsulation; all state is shared and mutable. | Fragile edits, merge conflicts, untestable permutations, high cognitive burden. |
+| **The God Component** | A 1,200-line file managing network, layout, validation, and child DOM nodes. | Zero encapsulation; all state is shared and mutable. | Fragile edits, merge conflicts, untestable permutations, high cognitive burden. |
 | **Component Explosion** | Dozens of 10-line wrapper files (`Box`, `TextWrapper`, `ButtonInnerIcon`). | Excessive indirection; decomposition without responsibility. | High navigation latency, prop-drilling friction, obscured control flow, lost context. |
 
 The goal of component architecture is neither maximum consolidation nor maximum fragmentation. A component should exist when and only when it owns a **coherent responsibility**.
@@ -129,23 +129,24 @@ A critical architectural principle is that **a component boundary does not autom
 ```mermaid
 flowchart TD
     subgraph PageBoundary["Page State Boundary (Shared Truth)"]
-        State["selectedItem: ItemId | null\nquery: string"]
+        State["selectedServiceId: ServiceId | null\nquery: string"]
         
         subgraph Comp1["Component Boundary 1: SearchToolbar"]
-            Input["<input />"]
+            Input["Search input"]
         end
         
-        subgraph Comp2["Component Boundary 2: ProductGrid"]
-            Card1["ProductCard"]
-            Card2["ProductCard"]
+        subgraph Comp2["Component Boundary 2: ServiceGrid"]
+            Card1["ServiceCard"]
+            Card2["ServiceCard"]
         end
     end
     
     Input -->|emits onQueryChange| State
-    State -->|supplies filteredItems| Comp2
+    State -->|supplies filteredServices| Comp2
+    Comp2 -->|emits onSelect| State
 ```
 
-Extracting markup into a child component (`ProductCard`) does not mean the child must own its selection state. If the parent page needs to synchronize selection with an external URL or open a side drawer, the state boundary remains at the parent level, while the visual and presentation boundary is delegated downward.
+Extracting markup into a child component (`ServiceCard`) does not mean the child must own its selection state. If the parent page needs to synchronize selection with an external URL or open a side drawer, the state boundary remains at the parent level, while the visual and presentation boundary is delegated downward.
 
 ---
 
@@ -155,7 +156,7 @@ A component's public interface is a long-term engineering contract. Every prop a
 
 ### 3.1 Unidirectional Data Flow: Props Down, Events Up
 
-Modern component frameworks (React, Vue, Svelte, Web Components) adhere to unidirectional data flow:
+Component frameworks such as React, Vue, and Svelte are built around unidirectional data flow, and well-designed Web Components follow the same convention. Two-way binding still exists (Vue's `v-model` and Svelte's `bind:` with `$bindable` props), but it is sugar over the same contract: a value goes down and a change notification comes back up.
 
 ```mermaid
 flowchart LR
@@ -175,7 +176,7 @@ A common anti-pattern in component API design is exposing raw browser DOM events
 
 ```typescript
 // ❌ LEAKY DOM-ORIENTED API
-// Forces the parent to inspect DOM synthetic events and know child internals
+// Forces the parent to inspect React synthetic events and know child internals
 interface ServiceCardProps {
   service: CitizenService;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -184,7 +185,7 @@ interface ServiceCardProps {
 ```
 
 ```typescript
-//  INTENT-ORIENTED DOMAIN API
+// ✅ INTENT-ORIENTED DOMAIN API
 // Expresses domain semantics; encapsulates DOM mechanics inside the card
 interface ServiceCardProps {
   service: CitizenService;
@@ -192,6 +193,8 @@ interface ServiceCardProps {
   onRequestAssistance: (serviceId: ServiceId) => void;
 }
 ```
+
+(`CitizenService` and `ServiceId` are the domain types introduced in Chapter 5.)
 
 Intent-oriented APIs decouple the parent from whether the card triggers selection via a `<button>`, an `<a>` tag, a keypress, or a touch gesture. The parent receives meaningful domain notifications (`onSelect`) rather than raw pointer coordinates.
 
@@ -218,34 +221,68 @@ flowchart TD
 In React, composition is achieved via the `children` prop and specialized slot props:
 
 ```tsx
+import { useEffect, useId, useRef, type ReactNode } from 'react';
+
 interface ModalProps {
+  open: boolean;
   title: string;
-  headerActions?: React.ReactNode;
-  children: React.ReactNode;
-  footerActions?: React.ReactNode;
+  onClose: () => void;
+  headerActions?: ReactNode;
+  children: ReactNode;
+  footerActions?: ReactNode;
 }
 
-export function Modal({ title, headerActions, children, footerActions }: ModalProps) {
+export function Modal({ open, title, onClose, headerActions, children, footerActions }: ModalProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleId = useId(); // unique per instance; never hard-code IDs in reusable components
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    // showModal() makes the rest of the page inert, moves focus inside, and closes on Esc.
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
+
   return (
-    <div className="modal-dialog" role="dialog" aria-labelledby="modal-title">
+    <dialog ref={dialogRef} className="modal-dialog" aria-labelledby={titleId} onClose={onClose}>
       <header className="modal-header">
-        <h2 id="modal-title">{title}</h2>
+        <h2 id={titleId}>{title}</h2>
         {headerActions}
       </header>
       <div className="modal-body">{children}</div>
       {footerActions && <footer className="modal-footer">{footerActions}</footer>}
-    </div>
+    </dialog>
   );
 }
 ```
 
-In Vue, the equivalent architectural pattern uses template slots (`<slot>` and named slots `v-slot:footer`):
+In Vue, the equivalent architectural pattern uses template slots. The component declares outlets with `<slot>` and named `<slot name="footer">` elements; callers fill named slots with `v-slot:footer` or its `#footer` shorthand:
 
 ```vue
+<script setup lang="ts">
+import { useId, useTemplateRef, watch } from 'vue';
+
+const props = defineProps<{ open: boolean; title: string }>();
+const emit = defineEmits<{ close: [] }>();
+const titleId = useId();
+const dialog = useTemplateRef<HTMLDialogElement>('dialog');
+
+watch(
+  () => props.open,
+  (open) => {
+    if (!dialog.value) return;
+    if (open && !dialog.value.open) dialog.value.showModal();
+    if (!open && dialog.value.open) dialog.value.close();
+  },
+  { flush: 'post' },
+);
+</script>
+
 <template>
-  <div class="modal-dialog" role="dialog" aria-labelledby="modal-title">
+  <dialog ref="dialog" class="modal-dialog" :aria-labelledby="titleId" @close="emit('close')">
     <header class="modal-header">
-      <h2 id="modal-title">{{ title }}</h2>
+      <h2 :id="titleId">{{ title }}</h2>
       <slot name="header-actions" />
     </header>
     <div class="modal-body">
@@ -254,7 +291,7 @@ In Vue, the equivalent architectural pattern uses template slots (`<slot>` and n
     <footer v-if="$slots.footer" class="modal-footer">
       <slot name="footer" />
     </footer>
-  </div>
+  </dialog>
 </template>
 ```
 
@@ -263,7 +300,7 @@ In Vue, the equivalent architectural pattern uses template slots (`<slot>` and n
 When requirements expand, poorly architected components accumulate a sprawling array of boolean flags:
 
 ```typescript
-// ❌ BOOLEAN PROP EXPLOSION (2^8 = 256 possible permutations)
+// ❌ BOOLEAN PROP EXPLOSION (2^8 = 256 possible combinations)
 interface ButtonProps {
   primary?: boolean;
   secondary?: boolean;
@@ -278,17 +315,19 @@ interface ButtonProps {
 
 Boolean flags create nonsensical states that nobody designed: what happens if a caller passes `primary={true} secondary={true} danger={true}`? Does `isLoading` override `isDisabled`?
 
-Architects eliminate boolean clutter by modeling mutually exclusive variants using union types:
+Architects eliminate boolean clutter by modeling mutually exclusive variants as string-literal unions, and mutually exclusive states as a discriminated union keyed on `status`:
 
 ```typescript
-//  DISCRIMINATED STATE CONTRACT
+// ✅ DISCRIMINATED STATE CONTRACT
+import type { ReactNode } from 'react';
+
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 export type ButtonSize = 'compact' | 'normal' | 'spacious';
 
 export interface ButtonBaseProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export type ButtonActionProps =
@@ -317,7 +356,7 @@ flowchart TD
     subgraph Uncontrolled["Uncontrolled Contract (Child Owns State)"]
         ParentUnctrl["Parent Component"]
         ChildUnctrl["Uncontrolled Child"]
-        ParentUnctrl -->|"initialValue (once)"| ChildUnctrl
+        ParentUnctrl -->|"defaultValue (initial render only)"| ChildUnctrl
         ChildUnctrl -->|"Internal State Store"| ChildUnctrl
         ParentUnctrl -.->|"Read on submit via ref/form"| ChildUnctrl
     end
@@ -330,8 +369,8 @@ flowchart TD
 | **Source of Truth** | The parent component or external store. | The internal DOM node or internal component state. |
 | **Data Propagation** | Receives current state via `value` prop; notifies parent via `onChange`. | Manages value internally; receives only optional initial state (`defaultValue`). |
 | **External Interception** | Immediate: parent can format, reject, or transform every keystroke. | Delayed: parent only inspects value upon submission or boundary trigger. |
-| **Performance Profile** | Re-renders parent component on every interaction unless memoized. | Localized re-renders; zero parent re-renders during active input. |
-| **Primary Use Cases** | Live filtering, multi-field validation, synchronized tabs, undo stacks. | Simple forms, isolated transient inputs, large file upload fields. |
+| **Performance Profile** | Re-renders the state-owning parent on every change (and, in React, its non-memoized children); memoizing children limits the cascade but never skips the parent's own render. | Localized re-renders; zero parent re-renders during active input. |
+| **Primary Use Cases** | Live filtering, multi-field validation, synchronized tabs, undo stacks. | Simple forms, isolated transient inputs, file inputs (`<input type="file">` is always uncontrolled in React because its value cannot be set programmatically). |
 
 ### 4.2 The Danger of Half-Controlled APIs
 
@@ -351,6 +390,8 @@ Half-controlled components result in desynchronization bugs where user typing is
 A well-designed component explicitly branches its state machine:
 
 ```typescript
+import { useCallback, useState } from 'react';
+
 export function useControlledState<T>(
   controlledValue: T | undefined,
   defaultValue: T,
@@ -371,6 +412,8 @@ export function useControlledState<T>(
   return [currentValue, updateValue];
 }
 ```
+
+Two rules keep this hook honest. First, a component must stay in one mode for its whole lifetime: switching `value` between `undefined` and a defined value silently swaps the source of truth, so libraries typically log a development warning when it happens. Second, `T` must not itself include `undefined`, because `undefined` is the signal for "uncontrolled"; use `null` for an intentionally empty controlled value.
 
 ---
 
@@ -411,14 +454,16 @@ export function AccountSettings() {
 }
 ```
 
+Attaching the parts as static properties (`Tabs.List`, `Tabs.Tab`, `Tabs.Panel`) is a packaging choice; the practical lab exports the same parts as separate components (`TabsList`, `Tab`, `TabPanel`).
+
 ```mermaid
 flowchart TD
-    TabsRoot["<Tabs> Root Coordinator\n(Provides Context: selectedTab, onSelect, tabIds)"]
-    TabsList["<Tabs.List>\n(Renders role='tablist')"]
-    Tab1["<Tabs.Tab value='profile'>\n(Consumes Context: role='tab')"]
-    Tab2["<Tabs.Tab value='security'>\n(Consumes Context: role='tab')"]
-    Panel1["<Tabs.Panel value='profile'>\n(Consumes Context: role='tabpanel')"]
-    Panel2["<Tabs.Panel value='security'>\n(Consumes Context: role='tabpanel')"]
+    TabsRoot["Tabs: Root Coordinator\n(Provides Context: selectedTab, onSelect, tabIds)"]
+    TabsList["Tabs.List\n(Renders role='tablist')"]
+    Tab1["Tabs.Tab value='profile'\n(Consumes Context: role='tab')"]
+    Tab2["Tabs.Tab value='security'\n(Consumes Context: role='tab')"]
+    Panel1["Tabs.Panel value='profile'\n(Consumes Context: role='tabpanel')"]
+    Panel2["Tabs.Panel value='security'\n(Consumes Context: role='tabpanel')"]
 
     TabsRoot --> TabsList
     TabsRoot --> Panel1
@@ -429,7 +474,7 @@ flowchart TD
 
 #### Why Compound Components Excel
 1. **Structural Inversion:** The caller controls markup order and layout. You can place the `Tabs.List` on top, on the bottom, or inside a sticky sidebar without modifying the root component's props.
-2. **Clean Separation:** Each sub-component owns its specific accessibility attributes (`role="tab"`, `aria-selected`, `aria-controls`).
+2. **Clean Separation:** Each sub-component owns its specific accessibility attributes (`role="tab"`, `aria-selected`, `aria-controls`, and `aria-labelledby` on the panel).
 3. **No Mega-Props:** Callers do not pass a fragile 50-line array of tab configuration objects.
 
 ### 5.2 Headless UI: Decoupling Behavior from Styling
@@ -442,9 +487,9 @@ In modern multi-platform and design-system engineering, UI components often need
 flowchart TD
     subgraph HeadlessCore["Headless Hook / State Machine"]
         StateEngine["Selection State Machine"]
-        KBHandler["Keyboard Nav (Arrow keys, Home, End, Esc)"]
-        ARIAMap["WAI-ARIA Prop Generators\n(aria-selected, aria-controls, tabIndex)"]
-        FocusEngine["Roving Focus & Focus Trap Management"]
+        KBHandler["Keyboard Nav (Arrow keys, Home, End)"]
+        ARIAMap["ARIA & Focus Prop Generators\n(role, aria-selected, aria-controls, tabIndex)"]
+        FocusEngine["Roving tabindex & Focus Management"]
     end
 
     subgraph ConsumerRender["Consumer UI (Presentation Layer)"]
@@ -456,32 +501,69 @@ flowchart TD
     HeadlessCore -->|"Supplies state & prop getters"| ConsumerRender
 ```
 
-A headless hook returns state and **prop getters** that wire standard accessibility behavior directly onto whatever elements the caller renders:
+A headless hook returns state and **prop getters** that wire standard accessibility behavior directly onto whatever elements the caller renders. The roving `tabIndex` only works together with the arrow-key handler: without it, every inactive tab has `tabIndex={-1}` and becomes unreachable from the keyboard. This version uses automatic activation; the practical lab adds the manual-activation mode described in the WAI-ARIA Authoring Practices Tabs pattern:
 
 ```typescript
-// Headless custom hook:
-export function useTabsHeadless({ defaultValue, orientation = 'horizontal' }: TabsOptions) {
+// Headless custom hook (automatic activation: selection follows focus)
+import { useId, useRef, useState, type KeyboardEvent } from 'react';
+
+export interface TabsOptions {
+  tabs: readonly string[]; // tab values in visual order
+  defaultValue: string;
+  orientation?: 'horizontal' | 'vertical';
+}
+
+export function useTabsHeadless({ tabs, defaultValue, orientation = 'horizontal' }: TabsOptions) {
+  const baseId = useId(); // keeps IDs unique when several tab sets share a page
   const [selectedTab, setSelectedTab] = useState(defaultValue);
-  const [focusedTab, setFocusedTab] = useState(defaultValue);
+  const tabNodes = useRef(new Map<string, HTMLElement>());
 
-  const getTabProps = (tabId: string) => ({
+  const tabId = (value: string) => `${baseId}-tab-${value}`;
+  const panelId = (value: string) => `${baseId}-panel-${value}`;
+
+  const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    const index = tabs.indexOf(selectedTab);
+    const prevKey = orientation === 'horizontal' ? 'ArrowLeft' : 'ArrowUp';
+    const nextKey = orientation === 'horizontal' ? 'ArrowRight' : 'ArrowDown';
+    let next: string | undefined;
+    if (event.key === nextKey) next = tabs[(index + 1) % tabs.length];
+    else if (event.key === prevKey) next = tabs[(index - 1 + tabs.length) % tabs.length];
+    else if (event.key === 'Home') next = tabs[0];
+    else if (event.key === 'End') next = tabs[tabs.length - 1];
+    if (next === undefined) return;
+    event.preventDefault();
+    setSelectedTab(next);
+    tabNodes.current.get(next)?.focus();
+  };
+
+  const getTabListProps = () => ({
+    role: 'tablist' as const,
+    'aria-orientation': orientation,
+    onKeyDown,
+  });
+
+  const getTabProps = (value: string) => ({
+    ref: (node: HTMLElement | null) => {
+      if (node) tabNodes.current.set(value, node);
+      else tabNodes.current.delete(value);
+    },
     role: 'tab' as const,
-    id: `tab-${tabId}`,
-    'aria-selected': selectedTab === tabId,
-    'aria-controls': `panel-${tabId}`,
-    tabIndex: selectedTab === tabId ? 0 : -1,
-    onClick: () => setSelectedTab(tabId),
-    onFocus: () => setFocusedTab(tabId),
+    id: tabId(value),
+    'aria-selected': selectedTab === value,
+    'aria-controls': panelId(value),
+    tabIndex: selectedTab === value ? 0 : -1, // roving tabindex: only the active tab is in the Tab sequence
+    onClick: () => setSelectedTab(value),
   });
 
-  const getPanelProps = (tabId: string) => ({
+  const getPanelProps = (value: string) => ({
     role: 'tabpanel' as const,
-    id: `panel-${tabId}`,
-    'aria-labelledby': `tab-${tabId}`,
-    hidden: selectedTab !== tabId,
+    id: panelId(value),
+    'aria-labelledby': tabId(value),
+    tabIndex: 0, // lets keyboard users reach panels that contain no focusable content
+    hidden: selectedTab !== value,
   });
 
-  return { selectedTab, setSelectedTab, getTabProps, getPanelProps };
+  return { selectedTab, setSelectedTab, getTabListProps, getTabProps, getPanelProps };
 }
 ```
 
@@ -507,7 +589,7 @@ How should components be categorized and organized within an enterprise reposito
 
 ### 6.1 Atomic Design as a Visual Lens
 
-Brad Frost's **Atomic Design** categorizes UI into five structural tiers:
+Brad Frost's **Atomic Design** describes UI in five stages. Frost presents them as a mental model for seeing an interface as both a whole and a set of parts, not as a strictly linear process:
 
 ```mermaid
 flowchart TD
@@ -518,7 +600,7 @@ flowchart TD
 ```
 
 #### Strengths & Limitations of Atomic Design
-* **Where It Shines:** Shared Design Systems. It provides design tokens, visual consistency, and a structured vocabulary for UI engineering libraries.
+* **Where It Shines:** Shared Design Systems. It gives designers and engineers a shared vocabulary for UI libraries and supports visual consistency; it pairs well with design tokens, although tokens are a separate practice that Atomic Design itself does not define.
 * **Where It Fails:** Complex Business Applications. In enterprise applications, categorizing a `DischargeMedicationReconciliationWidget` as a "molecule" or an "organism" creates endless semantic debate without delivering architectural value. It organizes code by *visual size* rather than *business capability*.
 
 ### 6.2 Feature- and Domain-Oriented Decomposition
@@ -551,19 +633,19 @@ src/
     └── application-submission/
 ```
 
-### 6.3 Smart (Container) vs. Presentational (Dumb) Components
+### 6.3 Container vs. Presentational Components
 
 A durable architectural boundary separates data orchestration from rendering mechanics:
 
 ```mermaid
 flowchart TD
-    subgraph Container["Container / Coordinator Component (Smart)"]
+    subgraph Container["Container / Coordinator Component"]
         DataFetch["Fetches API Data"]
         StoreSync["Subscribes to Global Store / URL State"]
         Handlers["Implements Business Mutation Handlers"]
     end
 
-    subgraph Presentational["Presentational Components (Dumb)"]
+    subgraph Presentational["Presentational Components"]
         Grid["ServiceGrid (Lays out collection)"]
         Card["ServiceCard (Renders markup & emits onSelect)"]
         Paging["PaginationBar (Renders page numbers)"]
@@ -575,6 +657,8 @@ flowchart TD
 
 1. **Presentational Components:** Pure visual and interaction components. They receive data strictly via props, emit intent via callbacks, have zero knowledge of API clients or global stores, and can be rendered inside a component gallery (Storybook) in isolation.
 2. **Container Components:** Feature coordinators. They connect to network services, read and write route search parameters, dispatch store actions, and compose presentational children.
+
+Treat this as a responsibility split, not a strict folder rule. Dan Abramov, who popularized the pattern, has since retired the "smart/dumb" labels and no longer recommends splitting components this way dogmatically: with Hooks, data-fetching and store logic usually live in custom hooks (or composables in Vue), so a presentational component can stay pure while a thin coordinator, or the hook itself, owns orchestration.
 
 ### 6.4 Component Colocation
 
@@ -601,25 +685,26 @@ A component boundary directly influences runtime performance, accessibility tree
 ### 7.1 Accessibility (a11y) Across Boundaries
 
 Component abstraction must not shatter the accessibility tree:
-* **Label Relationships:** If an input is in `FormField.tsx` and the error message is in `ErrorMessage.tsx`, the parent must ensure `aria-describedby` points to the exact runtime DOM ID generated for the error.
-* **List and Composite Semantics:** A `<ul>` element must only contain `<li>` direct children. Wrapping each item in a generic `<div className="item-wrapper">` to make a component boundary breaks screen reader list announcements.
+* **Label and Description Relationships:** If an input is in `FormField.tsx` and the error message is in `ErrorMessage.tsx`, the parent must ensure `aria-describedby` points to the exact runtime DOM ID generated for the error. Generate that ID once per instance (React `useId`, Vue `useId`) and pass it to both children instead of hard-coding it.
+* **List and Composite Semantics:** The direct children of a `<ul>` may only be `<li>` elements (plus script-supporting elements such as `<template>`). Wrapping each item in a generic `<div className="item-wrapper">` to make a component boundary produces invalid markup and can break list semantics, so screen readers may stop announcing the list and its item count. Let the item component render the `<li>` itself.
 
 ### 7.2 Performance and Render Boundaries
 
 In virtual DOM and reactive component frameworks, a component boundary is a **re-render isolation boundary**:
-* When local state updates inside a child component, only that child and its descendants re-evaluate.
+* When local state updates inside a child component, its ancestors and siblings do not re-render. In React the child's descendants re-render by default unless they are memoized; in Vue a descendant re-renders only if the props it receives actually change.
 * Moving volatile state (such as a 60fps slider drag or active search keystroke) out of a massive parent page into a localized leaf component prevents entire page trees from running expensive reconciliation passes.
 
 ### 7.3 Internationalization (i18n) and Bidirectionality
 
 Never bake directional assumptions into component APIs:
 * Avoid props like `iconLeft` or `marginRight`. Use logical terms such as `leadingIcon`, `trailingIcon`, `marginInlineStart`, and `marginInlineEnd`.
-* Allow text containers to adapt to dynamic translations where string lengths expand by 30–50% in different languages.
+* Allow text containers to adapt to translated strings. W3C guidance (citing IBM data) reports that English strings of up to 10 characters can grow by 200–300% in European languages, while longer passages grow by roughly 30% or more.
 
 ### 7.4 Security at the Boundary
 
 Components rendering user-supplied markdown or raw HTML must enforce a strict trust boundary:
-* Sanitize external rich text at the boundary using an established sanitizer (such as DOMPurify) before binding to `dangerouslySetInnerHTML` or `v-html`.
+* Sanitize external rich text at the boundary using an established sanitizer (such as DOMPurify) before binding to `dangerouslySetInnerHTML` or `v-html`. For markdown, sanitize the HTML produced after markdown conversion, not the markdown source.
+* The browser-native HTML Sanitizer API (`Element.setHTML()`) is emerging but not yet Baseline; feature-detect it and fall back to a library sanitizer.
 * Avoid creating generic "HTML Renderer" components that encourage callers to bypass escaping.
 
 ---
@@ -630,23 +715,25 @@ To synthesize these principles, we examine the step-by-step refactoring of the m
 
 ```mermaid
 flowchart TD
-    Step1["Monolithic Page (1,200 LOC, 18 state vars)"]
+    Step0["Monolithic Page (1,200 LOC, 18 state vars)"]
+    Step1["Phase 0: Map State & Change Seams\n(shared vs. local variables)"]
     Step2["Phase 1: Extract Stable Layout & Chrome\n(Navbar, PageHeader, Footer)"]
-    Step3["Phase 2: Extract Collection Presentation\n(ServiceGrid & ServiceCard)"]
-    Step4["Phase 3: Isolate Filter & Search State\n(SearchToolbar with intent callbacks)"]
-    Step5["Phase 4: Establish Detail Dialog Boundary\n(Accessible Modal with focus trapping)"]
+    Step3["Phase 2: Extract Collection Presentation\n(ServiceCard, then ServiceGrid)"]
+    Step4["Phase 3: Extract Controlled Filter Boundary\n(CatalogueToolbar; state stays in coordinator)"]
+    Step5["Phase 4: Establish Detail Dialog Boundary\n(Accessible modal dialog with contained focus)"]
     Step6["Final: Focused Coordinator (~150 LOC)"]
 
-    Step1 --> Step2 --> Step3 --> Step4 --> Step5 --> Step6
+    Step0 --> Step1 --> Step2 --> Step3 --> Step4 --> Step5 --> Step6
 ```
 
 ### 8.1 The Refactoring Sequence
 
 1. **Map State and Change Seams:** Before splitting files, document which reactive variables are used by which UI sections. Identify which variables are shared across sections (e.g., `selectedCategory`, `searchQuery`) versus which are completely local (e.g., `isDropdownOpen`, `cardHoverIndex`).
-2. **Extract Stable Layout Chrome First:** Move header bars, sidebar skeletons, and page shells outward. These change infrequently and rarely own business state.
-3. **Extract Leaf Presentational Components:** Extract `ServiceCard`. Give it a clean, intent-oriented contract (`service: CitizenService`, `onApply: (id: string) => void`). Remove any direct fetch calls or route mutations from the card.
+2. **Extract Stable Layout Chrome First:** Move navigation bars, page headers, footers, and page shells outward. These change infrequently and rarely own business state.
+3. **Extract Leaf Presentational Components:** Extract `ServiceCard`. Give it a clean, intent-oriented contract (`service: CitizenService`, `onApply: (serviceId: ServiceId) => void`). Remove any direct fetch calls or route mutations from the card.
 4. **Extract Collection Layout:** Wrap the cards in a `ServiceGrid` that owns responsive layout grids and empty state handling (`services.length === 0`).
 5. **Establish Controlled Filter Boundaries:** Extract `CatalogueToolbar`. Keep the active `searchQuery` and `categoryFilter` state in the parent coordinator, passing them as controlled props down to the toolbar.
+6. **Establish the Detail Dialog Boundary:** Move the confirmation dialog into a `Modal` built on the native `<dialog>` element opened with `showModal()`, which makes the background inert and fixes the focus leak reported by the accessibility audit.
 
 ### 8.2 Architectural Comparison: React vs. Vue
 
@@ -685,8 +772,8 @@ The syntax differs; the responsibility allocation, state contracts, and coupling
 
 * **Components are reasoning boundaries first, reuse units second.** Components exist to limit cognitive load, isolate volatility, encapsulate implementation details, and establish clear team and testing perimeters.
 * **Avoid the two extremes.** Guard equally against monolithic God components and over-fragmented component explosion.
-* **Component boundaries $\neq$ state boundaries.** Markup can be cleanly extracted into visual children while leaving state authority in a parent coordinator.
-* **Design intent-oriented public APIs.** Pass domain entities and intent callbacks (`onSelect`) rather than raw DOM pointer events (`onClick`).
+* **Component boundaries ≠ state boundaries.** Markup can be cleanly extracted into visual children while leaving state authority in a parent coordinator.
+* **Design intent-oriented public APIs.** Pass domain entities and intent callbacks (`onSelect`) rather than raw DOM events (`onClick`, `onKeyDown`).
 * **Model variants over boolean flags.** Replace combinatorial boolean prop explosion with discriminated union states.
 * **Respect state ownership contracts.** Ensure components are cleanly controlled or cleanly uncontrolled; never allow ambiguous half-controlled states.
 * **Leverage compound and headless patterns for complex widgets.** Decouple interaction state machines, ARIA semantics, and keyboard navigation from visual presentation.
